@@ -39,41 +39,44 @@ public class StepchartReader : MonoBehaviour {
         float numberOfRows = 0;
 
         int debugBeats = 1;
-        longBeatStartData = new GameObject[5];
+        int lastBeat = 0;
+        longBeatStartData = new GameObject[10];
 
         while (!(currentRow = readBeats.ReadLine()).Contains(","))
             numberOfRows++;
-        
+
 
         while ((currentBeat = stepchart.ReadLine()) != ";") { //We can read more than one stream at the same time.
             if (!currentBeat.Contains(",")) {
+                lastBeat++;
                 for (var e = 0; e < currentBeat.Length; e++) {
                     char beat = currentBeat[e];
 
                     GameObject inst = null;
                     switch (char.ConvertFromUtf32(beat)) {
                         case "1":
-                        case "2":                       
+                        case "2":
                             inst = Instantiate(beatArrows[e], new Vector2(e, -beatPosition), Quaternion.identity) as GameObject;
                             longBeatStartData[e] = inst;
+                            //inst.name = inst.name + numberOfRows.ToString();
                             break;
 
                         case "3":
                             inst = Instantiate(longBeatEnd[e], new Vector2(e, -beatPosition), Quaternion.identity) as GameObject;
+                            //inst.name = inst.name + numberOfRows.ToString();
                             break;
-                    }
-                    //inst.name = inst.name + numberOfRows.ToString();
+                    }                        
                 }
-                
-                beatPosition += ((unitSpaceBetweenBeats *4) / numberOfRows);
+                beatPosition += ((unitSpaceBetweenBeats * 4) / numberOfRows);
             } else {
                 numberOfRows = 0;
-                while (!(currentRow = readBeats.ReadLine()).Contains(",") && currentRow != ";") 
+                while (!(currentRow = readBeats.ReadLine()).Contains(",") && currentRow != ";")
                     numberOfRows++;
                 debugBeats++;
-                
+
             }
         }
+        Debug.Log("LastBeat: " + lastBeat);
 
         stepchart.Close();
         readBeats.Close();
