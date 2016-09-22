@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/BeatLoadingTestingScene.unity
+- path: Assets/Scenes/BeatLoadingTestingScene.unity
   isLoaded: 1
   isActive: 1

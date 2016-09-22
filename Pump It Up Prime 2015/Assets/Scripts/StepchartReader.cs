@@ -12,7 +12,7 @@ public class StepchartReader : MonoBehaviour {
     public GameObject[] longBeatEnd;
 
     public string fileName;
-    public float unitSpaceBetweenBeats;
+    public float speed;
 
     StreamReader stepchart;
     StreamReader readBeats;
@@ -67,7 +67,7 @@ public class StepchartReader : MonoBehaviour {
                             break;
                     }                        
                 }
-                beatPosition += ((unitSpaceBetweenBeats * 4) / numberOfRows);
+                beatPosition += ((speed * 4) / numberOfRows);
             } else {
                 numberOfRows = 0;
                 while (!(currentRow = readBeats.ReadLine()).Contains(",") && currentRow != ";")
