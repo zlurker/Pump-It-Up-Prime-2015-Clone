@@ -62,7 +62,20 @@ public class StepchartReader : MonoBehaviour {
                             break;
 
                         case "3":
+                            float dist =0;
+                            float offset;
+                            if (e <= 5)
+                                offset = -0.8f;
+                            else
+                                offset = 0.8f;
+
                             inst = Instantiate(longBeatEnd[e], new Vector2(e, -beatPosition), Quaternion.identity) as GameObject;
+                            dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
+
+                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e, -beatPosition - (dist/2)), Quaternion.identity) as GameObject;
+                           
+                            temp.transform.localScale = new Vector2(2,dist/((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y)*2));
+                            //longBeatStartData
                             //inst.name = inst.name + numberOfRows.ToString();
                             break;
                     }                        
