@@ -14,6 +14,8 @@ public class StepchartReader : MonoBehaviour {
     public string fileName;
     public float speed;
 
+    public StepchartMover stepchartMover;
+
     StreamReader stepchart;
     StreamReader readBeats;
 
@@ -58,25 +60,20 @@ public class StepchartReader : MonoBehaviour {
                         case "2":
                             inst = Instantiate(beatArrows[e], new Vector2(e, -beatPosition), Quaternion.identity) as GameObject;
                             longBeatStartData[e] = inst;
-                            //inst.name = inst.name + numberOfRows.ToString();
+                            inst.transform.parent = stepchartMover.transform;
                             break;
 
                         case "3":
                             float dist =0;
-                            float offset;
-                            if (e <= 5)
-                                offset = -0.8f;
-                            else
-                                offset = 0.8f;
 
                             inst = Instantiate(longBeatEnd[e], new Vector2(e, -beatPosition), Quaternion.identity) as GameObject;
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e, -beatPosition - (dist/2)), Quaternion.identity) as GameObject;
-                           
+                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e, -beatPosition - (dist/2)), Quaternion.identity) as GameObject;                           
                             temp.transform.localScale = new Vector2(2,dist/((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y)*2));
-                            //longBeatStartData
-                            //inst.name = inst.name + numberOfRows.ToString();
+
+                            inst.transform.parent = stepchartMover.transform;
+                            temp.transform.parent = stepchartMover.transform;
                             break;
                     }                        
                 }
@@ -94,7 +91,14 @@ public class StepchartReader : MonoBehaviour {
         stepchart.Close();
         readBeats.Close();
         Debug.Log("Number of 4-beats: " + debugBeats);
+        stepchartMover.endBpm = debugBeats *4;
+        stepchartMover.totalDist = (debugBeats * 4) * speed;
         Debug.Log("Stepchart Deciphered");
+    }
+
+    public void ClearStepchart() {
+        foreach (Transform beat in stepchartMover.transform)
+            DestroyImmediate(beat.gameObject);
     }
 }
 
@@ -108,6 +112,10 @@ public class StepchartEditor : Editor {
 
         if (GUILayout.Button("Create Stepchart")) {
             toCreateChart.CreateStepchart();
+        }
+
+        if (GUILayout.Button("Clear Stepchart")) {
+            toCreateChart.ClearStepchart();
         }
 
     }

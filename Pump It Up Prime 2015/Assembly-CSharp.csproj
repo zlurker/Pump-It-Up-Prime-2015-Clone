@@ -45,9 +45,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\Experiments\SimpleBPMTest.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpriteExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\TimeExperiment.cs" />
+     <Compile Include="Assets\Scripts\StepchartMover.cs" />
      <Compile Include="Assets\Scripts\StepchartReader.cs" />
      <None Include="Assets\TestTextFile.txt" />
  <Reference Include="UnityEngine.UI">
