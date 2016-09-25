@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/BeatLoadingTestingScene.unity
+- path: Assets/Scenes/SpringEffectExperiment.unity
   isLoaded: 1
   isActive: 1

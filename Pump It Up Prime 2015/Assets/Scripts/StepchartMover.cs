@@ -35,21 +35,6 @@ public class StepchartMover : MonoBehaviour {
 	void Update () {
         cRealTime = Time.realtimeSinceStartup - offset;
         transform.position = new Vector2(2, ((cRealTime - dOffset) / endTime) * totalDist);
-
-        /*if (cRealTime > (7.5f/rush)&& !test){
-            ChangeBpm(1600, beatNo);
-            test = true;
-        }
-
-        if (cRealTime > ((7.5f + 0.375f)/rush) && !test2) {
-            ChangeBpm(160, beatNo2);
-            test2 = true;
-        }
-
-        if (cRealTime > ((7.5f + 0.375f +7.5f) / rush) && !test3) {
-            ChangeBpm(160*2, 50);
-            test3 = true;
-        }*/
     }
 
     void ChangeBpm(float bpmToChange, float currentBeat) {
@@ -58,6 +43,7 @@ public class StepchartMover : MonoBehaviour {
 
         tempOffset = (cRealTime - dOffset) - ((currentBeat / bpm) * 60); //Finds the offset of current bpm.
         dOffset += (cRealTime - dOffset) -(((currentBeat / bpmToChange) * 60) + tempOffset); //Adds the offset value that will offset time to transition bpm.
+
         endTime = (endBpm / bpmToChange) * 60; //Changes ending time.
         bpm = bpmToChange; //Changes the BPM.
     }
