@@ -50,7 +50,8 @@
      <Compile Include="Assets\Scripts\Experiments\TimeExperiment.cs" />
      <Compile Include="Assets\Scripts\StepchartMover.cs" />
      <Compile Include="Assets\Scripts\StepchartReader.cs" />
-     <None Include="Assets\TestTextFile.txt" />
+     <None Include="Assets\StepchartTimingData.txt" />
+     <None Include="Assets\StepchartBeats.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

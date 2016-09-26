@@ -1,8 +1,34 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEditor;
+using System.Collections.Generic;
 
 public class StepchartMover : MonoBehaviour {
+
+    [System.Serializable]
+    public struct BPMData {
+        public float beat;
+        public float bpm;
+        public float time;
+
+        public BPMData(float givenBeat, float givenBPM, float calculatedTime) {
+            beat = givenBeat;
+            bpm = givenBPM;
+            time = calculatedTime;
+        }
+    }
+
+    [System.Serializable]
+    public struct SpeedData {
+        public float beat;
+        public float speed;
+        public float timeForChange;
+
+        public SpeedData(float givenBeat, float givenSpeed, float givenTimeForChange) {
+            beat = givenBeat;
+            speed = givenSpeed;
+            timeForChange = givenTimeForChange;
+        }
+    }
 
     public float bpm;
     public float endBpm;
@@ -10,19 +36,12 @@ public class StepchartMover : MonoBehaviour {
     public float totalDist;
     public float rush;
     public AudioSource song;
+    public List<BPMData> bpmData;
+    public List<SpeedData> speedData; 
 
     float cRealTime;
     float endTime;
     float dOffset;
-
-    public float beatNo;
-    public float beatNo2;
-
-    bool test;
-    bool test2;
-    bool test3;
-
-    float currentBeat;
     
 	void Start () {
         offset += Time.realtimeSinceStartup;      
@@ -34,7 +53,7 @@ public class StepchartMover : MonoBehaviour {
 	
 	void Update () {
         cRealTime = Time.realtimeSinceStartup - offset;
-        transform.position = new Vector2(2, ((cRealTime - dOffset) / endTime) * totalDist);
+        transform.position = new Vector2(2, ((cRealTime - dOffset) / endTime) * (totalDist* transform.localScale.y));
     }
 
     void ChangeBpm(float bpmToChange, float currentBeat) {
