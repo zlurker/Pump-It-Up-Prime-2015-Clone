@@ -59,14 +59,13 @@ public class StepchartReader : MonoBehaviour {
                 lastBeat++;
 
                 bool toCreateData = false;
-                int[] tempBeatHolder = new int[currentBeat.Length];
+                GameObject[] tempBeatHolder = new GameObject[currentBeat.Length];
 
                 
 
                 for (var e = 0; e < currentBeat.Length; e++) {
                     char beat = currentBeat[e];
 
-                    tempBeatHolder[e] = int.Parse(char.ConvertFromUtf32(beat));
 
                     GameObject inst = null;
                     switch (char.ConvertFromUtf32(beat)) {
@@ -75,6 +74,8 @@ public class StepchartReader : MonoBehaviour {
                             inst = Instantiate(beatArrows[e], new Vector2(e, -beatPosition * speed), Quaternion.identity) as GameObject;
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
+                            inst.name = char.ConvertFromUtf32(beat);
+                            tempBeatHolder[e] = inst;
                             toCreateData = true;
                             break;
 
@@ -89,6 +90,8 @@ public class StepchartReader : MonoBehaviour {
 
                             inst.transform.parent = stepchartMover.transform;
                             temp.transform.parent = stepchartMover.transform;
+                            inst.name = char.ConvertFromUtf32(beat);
+                            tempBeatHolder[e] = inst;
                             toCreateData = true;
                             break;
                     }
