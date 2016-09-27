@@ -18,6 +18,7 @@ public class StepchartReader : MonoBehaviour {
 
     public StepchartMover stepchartMover;
 
+
     StreamReader stepchart;
     StreamReader readBeats;
 
@@ -33,6 +34,8 @@ public class StepchartReader : MonoBehaviour {
         stepchart = File.OpenText(Path.Combine(Application.dataPath, fileName));
         readBeats = File.OpenText(Path.Combine(Application.dataPath, fileName));
 
+        stepchartMover.beats = new List<StepchartMover.BeatsInfo>();
+
         string currentBeat = "";
         string currentRow = "";
         float beatPosition = 0;
@@ -42,6 +45,11 @@ public class StepchartReader : MonoBehaviour {
         int lastBeat = 0;
         longBeatStartData = new GameObject[10];
 
+        float timeInst = 0;
+        float prevBeat = 0;
+        float currBpm = 0;
+        int bpmScaling = 0;
+
         while (!(currentRow = readBeats.ReadLine()).Contains(","))
             numberOfRows++;
 
@@ -49,33 +57,57 @@ public class StepchartReader : MonoBehaviour {
         while ((currentBeat = stepchart.ReadLine()) != ";") { //We can read more than one stream at the same time.
             if (!currentBeat.Contains(",")) {
                 lastBeat++;
+
+                bool toCreateData = false;
+                int[] tempBeatHolder = new int[currentBeat.Length];
+
+                
+
                 for (var e = 0; e < currentBeat.Length; e++) {
                     char beat = currentBeat[e];
+
+                    tempBeatHolder[e] = int.Parse(char.ConvertFromUtf32(beat));
 
                     GameObject inst = null;
                     switch (char.ConvertFromUtf32(beat)) {
                         case "1":
                         case "2":
-                            inst = Instantiate(beatArrows[e], new Vector2(e, -beatPosition), Quaternion.identity) as GameObject;
+                            inst = Instantiate(beatArrows[e], new Vector2(e, -beatPosition * speed), Quaternion.identity) as GameObject;
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
+                            toCreateData = true;
                             break;
 
                         case "3":
                             float dist = 0;
 
-                            inst = Instantiate(longBeatEnd[e], new Vector2(e, -beatPosition), Quaternion.identity) as GameObject;
+                            inst = Instantiate(longBeatEnd[e], new Vector2(e, -beatPosition * speed), Quaternion.identity) as GameObject;
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e, -beatPosition - (dist / 2)), Quaternion.identity) as GameObject;
+                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e, (-beatPosition * speed) - (dist / 2)), Quaternion.identity) as GameObject;
                             temp.transform.localScale = new Vector2(2, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
 
                             inst.transform.parent = stepchartMover.transform;
                             temp.transform.parent = stepchartMover.transform;
+                            toCreateData = true;
                             break;
                     }
                 }
-                beatPosition += ((speed * 4) / numberOfRows);
+
+                if (toCreateData) {
+                    stepchartMover.beats.Add(new StepchartMover.BeatsInfo(timeInst + (((beatPosition - prevBeat)/currBpm) *60), tempBeatHolder));
+                }
+
+                if (stepchartMover.bpmData.Count > bpmScaling) {
+                    if (stepchartMover.bpmData[bpmScaling].beat < beatPosition) {//when bpm changes
+                        timeInst = stepchartMover.bpmData[bpmScaling].time;
+                        prevBeat = stepchartMover.bpmData[bpmScaling].beat;
+                        currBpm = stepchartMover.bpmData[bpmScaling].bpm;
+                        bpmScaling++;
+                    }
+                }
+
+                beatPosition += 4 / numberOfRows;
             } else {
                 numberOfRows = 0;
                 while (!(currentRow = readBeats.ReadLine()).Contains(",") && currentRow != ";")
@@ -84,8 +116,8 @@ public class StepchartReader : MonoBehaviour {
 
             }
         }
-        Debug.Log("LastBeat: " + lastBeat);
 
+        Debug.Log("LastBeat: " + lastBeat);
         stepchart.Close();
         readBeats.Close();
         Debug.Log("Number of 4-beats: " + debugBeats);
@@ -108,9 +140,9 @@ public class StepchartReader : MonoBehaviour {
         string tempStr = "";
         int[] equalPos = new int[3];
 
-        float prevBpm =0;
-        float prevBeat =0;
-        float cummalativeTime =0;
+        float prevBpm = 0;
+        float prevBeat = 0;
+        float cummalativeTime = 0;
 
         while ((tempStr = timeData.ReadLine()) != ";") { //Reading bpms
             for (var i = 0; i < tempStr.Length; i++) {
@@ -118,9 +150,9 @@ public class StepchartReader : MonoBehaviour {
                     equalPos[0] = i;
             }
             float beat = float.Parse(tempStr.Substring(0, equalPos[0]));
-            float bpm= float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
+            float bpm = float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
             if (prevBpm != 0)
-            cummalativeTime += ((beat - prevBeat) *60)/prevBpm; //(beat)
+                cummalativeTime += ((beat - prevBeat) * 60) / prevBpm; //(beat)
 
             stepchartMover.bpmData.Add(new StepchartMover.BPMData(beat, bpm, cummalativeTime));
 
@@ -136,9 +168,8 @@ public class StepchartReader : MonoBehaviour {
                     posInEA++;
                 }
             }
-            stepchartMover.speedData.Add(new StepchartMover.SpeedData(float.Parse(tempStr.Substring(0, equalPos[0])), float.Parse(tempStr.Substring(equalPos[0]+1, equalPos[1]-equalPos[0]-1)), float.Parse(tempStr.Substring(equalPos[1] + 1, equalPos[2] - equalPos[1]-1))));
+            stepchartMover.speedData.Add(new StepchartMover.SpeedData(float.Parse(tempStr.Substring(0, equalPos[0])), float.Parse(tempStr.Substring(equalPos[0] + 1, equalPos[1] - equalPos[0] - 1)), float.Parse(tempStr.Substring(equalPos[1] + 1, equalPos[2] - equalPos[1] - 1)), 1));
         }
-        
         timeData.Close();
     }
 }
