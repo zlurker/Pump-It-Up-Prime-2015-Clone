@@ -45,13 +45,56 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\CollisionTest.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpringEffectExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpriteExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\TimeExperiment.cs" />
+     <Compile Include="Assets\Scripts\MenuScript.cs" />
+     <Compile Include="Assets\Scripts\PlayerPref.cs" />
      <Compile Include="Assets\Scripts\StepchartMover.cs" />
      <Compile Include="Assets\Scripts\StepchartReader.cs" />
-     <None Include="Assets\StepchartTimingData.txt" />
-     <None Include="Assets\StepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\BarBarBarStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\ShanghaiRomanceStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\OneStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\CanonDStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\SugarConspiracyTheoryStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\FourSeasonsStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\BadAppleStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\YeoRaeAStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\MilkyWayStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\SugarFreeStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\SuperFantasyStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\OnAndOnStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\PandoraStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\SelfishnessStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\PandoraStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\HeartbreakerStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\HateDontHateStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\StepStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\VenusStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\BadAppleStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\HateDontHateStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\FourSeasonsStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\ShanghaiRomanceStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\SuperFantasyStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\UGotMeCrazyStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\HeartbreakerStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\OnAndOnStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\BarBarBarStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\SugarFreeStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\YeoRaeAStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\NoNoNoStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\NoNoNoStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\UGotMeCrazyStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\FlyingDuckStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\VenusStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\SugarConspiracyTheoryStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\MilkyWayStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\SelfishnessStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\OneStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\CanonDStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\FlyingDuckStepchartTimingData.txt" />
+     <None Include="Assets\Stepcharts\StepStepchartBeats.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

@@ -1,23 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+//using UnityEditor;
 using System;
 using System.IO;
 
 public class StepchartReader : MonoBehaviour {
 
     public GameObject[] beatArrows;
-
     public GameObject[] longBeatMid;
     public GameObject[] longBeatEnd;
 
     public string fileName;
     public string timingData;
+    public string songName;
     public float speed;
 
     public StepchartMover stepchartMover;
-
 
     StreamReader stepchart;
     StreamReader readBeats;
@@ -31,8 +30,8 @@ public class StepchartReader : MonoBehaviour {
     }
 
     public void CreateStepchart() {
-        stepchart = File.OpenText(Path.Combine(Application.dataPath, fileName));
-        readBeats = File.OpenText(Path.Combine(Application.dataPath, fileName));
+        stepchart = File.OpenText(Path.Combine(Path.Combine(Application.dataPath, "Stepcharts"), songName + fileName));
+        readBeats = File.OpenText(Path.Combine(Path.Combine(Application.dataPath, "Stepcharts"), songName + fileName));
 
         stepchartMover.beats = new List<StepchartMover.BeatsInfo>();
 
@@ -61,16 +60,14 @@ public class StepchartReader : MonoBehaviour {
                 bool toCreateData = false;
                 GameObject[] tempBeatHolder = new GameObject[currentBeat.Length];
 
-                
-
                 for (var e = 0; e < currentBeat.Length; e++) {
                     char beat = currentBeat[e];
-
 
                     GameObject inst = null;
                     switch (char.ConvertFromUtf32(beat)) {
                         case "1":
                         case "2":
+                        case "F": //F is fake
                             inst = Instantiate(beatArrows[e], new Vector2(e, -beatPosition * speed), Quaternion.identity) as GameObject;
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
@@ -98,16 +95,7 @@ public class StepchartReader : MonoBehaviour {
                 }
 
                 if (toCreateData) {
-                    stepchartMover.beats.Add(new StepchartMover.BeatsInfo(timeInst + (((beatPosition - prevBeat)/currBpm) *60), tempBeatHolder));
-                }
-
-                if (stepchartMover.bpmData.Count > bpmScaling) {
-                    if (stepchartMover.bpmData[bpmScaling].beat < beatPosition) {//when bpm changes
-                        timeInst = stepchartMover.bpmData[bpmScaling].time;
-                        prevBeat = stepchartMover.bpmData[bpmScaling].beat;
-                        currBpm = stepchartMover.bpmData[bpmScaling].bpm;
-                        bpmScaling++;
-                    }
+                    stepchartMover.beats.Add(new StepchartMover.BeatsInfo(ReadTimeFromBPM(beatPosition), tempBeatHolder));
                 }
 
                 beatPosition += 4 / numberOfRows;
@@ -131,11 +119,12 @@ public class StepchartReader : MonoBehaviour {
 
     public void ClearStepchart() {
         foreach (Transform beat in stepchartMover.transform)
-            DestroyImmediate(beat.gameObject);
+            if (beat.name != "Dummy")
+                DestroyImmediate(beat.gameObject);
     }
 
     public void CreateTimingData() {
-        timeData = File.OpenText(Path.Combine(Application.dataPath, timingData));
+        timeData = File.OpenText(Path.Combine(Path.Combine(Application.dataPath, "Stepcharts"), songName + timingData));
 
         stepchartMover.bpmData = new List<StepchartMover.BPMData>();
         stepchartMover.speedData = new List<StepchartMover.SpeedData>();
@@ -171,13 +160,37 @@ public class StepchartReader : MonoBehaviour {
                     posInEA++;
                 }
             }
-            stepchartMover.speedData.Add(new StepchartMover.SpeedData(float.Parse(tempStr.Substring(0, equalPos[0])), float.Parse(tempStr.Substring(equalPos[0] + 1, equalPos[1] - equalPos[0] - 1)), float.Parse(tempStr.Substring(equalPos[1] + 1, equalPos[2] - equalPos[1] - 1)), 1));
+            float speedBeat = float.Parse(tempStr.Substring(0, equalPos[0]));
+            float timeAllowed = 0;
+
+            timeAllowed = float.Parse(tempStr.Substring(equalPos[1] + 1, equalPos[2] - equalPos[1] - 1));
+
+            if (tempStr.Substring(equalPos[2] + 1, 1) == "0")
+                timeAllowed = ReadTimeFromBPM(speedBeat + timeAllowed) - ReadTimeFromBPM(speedBeat);
+
+            stepchartMover.speedData.Add(new StepchartMover.SpeedData(speedBeat, float.Parse(tempStr.Substring(equalPos[0] + 1, equalPos[1] - equalPos[0] - 1)), timeAllowed, ReadTimeFromBPM(speedBeat)));
         }
         timeData.Close();
     }
+
+    float ReadTimeFromBPM(float currentBeat) {
+        float beat =0;
+        float bpm =0;
+        float time =0;
+
+        foreach (StepchartMover.BPMData bpmInst in stepchartMover.bpmData) {
+            if (bpmInst.beat > currentBeat)
+                break;
+
+            beat = bpmInst.beat;
+            bpm = bpmInst.bpm;
+            time = bpmInst.time;
+        }       
+        return time + (((currentBeat - beat)/bpm) * 60);
+    }
 }
 
-[CustomEditor(typeof(StepchartReader))]
+/*[CustomEditor(typeof(StepchartReader))]
 public class StepchartEditor : Editor {
 
     public override void OnInspectorGUI() {
@@ -195,4 +208,4 @@ public class StepchartEditor : Editor {
             toCreateChart.CreateTimingData();
 
     }
-}
+}*/
