@@ -35,6 +35,21 @@ public class StepchartMover : MonoBehaviour {
     }
 
     [System.Serializable]
+    public struct ScrollData {
+        public float beat;
+        public float scroll;
+        public float time;
+        public float dist;
+
+        public ScrollData(float givenBeat, float givenScroll, float givenTime, float givenDist) {
+            beat = givenBeat;
+            scroll = givenScroll;
+            time = givenTime;
+            dist = givenDist;
+        }
+    }
+
+    [System.Serializable]
     public struct BeatsInfo {
         public float beatTiming;
         public GameObject[] beats;
@@ -58,6 +73,7 @@ public class StepchartMover : MonoBehaviour {
 
     public List<BPMData> bpmData;
     public List<SpeedData> speedData;
+    public List<ScrollData> scrollData;
     public List<BeatsInfo> beats;
 
     [HideInInspector]
@@ -73,6 +89,7 @@ public class StepchartMover : MonoBehaviour {
     int currentBpm;
     int currentBeat;
     int currentSpeed;
+    int currentScroll;
 
     public float prevSpeed;
 
@@ -100,19 +117,20 @@ public class StepchartMover : MonoBehaviour {
         stepchartBuilder.CreateTimingData();
         stepchartBuilder.CreateStepchart();
 
-        offset = PlayerPref.songOffset;
-        offset += Time.realtimeSinceStartup;
-
         rush = PlayerPref.prefRush;
         longBeatsActive = 0;
         currentBeat = 0;
         currentSpeed = 0;
         currentBpm = 0;
+        currentScroll = 0;
         bpm *= rush;
         song.pitch = rush;
         bpm = bpmData[0].bpm;
         endTime = (endBpm / bpm) * 60;
         song.Play();
+
+        offset = PlayerPref.songOffset;
+        offset += Time.realtimeSinceStartup;
     }
 
     void Update() {
@@ -126,13 +144,20 @@ public class StepchartMover : MonoBehaviour {
 
         if (currentSpeed < speedData.Count)
             if (speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
-                if (currentSpeed -1 > -1)
-                prevSpeed = speedData[currentSpeed-1].speed;
+                if (currentSpeed - 1 > -1)
+                    prevSpeed = speedData[currentSpeed - 1].speed;
                 currentSpeed++;
             }
 
+        if (currentScroll < scrollData.Count - 1)
+            if (scrollData[currentScroll].time / rush < cRealTime) {
+
+                currentScroll++;
+            }
+
+
         if (currentSpeed - 1 > 0)
-            ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush); // I already put in rush.
+            ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
 
         transform.position = new Vector2(2, ((cRealTime - dOffset) / endTime) * (totalDist * transform.localScale.y)); //Movement
 
@@ -182,7 +207,7 @@ public class StepchartMover : MonoBehaviour {
     void ChangeSpeed(float speedToChange, float startTime, float givenTime) {
         if (cRealTime > startTime + givenTime) {
             if (transform.localScale.y != speedToChange) {
-                transform.localScale = new Vector3(1,speedToChange);
+                transform.localScale = new Vector3(1, speedToChange);
                 Debug.Log(transform.localScale.y);
                 float scaleValue = 0;
                 scaleValue = iniLength / sprite.bounds.extents.y;

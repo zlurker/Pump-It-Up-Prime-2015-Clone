@@ -42,12 +42,9 @@ public class StepchartReader : MonoBehaviour {
 
         int debugBeats = 1;
         int lastBeat = 0;
+        int currentScroll = 0;
         longBeatStartData = new GameObject[10];
-
-        float timeInst = 0;
-        float prevBeat = 0;
-        float currBpm = 0;
-        int bpmScaling = 0;
+        float currentPos = 0;
 
         while (!(currentRow = readBeats.ReadLine()).Contains(","))
             numberOfRows++;
@@ -60,6 +57,14 @@ public class StepchartReader : MonoBehaviour {
                 bool toCreateData = false;
                 GameObject[] tempBeatHolder = new GameObject[currentBeat.Length];
 
+                while (stepchartMover.scrollData.Count > currentScroll && stepchartMover.scrollData[currentScroll].beat < beatPosition) {
+                    currentScroll++;
+                }
+
+                if (currentScroll > 0) {
+                    currentPos = stepchartMover.scrollData[currentScroll-1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll-1].scroll);
+                }
+
                 for (var e = 0; e < currentBeat.Length; e++) {
                     char beat = currentBeat[e];
 
@@ -68,7 +73,11 @@ public class StepchartReader : MonoBehaviour {
                         case "1":
                         case "2":
                         case "F": //F is fake
-                            inst = Instantiate(beatArrows[e], new Vector2(e, -beatPosition * speed), Quaternion.identity) as GameObject;
+                        case "X":
+                        case "Y":
+                        case "x":
+                        case "y":
+                            inst = Instantiate(beatArrows[e], new Vector2(e, -currentPos), Quaternion.identity) as GameObject;
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
@@ -78,15 +87,16 @@ public class StepchartReader : MonoBehaviour {
 
                         case "3":
                             float dist = 0;
+                            //float currentPos =-beatPosition * speed //stepchartMover.scrollData[currentScroll].dist + ((beatPosition - stepchartMover.scrollData[currentScroll].beat) * speed * currentScroll);
 
-                            inst = Instantiate(longBeatEnd[e], new Vector2(e, -beatPosition * speed), Quaternion.identity) as GameObject;
+                            inst = Instantiate(longBeatEnd[e], new Vector2(e, -currentPos), Quaternion.identity) as GameObject;
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
                             GameObject temp = Instantiate(longBeatMid[e], new Vector2(e, (-beatPosition * speed) - (dist / 2)), Quaternion.identity) as GameObject;
-                            temp.transform.localScale = new Vector2(2, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
+                            //temp.transform.localScale = new Vector2(2, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
 
                             inst.transform.parent = stepchartMover.transform;
-                            temp.transform.parent = stepchartMover.transform;
+                            //temp.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
                             tempBeatHolder[e] = inst;
                             toCreateData = true;
@@ -97,6 +107,10 @@ public class StepchartReader : MonoBehaviour {
                 if (toCreateData) {
                     stepchartMover.beats.Add(new StepchartMover.BeatsInfo(ReadTimeFromBPM(beatPosition), tempBeatHolder));
                 }
+
+                //Need to create a formula for distance pertaining to scrolls.
+                //beatposition is correct. Contains data for current beat. Need to use this to 
+                //make beatposition with scroll inside?
 
                 beatPosition += 4 / numberOfRows;
             } else {
@@ -113,7 +127,7 @@ public class StepchartReader : MonoBehaviour {
         readBeats.Close();
         Debug.Log("Number of 4-beats: " + debugBeats);
         stepchartMover.endBpm = debugBeats * 4;
-        stepchartMover.totalDist = (debugBeats * 4) * speed;
+        stepchartMover.totalDist = currentPos;
         Debug.Log("Stepchart Deciphered");
     }
 
@@ -170,13 +184,32 @@ public class StepchartReader : MonoBehaviour {
 
             stepchartMover.speedData.Add(new StepchartMover.SpeedData(speedBeat, float.Parse(tempStr.Substring(equalPos[0] + 1, equalPos[1] - equalPos[0] - 1)), timeAllowed, ReadTimeFromBPM(speedBeat)));
         }
+
+        int scrollIndex = 0;
+
+        while ((tempStr = timeData.ReadLine()) != ";") { //Reading Scrolls
+            for (var i = 0; i < tempStr.Length; i++) {
+                if (char.ConvertFromUtf32(tempStr[i]) == "=")
+                    equalPos[0] = i;
+            }
+            float beat = float.Parse(tempStr.Substring(0, equalPos[0]));
+            float scroll = float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
+
+            float dist = 0;
+
+            if (scrollIndex > 0) //if anything is wrong, might be problem with this.
+                dist = ((beat - stepchartMover.scrollData[scrollIndex - 1].beat) * stepchartMover.scrollData[scrollIndex - 1].scroll * speed) + stepchartMover.scrollData[scrollIndex - 1].dist;
+
+            stepchartMover.scrollData.Add(new StepchartMover.ScrollData(beat, scroll, ReadTimeFromBPM(beat), dist));
+            scrollIndex++;
+        }
         timeData.Close();
     }
 
     float ReadTimeFromBPM(float currentBeat) {
-        float beat =0;
-        float bpm =0;
-        float time =0;
+        float beat = 0;
+        float bpm = 0;
+        float time = 0;
 
         foreach (StepchartMover.BPMData bpmInst in stepchartMover.bpmData) {
             if (bpmInst.beat > currentBeat)
@@ -185,8 +218,8 @@ public class StepchartReader : MonoBehaviour {
             beat = bpmInst.beat;
             bpm = bpmInst.bpm;
             time = bpmInst.time;
-        }       
-        return time + (((currentBeat - beat)/bpm) * 60);
+        }
+        return time + (((currentBeat - beat) / bpm) * 60);
     }
 }
 
