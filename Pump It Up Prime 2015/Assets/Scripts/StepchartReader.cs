@@ -92,11 +92,11 @@ public class StepchartReader : MonoBehaviour {
                             inst = Instantiate(longBeatEnd[e], new Vector2(e, -currentPos), Quaternion.identity) as GameObject;
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e, (-beatPosition * speed) - (dist / 2)), Quaternion.identity) as GameObject;
-                            //temp.transform.localScale = new Vector2(2, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
+                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e, -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
+                            temp.transform.localScale = new Vector2(2, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
 
                             inst.transform.parent = stepchartMover.transform;
-                            //temp.transform.parent = stepchartMover.transform;
+                            temp.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
                             tempBeatHolder[e] = inst;
                             toCreateData = true;
@@ -126,8 +126,8 @@ public class StepchartReader : MonoBehaviour {
         stepchart.Close();
         readBeats.Close();
         Debug.Log("Number of 4-beats: " + debugBeats);
-        stepchartMover.endBpm = debugBeats * 4;
-        stepchartMover.totalDist = currentPos;
+        currentPos = stepchartMover.scrollData[currentScroll - 1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll - 1].scroll);
+        stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats*4,0,ReadTimeFromBPM(debugBeats*4),currentPos));
         Debug.Log("Stepchart Deciphered");
     }
 

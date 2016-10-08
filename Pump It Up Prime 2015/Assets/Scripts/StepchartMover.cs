@@ -86,6 +86,9 @@ public class StepchartMover : MonoBehaviour {
     float dOffset;
     float timerForLongBeat;
 
+    float prevBeat;
+    float prevDist;
+
     int currentBpm;
     int currentBeat;
     int currentSpeed;
@@ -123,12 +126,17 @@ public class StepchartMover : MonoBehaviour {
         currentSpeed = 0;
         currentBpm = 0;
         currentScroll = 0;
-        bpm *= rush;
+        prevBeat = 0;
+        prevSpeed = 0;
+        
         song.pitch = rush;
         bpm = bpmData[0].bpm;
+        bpm *= rush;
         endTime = (endBpm / bpm) * 60;
         song.Play();
 
+        endBpm = scrollData[scrollData.Count - 1].beat;
+        totalDist = scrollData[scrollData.Count - 1].dist;
         offset = PlayerPref.songOffset;
         offset += Time.realtimeSinceStartup;
     }
@@ -151,15 +159,21 @@ public class StepchartMover : MonoBehaviour {
 
         if (currentScroll < scrollData.Count - 1)
             if (scrollData[currentScroll].time / rush < cRealTime) {
-
                 currentScroll++;
+
+                endBpm = scrollData[currentScroll].beat - scrollData[currentScroll - 1].beat;
+                endTime = (endBpm / bpm) * 60;                
+                prevBeat = scrollData[currentScroll - 1].beat;
+                prevDist = scrollData[currentScroll - 1].dist;
+
+                totalDist = scrollData[currentScroll].dist - prevDist;
             }
 
 
         if (currentSpeed - 1 > 0)
             ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
 
-        transform.position = new Vector2(2, ((cRealTime - dOffset) / endTime) * (totalDist * transform.localScale.y)); //Movement
+        transform.position = new Vector2(2, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60))/endTime) * (totalDist))) * transform.localScale.y); //Movement
 
         if (Input.GetKeyDown(KeyCode.Escape))
             SceneManager.LoadScene("Menu");
