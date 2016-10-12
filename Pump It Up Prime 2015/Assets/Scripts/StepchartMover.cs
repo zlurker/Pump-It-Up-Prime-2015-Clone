@@ -144,21 +144,18 @@ public class StepchartMover : MonoBehaviour {
     void Update() {
         cRealTime = Time.realtimeSinceStartup - offset;
 
-        if (currentBpm < bpmData.Count)
-            if (bpmData[currentBpm].time / rush < cRealTime) { //Bpm changer
+            while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) { //Bpm changer
                 ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
                 currentBpm++;
             }
 
-        if (currentSpeed < speedData.Count)
-            if (speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
+            while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
                 if (currentSpeed - 1 > -1)
                     prevSpeed = speedData[currentSpeed - 1].speed;
                 currentSpeed++;
             }
 
-        if (currentScroll < scrollData.Count - 1)
-            if (scrollData[currentScroll].time / rush < cRealTime) {
+            while (currentScroll < scrollData.Count - 1 &&scrollData[currentScroll].time / rush < cRealTime) {
                 currentScroll++;
 
                 endBpm = scrollData[currentScroll].beat - scrollData[currentScroll - 1].beat;
@@ -185,39 +182,11 @@ public class StepchartMover : MonoBehaviour {
                 BeatHandler();
                 BeatScore(-1);
             } //when player can start tapping.
-
-        for (var i = 0; i < controls.Length; i++) {
-            if (Input.GetKeyDown(controls[i])) {
-                CheckNormalBeats(i);
-            }
-            if (Input.GetKeyUp(controls[i])) {
-                holdingDown[i] = 0;
-            }
-        }
-
-        if (timerForLongBeat < cRealTime) {
-            int longBeatsLeft = 0;
-            bool hasLongBeat = false;
-            timerForLongBeat = cRealTime + (0.05f / rush);
-
-            for (var i = 0; i < beatsActive.Length; i++) {
-                if (beatsActive[i] == 1) {
-                    hasLongBeat = true;
-                    if (holdingDown[i] != 1) {
-                        longBeatsLeft++;
-                    }
-                }
-            }
-            if (hasLongBeat)
-                if (longBeatsLeft == 0)
-                    BeatScore(1);
-                else
-                    BeatScore(-1);
-        }
         #endregion
 
     }
 
+    #region Stepchart Effects
     void ChangeSpeed(float speedToChange, float startTime, float givenTime) {
         if (cRealTime > startTime + givenTime) {
             if (transform.localScale.y != speedToChange) {
@@ -256,6 +225,7 @@ public class StepchartMover : MonoBehaviour {
         endTime = (endBpm / bpmToChange) * 60; //Changes ending time.
         bpm = bpmToChange; //Changes the BPM.
     }
+    #endregion
 
     public void CheckNormalBeats(int toCheck) {
         int numberOfBeatsLeft = 0;

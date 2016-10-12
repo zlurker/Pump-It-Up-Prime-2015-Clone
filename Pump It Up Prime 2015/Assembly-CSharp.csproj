@@ -81,7 +81,9 @@
      <None Include="Assets\Stepcharts\OnAndOnStepchartTimingData.txt" />
      <None Include="Assets\Stepcharts\BarBarBarStepchartTimingData.txt" />
      <None Include="Assets\Stepcharts\SugarFreeStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\MoveYourBodyStepchartBeats.txt" />
      <None Include="Assets\Stepcharts\YeoRaeAStepchartBeats.txt" />
+     <None Include="Assets\Stepcharts\MoveYourBodyStepchartTimingData.txt" />
      <None Include="Assets\Stepcharts\NoNoNoStepchartBeats.txt" />
      <None Include="Assets\Stepcharts\NoNoNoStepchartTimingData.txt" />
      <None Include="Assets\Stepcharts\UGotMeCrazyStepchartTimingData.txt" />
