@@ -11,6 +11,8 @@ public class MenuScript : MonoBehaviour {
         public AudioClip music;
         public float offset;
     }
+	
+	public Text dataPath;
 
     public SongData[] songs;
     public int currentSongPick;
@@ -34,6 +36,8 @@ public class MenuScript : MonoBehaviour {
         rush = PlayerPref.prefRush;
 
         RefreshUI();
+		
+		dataPath.text = Application.dataPath;
     }
 	
 	// Update is called once per frame

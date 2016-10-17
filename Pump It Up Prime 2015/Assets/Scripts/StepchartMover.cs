@@ -52,9 +52,9 @@ public class StepchartMover : MonoBehaviour {
     [System.Serializable]
     public struct BeatsInfo {
         public float beatTiming;
-        public GameObject[] beats;
+        public int[] beats;
 
-        public BeatsInfo(float givenBeatTiming, GameObject[] givenBeats) {
+        public BeatsInfo(float givenBeatTiming, int[] givenBeats) {
             beatTiming = givenBeatTiming;
             beats = givenBeats;
         }
@@ -128,7 +128,7 @@ public class StepchartMover : MonoBehaviour {
         currentScroll = 0;
         prevBeat = 0;
         prevSpeed = 0;
-        
+
         song.pitch = rush;
         bpm = bpmData[0].bpm;
         bpm *= rush;
@@ -144,33 +144,33 @@ public class StepchartMover : MonoBehaviour {
     void Update() {
         cRealTime = Time.realtimeSinceStartup - offset;
 
-            while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) { //Bpm changer
-                ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
-                currentBpm++;
-            }
+        while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) { //Bpm changer
+            ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
+            currentBpm++;
+        }
 
-            while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
-                if (currentSpeed - 1 > -1)
-                    prevSpeed = speedData[currentSpeed - 1].speed;
-                currentSpeed++;
-            }
+        while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
+            if (currentSpeed - 1 > -1)
+                prevSpeed = speedData[currentSpeed - 1].speed;
+            currentSpeed++;
+        }
 
-            while (currentScroll < scrollData.Count - 1 &&scrollData[currentScroll].time / rush < cRealTime) {
-                currentScroll++;
+        while (currentScroll < scrollData.Count - 1 && scrollData[currentScroll].time / rush < cRealTime) {
+            currentScroll++;
 
-                endBpm = scrollData[currentScroll].beat - scrollData[currentScroll - 1].beat;
-                endTime = (endBpm / bpm) * 60;                
-                prevBeat = scrollData[currentScroll - 1].beat;
-                prevDist = scrollData[currentScroll - 1].dist;
+            endBpm = scrollData[currentScroll].beat - scrollData[currentScroll - 1].beat;
+            endTime = (endBpm / bpm) * 60;
+            prevBeat = scrollData[currentScroll - 1].beat;
+            prevDist = scrollData[currentScroll - 1].dist;
 
-                totalDist = scrollData[currentScroll].dist - prevDist;
-            }
+            totalDist = scrollData[currentScroll].dist - prevDist;
+        }
 
 
         if (currentSpeed - 1 > 0)
             ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
 
-        transform.position = new Vector2(2, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60))/endTime) * (totalDist))) * transform.localScale.y); //Movement
+        transform.position = new Vector2(2, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
 
         if (Input.GetKeyDown(KeyCode.Escape))
             SceneManager.LoadScene("Menu");
@@ -179,11 +179,10 @@ public class StepchartMover : MonoBehaviour {
         // --------------------------------- Everything below is judgement/ input-----------------------------------------------------//
         if (currentBeat < beats.Count)
             if ((beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
-                BeatHandler();
                 BeatScore(-1);
+                currentBeat++;
             } //when player can start tapping.
         #endregion
-
     }
 
     #region Stepchart Effects
@@ -191,26 +190,22 @@ public class StepchartMover : MonoBehaviour {
         if (cRealTime > startTime + givenTime) {
             if (transform.localScale.y != speedToChange) {
                 transform.localScale = new Vector3(1, speedToChange);
-                Debug.Log(transform.localScale.y);
                 float scaleValue = 0;
                 scaleValue = iniLength / sprite.bounds.extents.y;
 
                 foreach (Transform child in transform) {
                     if (child != sprite.transform && child.tag != "LongBeat")
-                        child.localScale = new Vector2(2, 2 * scaleValue);
+                        child.localScale = new Vector2(2.5f, 2.5f * scaleValue);
                 }
             }
-        }
-        //transform.localScale = new Vector2(1, speedToChange);
-        else {
+        } else {
             transform.localScale = new Vector2(1, prevSpeed + ((speedToChange - prevSpeed) * ((cRealTime - startTime) / givenTime)));
-            Debug.Log(transform.localScale.y);
             float scaleValue = 0;
             scaleValue = iniLength / sprite.bounds.extents.y;
 
             foreach (Transform child in transform) {
                 if (child != sprite.transform && child.tag != "LongBeat")
-                    child.localScale = new Vector2(2, 2 * scaleValue);
+                    child.localScale = new Vector2(2.5f, 2.5f * scaleValue);
             }
         }
     }
@@ -227,30 +222,23 @@ public class StepchartMover : MonoBehaviour {
     }
     #endregion
 
-    public void CheckNormalBeats(int toCheck) {
-        int numberOfBeatsLeft = 0;
-        holdingDown[toCheck] = 1;
+    public void BeatInput(int inputValue, int beat) {
         if (currentBeat < beats.Count)
-            if (((beats[currentBeat].beatTiming - allowanceTime) / rush <= cRealTime)) {
+        if ((beats[currentBeat].beatTiming - allowanceTime) / rush <= cRealTime)
+            if (beats[currentBeat].beats[beat] - inputValue <= 0) {
+                beats[currentBeat].beats[beat] = 0;
 
-                if (beats[currentBeat].beats[toCheck]) {
-                    beats[currentBeat].beats[toCheck].SetActive(false);
-                    beats[currentBeat].beats[toCheck] = null;
-                }
+                int tempBeatValue = 0;
 
-                foreach (GameObject beat in beats[currentBeat].beats) {
-                    if (beat) {
-                        if (beat.name == "1") {
-                            numberOfBeatsLeft++;
-                        }
-                    }
-                }
+                foreach (int beatValue in beats[currentBeat].beats)
+                    tempBeatValue += beatValue;
 
-                if (numberOfBeatsLeft == 0) {
-                    BeatHandler();
+                if (tempBeatValue == 0) {
                     BeatScore(1);
+                    currentBeat++;
                 }
             }
+
     }
 
     void BeatScore(int givenCombo) {
@@ -285,22 +273,6 @@ public class StepchartMover : MonoBehaviour {
         }
 
         comboT.text = Mathf.Abs(combo).ToString();
-    }
-
-    void BeatHandler() {
-        for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
-            if (beats[currentBeat].beats[i] != null) {
-                if (beats[currentBeat].beats[i].name == "2") {
-                    beatsActive[i] = 1;
-                }
-
-                if (beats[currentBeat].beats[i].name == "3") {
-                    endLongBeatTime = beats[currentBeat].beatTiming;
-                    beatsActive[i] = 0;
-                }
-            }
-        }
-        currentBeat++;
     }
 }
 

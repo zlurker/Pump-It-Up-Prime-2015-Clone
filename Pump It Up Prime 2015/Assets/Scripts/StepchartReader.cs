@@ -20,14 +20,10 @@ public class StepchartReader : MonoBehaviour {
 
     StreamReader stepchart;
     StreamReader readBeats;
-
     StreamReader timeData;
 
     GameObject[] longBeatStartData;
-
-    void Start() {
-        //CreateStepchart();
-    }
+    bool[] toCreateLongBeatData;
 
     public void CreateStepchart() {
         stepchart = File.OpenText(Path.Combine(Path.Combine(Application.dataPath, "Stepcharts"), songName + fileName));
@@ -44,18 +40,19 @@ public class StepchartReader : MonoBehaviour {
         int lastBeat = 0;
         int currentScroll = 0;
         longBeatStartData = new GameObject[10];
+        toCreateLongBeatData = new bool[10];
         float currentPos = 0;
 
         while (!(currentRow = readBeats.ReadLine()).Contains(","))
             numberOfRows++;
-
 
         while ((currentBeat = stepchart.ReadLine()) != ";") { //We can read more than one stream at the same time.
             if (!currentBeat.Contains(",")) {
                 lastBeat++;
 
                 bool toCreateData = false;
-                GameObject[] tempBeatHolder = new GameObject[currentBeat.Length];
+                int[] tempBeatHolder = new int[currentBeat.Length];
+                int activeLongBeats = 0;
 
                 while (stepchartMover.scrollData.Count > currentScroll && stepchartMover.scrollData[currentScroll].beat < beatPosition) {
                     currentScroll++;
@@ -70,41 +67,59 @@ public class StepchartReader : MonoBehaviour {
 
                     GameObject inst = null;
                     switch (char.ConvertFromUtf32(beat)) {
-                        case "1":
-                        case "2":
+                        case "1":                     
                         case "F": //F is fake
                         case "X":
-                        case "Y":
-                        case "x":
-                        case "y":
-                            inst = Instantiate(beatArrows[e], new Vector2(e, -currentPos), Quaternion.identity) as GameObject;
+                        case "Y":                        
+                            inst = Instantiate(beatArrows[e], new Vector2(e*1.25f, -currentPos), Quaternion.identity) as GameObject;
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
-                            tempBeatHolder[e] = inst;
+                            tempBeatHolder[e] = 2;
+
+                            if (char.ConvertFromUtf32(beat) != "F") 
+                            toCreateData = true;
+                            break;
+
+                        case "2":
+                        case "x":
+                        case "y":
+                            inst = Instantiate(beatArrows[e], new Vector2(e * 1.25f, -currentPos), Quaternion.identity) as GameObject;
+                            longBeatStartData[e] = inst;
+                            inst.transform.parent = stepchartMover.transform;
+                            inst.name = char.ConvertFromUtf32(beat);
+                            tempBeatHolder[e] = 1;
+                            toCreateLongBeatData[e] = true;
                             toCreateData = true;
                             break;
 
                         case "3":
                             float dist = 0;
-                            //float currentPos =-beatPosition * speed //stepchartMover.scrollData[currentScroll].dist + ((beatPosition - stepchartMover.scrollData[currentScroll].beat) * speed * currentScroll);
 
-                            inst = Instantiate(longBeatEnd[e], new Vector2(e, -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(longBeatEnd[e], new Vector2(e*1.25f, -currentPos), Quaternion.identity) as GameObject;
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e, -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
-                            temp.transform.localScale = new Vector2(2, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
+                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e*1.25f, -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
+                            temp.transform.localScale = new Vector2(2.5f, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
 
                             inst.transform.parent = stepchartMover.transform;
                             temp.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
-                            tempBeatHolder[e] = inst;
+                            tempBeatHolder[e] = 1;
+                            toCreateLongBeatData[e] = false;
                             toCreateData = true;
                             break;
                     }
-                }
+                }                
 
-                if (toCreateData) {
+                for (var i = 0; i < toCreateLongBeatData.Length; i++)
+                    if (toCreateLongBeatData[i]) {
+                        tempBeatHolder[i] = 1;
+                        activeLongBeats++;
+                    }
+                
+
+                if (toCreateData || activeLongBeats >0) {
                     stepchartMover.beats.Add(new StepchartMover.BeatsInfo(ReadTimeFromBPM(beatPosition), tempBeatHolder));
                 }
 
