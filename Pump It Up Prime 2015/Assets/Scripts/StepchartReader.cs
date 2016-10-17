@@ -26,8 +26,8 @@ public class StepchartReader : MonoBehaviour {
     bool[] toCreateLongBeatData;
 
     public void CreateStepchart() {
-        stepchart = File.OpenText(Path.Combine(Path.Combine(Application.dataPath, "Stepcharts"), songName + fileName));
-        readBeats = File.OpenText(Path.Combine(Path.Combine(Application.dataPath, "Stepcharts"), songName + fileName));
+        stepchart = File.OpenText(Path.Combine(Path.Combine(Application.persistentDataPath, "Stepcharts"), songName + fileName));
+        readBeats = File.OpenText(Path.Combine(Path.Combine(Application.persistentDataPath, "Stepcharts"), songName + fileName));
 
         stepchartMover.beats = new List<StepchartMover.BeatsInfo>();
 
@@ -153,7 +153,7 @@ public class StepchartReader : MonoBehaviour {
     }
 
     public void CreateTimingData() {
-        timeData = File.OpenText(Path.Combine(Path.Combine(Application.dataPath, "Stepcharts"), songName + timingData));
+        timeData = File.OpenText(Path.Combine(Path.Combine(Application.persistentDataPath, "Stepcharts"), songName + timingData));
 
         stepchartMover.bpmData = new List<StepchartMover.BPMData>();
         stepchartMover.speedData = new List<StepchartMover.SpeedData>();
