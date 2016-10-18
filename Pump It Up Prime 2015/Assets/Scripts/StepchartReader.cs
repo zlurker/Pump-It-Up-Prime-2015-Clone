@@ -7,6 +7,7 @@ using System.IO;
 
 public class StepchartReader : MonoBehaviour {
 
+    public bool invertStepchart;
     public GameObject[] beatArrows;
     public GameObject[] longBeatMid;
     public GameObject[] longBeatEnd;
@@ -159,6 +160,7 @@ public class StepchartReader : MonoBehaviour {
 #if UNITY_ANDROID
         dataPath = Application.persistentDataPath;
 #endif
+
         timeData = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), songName + timingData));
 
         stepchartMover.bpmData = new List<StepchartMover.BPMData>();

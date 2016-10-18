@@ -15,6 +15,7 @@ public class MobileInput : MonoBehaviour {
 	}
 
     public void Tap(int key) {
-        stepchart.BeatInput(key, 2);
+        stepchart.BeatInput(2, key);
+        Debug.Log("Working");
     }
 }
