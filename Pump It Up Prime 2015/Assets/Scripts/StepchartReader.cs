@@ -25,9 +25,11 @@ public class StepchartReader : MonoBehaviour {
     GameObject[] longBeatStartData;
     bool[] toCreateLongBeatData;
 
+    string dataPath;
+
     public void CreateStepchart() {
-        stepchart = File.OpenText(Path.Combine(Path.Combine(Application.persistentDataPath, "Stepcharts"), songName + fileName));
-        readBeats = File.OpenText(Path.Combine(Path.Combine(Application.persistentDataPath, "Stepcharts"), songName + fileName));
+        stepchart = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), songName + fileName));
+        readBeats = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), songName + fileName));
 
         stepchartMover.beats = new List<StepchartMover.BeatsInfo>();
 
@@ -59,7 +61,7 @@ public class StepchartReader : MonoBehaviour {
                 }
 
                 if (currentScroll > 0) {
-                    currentPos = stepchartMover.scrollData[currentScroll-1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll-1].scroll);
+                    currentPos = stepchartMover.scrollData[currentScroll - 1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll - 1].scroll);
                 }
 
                 for (var e = 0; e < currentBeat.Length; e++) {
@@ -67,18 +69,18 @@ public class StepchartReader : MonoBehaviour {
 
                     GameObject inst = null;
                     switch (char.ConvertFromUtf32(beat)) {
-                        case "1":                     
+                        case "1":
                         case "F": //F is fake
                         case "X":
-                        case "Y":                        
-                            inst = Instantiate(beatArrows[e], new Vector2(e*1.25f, -currentPos), Quaternion.identity) as GameObject;
+                        case "Y":
+                            inst = Instantiate(beatArrows[e], new Vector2(e * 1.25f, -currentPos), Quaternion.identity) as GameObject;
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
                             tempBeatHolder[e] = 2;
 
-                            if (char.ConvertFromUtf32(beat) != "F") 
-                            toCreateData = true;
+                            if (char.ConvertFromUtf32(beat) != "F")
+                                toCreateData = true;
                             break;
 
                         case "2":
@@ -96,10 +98,10 @@ public class StepchartReader : MonoBehaviour {
                         case "3":
                             float dist = 0;
 
-                            inst = Instantiate(longBeatEnd[e], new Vector2(e*1.25f, -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(longBeatEnd[e], new Vector2(e * 1.25f, -currentPos), Quaternion.identity) as GameObject;
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e*1.25f, -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
+                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e * 1.25f, -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
                             temp.transform.localScale = new Vector2(2.5f, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
 
                             inst.transform.parent = stepchartMover.transform;
@@ -110,16 +112,16 @@ public class StepchartReader : MonoBehaviour {
                             toCreateData = true;
                             break;
                     }
-                }                
+                }
 
                 for (var i = 0; i < toCreateLongBeatData.Length; i++)
                     if (toCreateLongBeatData[i]) {
                         tempBeatHolder[i] = 1;
                         activeLongBeats++;
                     }
-                
 
-                if (toCreateData || activeLongBeats >0) {
+
+                if (toCreateData || activeLongBeats > 0) {
                     stepchartMover.beats.Add(new StepchartMover.BeatsInfo(ReadTimeFromBPM(beatPosition), tempBeatHolder));
                 }
 
@@ -142,7 +144,7 @@ public class StepchartReader : MonoBehaviour {
         readBeats.Close();
         Debug.Log("Number of 4-beats: " + debugBeats);
         currentPos = stepchartMover.scrollData[currentScroll - 1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll - 1].scroll);
-        stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats*4,0,ReadTimeFromBPM(debugBeats*4),currentPos));
+        stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats * 4, 0, ReadTimeFromBPM(debugBeats * 4), currentPos));
         Debug.Log("Stepchart Deciphered");
     }
 
@@ -153,7 +155,11 @@ public class StepchartReader : MonoBehaviour {
     }
 
     public void CreateTimingData() {
-        timeData = File.OpenText(Path.Combine(Path.Combine(Application.persistentDataPath, "Stepcharts"), songName + timingData));
+        dataPath = Application.dataPath;
+#if UNITY_ANDROID
+        dataPath = Application.persistentDataPath;
+#endif
+        timeData = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), songName + timingData));
 
         stepchartMover.bpmData = new List<StepchartMover.BPMData>();
         stepchartMover.speedData = new List<StepchartMover.SpeedData>();

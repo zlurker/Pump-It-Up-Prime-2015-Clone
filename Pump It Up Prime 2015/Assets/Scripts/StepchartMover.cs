@@ -133,11 +133,11 @@ public class StepchartMover : MonoBehaviour {
         bpm = bpmData[0].bpm;
         bpm *= rush;
         endTime = (endBpm / bpm) * 60;
-        song.Play();
-
+        
         endBpm = scrollData[scrollData.Count - 1].beat;
         totalDist = scrollData[scrollData.Count - 1].dist;
         offset = PlayerPref.songOffset;
+        song.Play();
         offset += Time.realtimeSinceStartup;
     }
 
