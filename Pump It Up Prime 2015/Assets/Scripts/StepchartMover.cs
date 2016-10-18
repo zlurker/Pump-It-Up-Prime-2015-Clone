@@ -172,9 +172,6 @@ public class StepchartMover : MonoBehaviour {
 
         transform.position = new Vector2(2, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
 
-        if (Input.GetKeyDown(KeyCode.Escape))
-            SceneManager.LoadScene("Menu");
-
         #region Judgement
         // --------------------------------- Everything below is judgement/ input-----------------------------------------------------//
         if (currentBeat < beats.Count)
@@ -183,6 +180,10 @@ public class StepchartMover : MonoBehaviour {
                 currentBeat++;
             } //when player can start tapping.
         #endregion
+    }
+
+    public void ExitLevel() {
+        SceneManager.LoadScene("Menu");
     }
 
     #region Stepchart Effects

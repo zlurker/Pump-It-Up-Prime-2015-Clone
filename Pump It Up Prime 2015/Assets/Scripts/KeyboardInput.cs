@@ -19,5 +19,9 @@ public class KeyboardInput : MonoBehaviour {
             if (Input.GetKey(keyboardInputs[i])) 
                 stepchart.BeatInput(1,i);           
         }
-	}
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+            stepchart.ExitLevel();
+    }
+            
 }
