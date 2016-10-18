@@ -45,10 +45,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\KeyboardInput.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpringEffectExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpriteExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\TimeExperiment.cs" />
+     <Compile Include="Assets\Scripts\KeyboardInput.cs" />
      <Compile Include="Assets\Scripts\MenuScript.cs" />
      <Compile Include="Assets\Scripts\PlayerPref.cs" />
      <Compile Include="Assets\Scripts\StepchartMover.cs" />
