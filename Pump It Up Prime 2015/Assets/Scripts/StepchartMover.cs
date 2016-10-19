@@ -80,6 +80,8 @@ public class StepchartMover : MonoBehaviour {
     public float endBpm;
     [HideInInspector]
     public float totalDist;
+    [HideInInspector]
+    public float beatScale;
     float bpm;
     float cRealTime;
     float endTime;
@@ -196,7 +198,7 @@ public class StepchartMover : MonoBehaviour {
 
                 foreach (Transform child in transform) {
                     if (child != sprite.transform && child.tag != "LongBeat")
-                        child.localScale = new Vector2(2.5f, 2.5f * scaleValue);
+                        child.localScale = new Vector2(beatScale, beatScale * scaleValue);
                 }
             }
         } else {
@@ -206,7 +208,7 @@ public class StepchartMover : MonoBehaviour {
 
             foreach (Transform child in transform) {
                 if (child != sprite.transform && child.tag != "LongBeat")
-                    child.localScale = new Vector2(2.5f, 2.5f * scaleValue);
+                    child.localScale = new Vector2(beatScale, beatScale * scaleValue);
             }
         }
     }

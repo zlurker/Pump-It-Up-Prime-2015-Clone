@@ -16,8 +16,9 @@ public class StepchartReader : MonoBehaviour {
     public string timingData;
     public string songName;
     public float speed;
-
-    public StepchartMover stepchartMover;
+    public float beatScale;
+    public float screenSizeMultiplier;
+    public StepchartMover stepchartMover;  
 
     StreamReader stepchart;
     StreamReader readBeats;
@@ -74,7 +75,8 @@ public class StepchartReader : MonoBehaviour {
                         case "F": //F is fake
                         case "X":
                         case "Y":
-                            inst = Instantiate(beatArrows[e], new Vector2(e * 1.25f, -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(beatArrows[e], new Vector2(e * beatScale, -currentPos), Quaternion.identity) as GameObject;
+                            inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
@@ -87,7 +89,8 @@ public class StepchartReader : MonoBehaviour {
                         case "2":
                         case "x":
                         case "y":
-                            inst = Instantiate(beatArrows[e], new Vector2(e * 1.25f, -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(beatArrows[e], new Vector2(e * beatScale, -currentPos), Quaternion.identity) as GameObject;
+                            inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
@@ -99,11 +102,12 @@ public class StepchartReader : MonoBehaviour {
                         case "3":
                             float dist = 0;
 
-                            inst = Instantiate(longBeatEnd[e], new Vector2(e * 1.25f, -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(longBeatEnd[e], new Vector2(e *beatScale, -currentPos), Quaternion.identity) as GameObject;
+                            inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e * 1.25f, -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
-                            temp.transform.localScale = new Vector2(2.5f, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
+                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e * beatScale, -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
+                            temp.transform.localScale = new Vector2(2 * beatScale, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
 
                             inst.transform.parent = stepchartMover.transform;
                             temp.transform.parent = stepchartMover.transform;
@@ -146,6 +150,7 @@ public class StepchartReader : MonoBehaviour {
         Debug.Log("Number of 4-beats: " + debugBeats);
         currentPos = stepchartMover.scrollData[currentScroll - 1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll - 1].scroll);
         stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats * 4, 0, ReadTimeFromBPM(debugBeats * 4), currentPos));
+        stepchartMover.beatScale = 2 * beatScale;
         Debug.Log("Stepchart Deciphered");
     }
 
@@ -157,6 +162,8 @@ public class StepchartReader : MonoBehaviour {
 
     public void CreateTimingData() {
         dataPath = Application.dataPath;
+        speed *= screenSizeMultiplier;
+
 #if UNITY_ANDROID
         dataPath = Application.persistentDataPath;
 #endif
@@ -220,9 +227,9 @@ public class StepchartReader : MonoBehaviour {
 
             float dist = 0;
 
-            if (scrollIndex > 0) //if anything is wrong, might be problem with this.
+            if (scrollIndex > 0) 
                 dist = ((beat - stepchartMover.scrollData[scrollIndex - 1].beat) * stepchartMover.scrollData[scrollIndex - 1].scroll * speed) + stepchartMover.scrollData[scrollIndex - 1].dist;
-
+            
             stepchartMover.scrollData.Add(new StepchartMover.ScrollData(beat, scroll, ReadTimeFromBPM(beat), dist));
             scrollIndex++;
         }

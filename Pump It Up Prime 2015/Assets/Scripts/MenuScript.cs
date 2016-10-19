@@ -36,14 +36,12 @@ public class MenuScript : MonoBehaviour {
         rush = PlayerPref.prefRush;
 
         RefreshUI();
-		
-		dataPath.text = Application.dataPath;
+
+        dataPath.text = "Put stepchart files here: "+Application.dataPath;
+#if UNITY_ANDROID
+		dataPath.text = "Put stepchart files here: "+Application.persistentDataPath;;
+#endif
     }
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 
     public void ChangeSpeed(float value) {
             if (speed + value > 0 && speed + value < 7)
@@ -78,6 +76,6 @@ public class MenuScript : MonoBehaviour {
         PlayerPref.songName = songs[currentSongPick].songName;
         PlayerPref.song = songs[currentSongPick].music;
         PlayerPref.songOffset = songs[currentSongPick].offset;
-        SceneManager.LoadScene("DemoLevel");
+        SceneManager.LoadScene(1);
     }
 }
