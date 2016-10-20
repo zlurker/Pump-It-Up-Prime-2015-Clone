@@ -58,7 +58,12 @@ public class StepchartMover : MonoBehaviour {
             beatTiming = givenBeatTiming;
             beats = givenBeats;
         }
+    }
 
+    [System.Serializable]
+    public struct LaneInfo {
+        public List<float> beatPositions;
+        public float currentBeatInLane;
     }
 
     public StepchartReader stepchartBuilder;
@@ -75,6 +80,7 @@ public class StepchartMover : MonoBehaviour {
     public List<SpeedData> speedData;
     public List<ScrollData> scrollData;
     public List<BeatsInfo> beats;
+    public LaneInfo[] lanesInfo;
 
     [HideInInspector]
     public float endBpm;
@@ -100,11 +106,6 @@ public class StepchartMover : MonoBehaviour {
 
     int combo;
 
-    float endLongBeatTime;
-    int longBeatsActive;
-    int[] beatsActive = new int[10];
-    public int[] holdingDown = new int[10];
-
     public float iniLength;
     public SpriteRenderer sprite;
     public Transform[] legs;
@@ -115,6 +116,7 @@ public class StepchartMover : MonoBehaviour {
     void Start() {
         //for (var i = 0; i < legs.Length; i++)
         //KinectManager.Instance.legs[i] = legs[i];
+
         stepchartBuilder.songName = PlayerPref.songName;
         stepchartBuilder.speed = PlayerPref.prefSpeed;
         song.clip = PlayerPref.song;
@@ -123,7 +125,6 @@ public class StepchartMover : MonoBehaviour {
         stepchartBuilder.CreateStepchart();
 
         rush = PlayerPref.prefRush;
-        longBeatsActive = 0;
         currentBeat = 0;
         currentSpeed = 0;
         currentBpm = 0;
@@ -176,11 +177,10 @@ public class StepchartMover : MonoBehaviour {
 
         #region Judgement
         // --------------------------------- Everything below is judgement/ input-----------------------------------------------------//
-        if (currentBeat < beats.Count)
-            if ((beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
+            while (currentBeat < beats.Count &&(beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
                 BeatScore(-1);
                 currentBeat++;
-            } //when player can start tapping.
+            }
         #endregion
     }
 
