@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class StepchartMover : MonoBehaviour {
 
+    #region Data Structures
     [System.Serializable]
     public struct BPMData {
         public float beat;
@@ -62,9 +63,10 @@ public class StepchartMover : MonoBehaviour {
 
     [System.Serializable]
     public struct LaneInfo {
-        public List<float> beatPositions;
-        public float currentBeatInLane;
+        public List<int> beatPositions;
+        public int currentBeatInLane;
     }
+    #endregion
 
     public StepchartReader stepchartBuilder;
     public float offset;
@@ -136,7 +138,7 @@ public class StepchartMover : MonoBehaviour {
         bpm = bpmData[0].bpm;
         bpm *= rush;
         endTime = (endBpm / bpm) * 60;
-        
+
         endBpm = scrollData[scrollData.Count - 1].beat;
         totalDist = scrollData[scrollData.Count - 1].dist;
         offset = PlayerPref.songOffset;
@@ -147,6 +149,7 @@ public class StepchartMover : MonoBehaviour {
     void Update() {
         cRealTime = Time.realtimeSinceStartup - offset;
 
+        #region Timing Checks
         while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) { //Bpm changer
             ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
             currentBpm++;
@@ -168,24 +171,31 @@ public class StepchartMover : MonoBehaviour {
 
             totalDist = scrollData[currentScroll].dist - prevDist;
         }
+        #endregion
 
-
+        #region Stepchart Movement
         if (currentSpeed - 1 > 0)
             ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
 
         transform.position = new Vector2(2, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
+        #endregion
 
         #region Judgement
-        // --------------------------------- Everything below is judgement/ input-----------------------------------------------------//
-            while (currentBeat < beats.Count &&(beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
-                BeatScore(-1);
-                currentBeat++;
-            }
-        #endregion
-    }
+        while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
 
-    public void ExitLevel() {
-        SceneManager.LoadScene("Menu");
+            float missedBeats = 0;
+            for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
+                if (beats[currentBeat].beats[i] > 0) {
+                    lanesInfo[i].currentBeatInLane++;
+                    missedBeats++;
+                }
+            }
+
+            if (missedBeats > 0)
+                BeatScore(-1);
+            currentBeat++;
+        }
+        #endregion
     }
 
     #region Stepchart Effects
@@ -225,23 +235,23 @@ public class StepchartMover : MonoBehaviour {
     }
     #endregion
 
+    #region Beat Handler
     public void BeatInput(int inputValue, int beat) {
-        if (currentBeat < beats.Count)
-        if ((beats[currentBeat].beatTiming - allowanceTime) / rush <= cRealTime)
-            if (beats[currentBeat].beats[beat] - inputValue <= 0) {
-                beats[currentBeat].beats[beat] = 0;
+        if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
+            if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime)
+                if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {                    
+                    beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
 
-                int tempBeatValue = 0;
+                    int missedBeats = 0;
 
-                foreach (int beatValue in beats[currentBeat].beats)
-                    tempBeatValue += beatValue;
+                    foreach (int beatValue in beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats)
+                        missedBeats += beatValue;
 
-                if (tempBeatValue == 0) {
-                    BeatScore(1);
-                    currentBeat++;
+                    if (!(missedBeats > 0)) {
+                        BeatScore(1);
+                    }
+                    lanesInfo[beat].currentBeatInLane++;
                 }
-            }
-
     }
 
     void BeatScore(int givenCombo) {
@@ -254,18 +264,7 @@ public class StepchartMover : MonoBehaviour {
             else
                 combo++;
 
-            totalPoints += 1000;
             gradeT.text = "PERFECT";
-
-            string tempPoints = totalPoints.ToString();
-
-            if (10 - tempPoints.Length > 0) {
-                for (var i = 0; i < 10 - tempPoints.Length; i++) {
-                    tempPoints = "0" + tempPoints;
-                }
-            }
-
-            points.text = tempPoints;
         } else {
             if (combo > 0)
                 combo = 0;
@@ -277,8 +276,11 @@ public class StepchartMover : MonoBehaviour {
 
         comboT.text = Mathf.Abs(combo).ToString();
     }
+    #endregion
+
+    #region Input handler
+    public void ExitLevel() {
+        SceneManager.LoadScene("Menu");
+    }
+    #endregion
 }
-
-
-
-

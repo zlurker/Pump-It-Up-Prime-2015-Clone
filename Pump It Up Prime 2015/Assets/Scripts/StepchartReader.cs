@@ -49,7 +49,7 @@ public class StepchartReader : MonoBehaviour {
         float currentPos = 0;
 
         for (var i = 0; i < stepchartMover.lanesInfo.Length; i++)
-            stepchartMover.lanesInfo[i].beatPositions = new List<float>();
+            stepchartMover.lanesInfo[i].beatPositions = new List<int>();
 
         while (!(currentRow = readBeats.ReadLine()).Contains(","))
             numberOfRows++;
@@ -105,10 +105,8 @@ public class StepchartReader : MonoBehaviour {
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
-                            tempBeatHolder[e] = 1;
                             toCreateLongBeatData[e] = true;
                             toCreateData = true;
-                            stepchartMover.lanesInfo[e].beatPositions.Add(stepchartMover.beats.Count);
                             break;
 
                         case "3":
@@ -137,12 +135,13 @@ public class StepchartReader : MonoBehaviour {
                     if (toCreateLongBeatData[i]) {
                         tempBeatHolder[i] = 1;
                         activeLongBeats++;
+                        stepchartMover.lanesInfo[i].beatPositions.Add(stepchartMover.beats.Count);
                     }
 
 
-                if (toCreateData || activeLongBeats > 0)
+                if (toCreateData || activeLongBeats > 0) 
                     stepchartMover.beats.Add(new StepchartMover.BeatsInfo(ReadTimeFromBPM(beatPosition), tempBeatHolder));
-
+                
                 beatPosition += 4 / numberOfRows;
             } else {
                 numberOfRows = 0;
