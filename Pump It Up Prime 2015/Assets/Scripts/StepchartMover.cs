@@ -119,9 +119,9 @@ public class StepchartMover : MonoBehaviour {
         //for (var i = 0; i < legs.Length; i++)
         //KinectManager.Instance.legs[i] = legs[i];
 
-        stepchartBuilder.songName = PlayerPref.songName;
+        stepchartBuilder.songName = PlayerPref.songs[PlayerPref.songIndex];
         stepchartBuilder.speed = PlayerPref.prefSpeed;
-        song.clip = PlayerPref.song;
+        //song.clip = PlayerPref.song;
 
         stepchartBuilder.CreateTimingData();
         stepchartBuilder.CreateStepchart();
@@ -141,7 +141,7 @@ public class StepchartMover : MonoBehaviour {
 
         endBpm = scrollData[scrollData.Count - 1].beat;
         totalDist = scrollData[scrollData.Count - 1].dist;
-        offset = PlayerPref.songOffset;
+
         song.Play();
         offset += Time.realtimeSinceStartup;
     }
