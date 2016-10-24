@@ -121,7 +121,6 @@ public class StepchartMover : MonoBehaviour {
 
         stepchartBuilder.songName = PlayerPref.songs[PlayerPref.songIndex];
         stepchartBuilder.speed = PlayerPref.prefSpeed;
-        //song.clip = PlayerPref.song;
 
         stepchartBuilder.CreateTimingData();
         stepchartBuilder.CreateStepchart();

@@ -7,20 +7,14 @@ using UnityEngine.SceneManagement;
 public class MenuScript : MonoBehaviour {
 
     public string path;
-	public Text dataPath;
+    public Text dataPath;
 
     public Text songTitle;
     public Text currSpeed;
     public Text currRush;
 
-	// Use this for initialization
-	void Start () {
-        
-	    if (PlayerPref.prefRush == 0) {
-            PlayerPref.prefRush = 1;
-            PlayerPref.prefSpeed = 2;
-        }
-
+    // Use this for initialization
+    void Start() {
         path = Application.dataPath;
 
 #if UNITY_ANDROID
@@ -32,25 +26,30 @@ public class MenuScript : MonoBehaviour {
         if (!PlayerPref.songsRegisted) {
             PlayerPref.songsRegisted = true;
 
-            PlayerPref.songs = Directory.GetFiles(Path.Combine(path, "Stepcharts"),"*.txt");
+            DirectoryInfo stepchartDirectory = new DirectoryInfo(Path.Combine(path, "Stepcharts"));
+            FileInfo[] stepcharts = stepchartDirectory.GetFiles("*.txt");
+
+            PlayerPref.songs = new string[stepcharts.Length];
 
             for (var i = 0; i < PlayerPref.songs.Length; i++) {
-                PlayerPref.songs[i] = PlayerPref.songs[i].Substring(path.Length + 12, PlayerPref.songs[i].Length - path.Length - 12 - 4);//Song's name.
-                Debug.Log(PlayerPref.songs[i]);
+                PlayerPref.songs[i] = stepcharts[i].FullName.Substring(path.Length + 12, stepcharts[i].FullName.Length - path.Length - 12 - 4);//Song's name.
             }
+
+            PlayerPref.prefRush = 1;
+            PlayerPref.prefSpeed = 2;
         }
 
         RefreshUI();
     }
 
     public void ChangeSpeed(float value) {
-            if (PlayerPref.prefSpeed + value > 0 && PlayerPref.prefSpeed + value < 7)
+        if (PlayerPref.prefSpeed + value > 0 && PlayerPref.prefSpeed + value < 7)
             PlayerPref.prefSpeed += value;
         RefreshUI();
     }
 
     public void ChangeRush(float value) {
-        if (PlayerPref.prefRush + value > 0.7f && PlayerPref.prefRush + value <1.6f)
+        if (PlayerPref.prefRush + value > 0.7f && PlayerPref.prefRush + value < 1.6f)
             PlayerPref.prefRush += value;
         RefreshUI();
     }

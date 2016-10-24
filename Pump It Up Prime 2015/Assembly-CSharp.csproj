@@ -56,10 +56,12 @@
      <Compile Include="Assets\Scripts\StepchartReader.cs" />
      <None Include="Assets\Stepcharts\SuperFantasy.txt" />
      <None Include="Assets\Stepcharts\SugarConspiracyTheory.txt" />
+     <None Include="Assets\Stepcharts\RockTheHouse.txt" />
      <None Include="Assets\Stepcharts\MilkyWay.txt" />
      <None Include="Assets\Stepcharts\SilhouetteEffect.txt" />
      <None Include="Assets\Stepcharts\Selfishness.txt" />
      <None Include="Assets\Stepcharts\BadApple.txt" />
+     <None Include="Assets\Stepcharts\RedSwan.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/UnityForPIU/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

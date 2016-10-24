@@ -172,14 +172,19 @@ public class StepchartReader : MonoBehaviour {
     }
 
     public void CreateTimingData() {
+        string endExt = ".wav";
         dataPath = Application.dataPath;
         speed *= screenSizeMultiplier;
 
 #if UNITY_ANDROID
         dataPath = Application.persistentDataPath;
+        endExt = ".mp3";
 #endif
 
-        stepchartMover.song.clip = Resources.Load(songName) as AudioClip;
+        WWW song = new WWW("file:///" + Path.Combine(Path.Combine(dataPath, "Songs"), songName + endExt));
+
+        while (!song.isDone) ;
+        stepchartMover.song.clip = song.GetAudioClip(false);
 
         timeData = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), songName + ".txt"));
 
