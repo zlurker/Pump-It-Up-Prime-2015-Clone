@@ -29,9 +29,9 @@ public class StepchartReader : MonoBehaviour {
 
     string dataPath;
 
-    public void CreateStepchart() {
-        stepchart = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), songName + ".txt"));
-        readBeats = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), songName + ".txt"));
+    public void CreateStepchart(Transform sequenceZoneToMeasure) {
+        stepchart = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex] + ".txt"));
+        readBeats = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex] + ".txt"));
 
         stepchartMover.beats = new List<StepchartMover.BeatsInfo>();
 
@@ -80,7 +80,7 @@ public class StepchartReader : MonoBehaviour {
 
                     switch (char.ConvertFromUtf32(beat)) {
                         case "F": //F is fake
-                            inst = Instantiate(beatArrows[e], new Vector2(e * beatScale, -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
@@ -90,7 +90,7 @@ public class StepchartReader : MonoBehaviour {
                         case "1":
                         case "X":
                         case "Y":
-                            inst = Instantiate(beatArrows[e], new Vector2(e * beatScale, -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
@@ -103,7 +103,7 @@ public class StepchartReader : MonoBehaviour {
                         case "2":
                         case "x":
                         case "y":
-                            inst = Instantiate(beatArrows[e], new Vector2(e * beatScale, -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
@@ -115,11 +115,11 @@ public class StepchartReader : MonoBehaviour {
                         case "3":
                             float dist = 0;
 
-                            inst = Instantiate(longBeatEnd[e], new Vector2(e * beatScale, -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(longBeatEnd[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(e * beatScale, -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
+                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
                             temp.transform.localScale = new Vector2(2 * beatScale, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
 
                             inst.transform.parent = stepchartMover.transform;
@@ -154,6 +154,11 @@ public class StepchartReader : MonoBehaviour {
 
             }
         }
+        if (stepchartMover.beats[stepchartMover.beats.Count - 1].beats.Length == 10) {
+            sequenceZoneToMeasure.parent.position = new Vector2(2.5f, 0);
+            sequenceZoneToMeasure.parent.GetChild(1).gameObject.SetActive(true);
+            stepchartMover.transform.position = new Vector2(stepchartMover.transform.position.x - 3, stepchartMover.transform.position.y);
+        }
 
         Debug.Log("LastBeat: " + lastBeat);
         stepchart.Close();
@@ -172,21 +177,10 @@ public class StepchartReader : MonoBehaviour {
     }
 
     public void CreateTimingData() {
-        string endExt = ".wav";
         dataPath = Application.dataPath;
         speed *= screenSizeMultiplier;
 
-#if UNITY_ANDROID
-        dataPath = Application.persistentDataPath;
-        endExt = ".mp3";
-#endif
-
-        WWW song = new WWW("file:///" + Path.Combine(Path.Combine(dataPath, "Songs"), songName + endExt));
-
-        while (!song.isDone) ;
-        stepchartMover.song.clip = song.GetAudioClip(false);
-
-        timeData = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), songName + ".txt"));
+        timeData = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex] + ".txt"));
 
         stepchartMover.bpmData = new List<StepchartMover.BPMData>();
         stepchartMover.speedData = new List<StepchartMover.SpeedData>();
@@ -244,7 +238,7 @@ public class StepchartReader : MonoBehaviour {
         while (!timeData.ReadLine().Contains("#SCROLLS:")) ;
 
         int scrollIndex = 0;
-              
+
         while ((tempStr = timeData.ReadLine()) != ";") { //Reading Scrolls
             for (var i = 0; i < tempStr.Length; i++) {
                 if (char.ConvertFromUtf32(tempStr[i]) == "=")

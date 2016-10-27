@@ -39,6 +39,11 @@ public class MenuScript : MonoBehaviour {
             PlayerPref.prefSpeed = 2;
         }
 
+        PlayerPref.playerScore.perfect = 0;
+        PlayerPref.playerScore.miss = 0;
+        PlayerPref.playerScore.maxCombo = 0;
+        PlayerPref.playerScore.score = 0;
+
         RefreshUI();
     }
 
@@ -68,6 +73,6 @@ public class MenuScript : MonoBehaviour {
     }
 
     public void LoadLevel() {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(1 + PlayerPref.sceneValueOffset);
     }
 }

@@ -114,16 +114,17 @@ public class StepchartMover : MonoBehaviour {
 
     public Text points;
     public float totalPoints;
+    public PlayerDataCreator playerManager;
+    public Transform sequenceZone;
 
-    void Start() {
+    public void InitialiseStepchart() {
         //for (var i = 0; i < legs.Length; i++)
         //KinectManager.Instance.legs[i] = legs[i];
 
-        stepchartBuilder.songName = PlayerPref.songs[PlayerPref.songIndex];
         stepchartBuilder.speed = PlayerPref.prefSpeed;
-
+        stepchartBuilder.stepchartMover = this;
         stepchartBuilder.CreateTimingData();
-        stepchartBuilder.CreateStepchart();
+        stepchartBuilder.CreateStepchart(sequenceZone);
 
         rush = PlayerPref.prefRush;
         currentBeat = 0;
@@ -133,20 +134,16 @@ public class StepchartMover : MonoBehaviour {
         prevBeat = 0;
         prevSpeed = 0;
 
-        song.pitch = rush;
         bpm = bpmData[0].bpm;
         bpm *= rush;
         endTime = (endBpm / bpm) * 60;
 
         endBpm = scrollData[scrollData.Count - 1].beat;
         totalDist = scrollData[scrollData.Count - 1].dist;
-
-        song.Play();
-        offset += Time.realtimeSinceStartup;
     }
 
     void Update() {
-        cRealTime = Time.realtimeSinceStartup - offset;
+        cRealTime = playerManager.cRealTime - offset;
 
         #region Timing Checks
         while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) { //Bpm changer
@@ -176,7 +173,7 @@ public class StepchartMover : MonoBehaviour {
         if (currentSpeed - 1 > 0)
             ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
 
-        transform.position = new Vector2(2, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
+        transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
         #endregion
 
         #region Judgement
@@ -190,10 +187,17 @@ public class StepchartMover : MonoBehaviour {
                 }
             }
 
-            if (missedBeats > 0)
+            if (missedBeats > 0) {
                 BeatScore(-1);
+                PlayerPref.playerScore.miss++;
+            }
             currentBeat++;
         }
+
+        if (!(currentBeat < beats.Count)) 
+            if ((beats[beats.Count-1].beatTiming/rush) + 3 < cRealTime)
+                SceneManager.LoadScene(2 + PlayerPref.sceneValueOffset);
+         
         #endregion
     }
 
@@ -238,7 +242,7 @@ public class StepchartMover : MonoBehaviour {
     public void BeatInput(int inputValue, int beat) {
         if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
             if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime)
-                if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {                    
+                if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {
                     beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
 
                     int missedBeats = 0;
@@ -248,6 +252,7 @@ public class StepchartMover : MonoBehaviour {
 
                     if (!(missedBeats > 0)) {
                         BeatScore(1);
+                        PlayerPref.playerScore.perfect++;
                     }
                     lanesInfo[beat].currentBeatInLane++;
                 }
@@ -263,6 +268,10 @@ public class StepchartMover : MonoBehaviour {
             else
                 combo++;
 
+            if (combo > PlayerPref.playerScore.maxCombo)
+                PlayerPref.playerScore.maxCombo = combo;
+
+            PlayerPref.playerScore.score += 1000;
             gradeT.text = "PERFECT";
         } else {
             if (combo > 0)
@@ -272,6 +281,8 @@ public class StepchartMover : MonoBehaviour {
 
             gradeT.text = "MISS";
         }
+
+
 
         comboT.text = Mathf.Abs(combo).ToString();
     }
