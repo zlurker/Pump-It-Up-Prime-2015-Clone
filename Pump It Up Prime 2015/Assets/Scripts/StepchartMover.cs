@@ -20,6 +20,19 @@ public class StepchartMover : MonoBehaviour {
         }
     }
 
+
+    [System.Serializable]
+    public struct WarpInfo {
+        public float beat;
+        public float warp;
+
+        public WarpInfo(float givenBeat, float givenWarp) {
+            beat = givenBeat;
+            warp = givenWarp;
+        }
+
+    }
+
     [System.Serializable]
     public struct SpeedData {
         public float beat;
@@ -66,6 +79,7 @@ public class StepchartMover : MonoBehaviour {
         public List<int> beatPositions;
         public int currentBeatInLane;
     }
+
     #endregion
 
     public StepchartReader stepchartBuilder;
@@ -82,6 +96,7 @@ public class StepchartMover : MonoBehaviour {
     public List<SpeedData> speedData;
     public List<ScrollData> scrollData;
     public List<BeatsInfo> beats;
+    public List<WarpInfo> warps;
     public LaneInfo[] lanesInfo;
 
     [HideInInspector]
@@ -94,7 +109,6 @@ public class StepchartMover : MonoBehaviour {
     float cRealTime;
     float endTime;
     float dOffset;
-    float timerForLongBeat;
 
     float prevBeat;
     float prevDist;
@@ -103,6 +117,7 @@ public class StepchartMover : MonoBehaviour {
     int currentBeat;
     int currentSpeed;
     int currentScroll;
+    int currentWarp;
 
     public float prevSpeed;
 
@@ -131,6 +146,7 @@ public class StepchartMover : MonoBehaviour {
         currentSpeed = 0;
         currentBpm = 0;
         currentScroll = 0;
+        currentWarp = 0;
         prevBeat = 0;
         prevSpeed = 0;
 
@@ -146,8 +162,10 @@ public class StepchartMover : MonoBehaviour {
         cRealTime = playerManager.cRealTime - offset;
 
         #region Timing Checks
-        while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) { //Bpm changer
+        while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) { //Bpm changer 
+            if (bpmData[currentBpm].bpm >0)          
             ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
+            Debug.Log(bpm);
             currentBpm++;
         }
 
@@ -166,7 +184,7 @@ public class StepchartMover : MonoBehaviour {
             prevDist = scrollData[currentScroll - 1].dist;
 
             totalDist = scrollData[currentScroll].dist - prevDist;
-        }
+        } //Need to find a way to find warp positions... 
         #endregion
 
         #region Stepchart Movement
@@ -194,10 +212,10 @@ public class StepchartMover : MonoBehaviour {
             currentBeat++;
         }
 
-        if (!(currentBeat < beats.Count)) 
-            if ((beats[beats.Count-1].beatTiming/rush) + 3 < cRealTime)
+        if (!(currentBeat < beats.Count))
+            if ((beats[beats.Count - 1].beatTiming / rush) + 3 < cRealTime)
                 SceneManager.LoadScene(2 + PlayerPref.sceneValueOffset);
-         
+
         #endregion
     }
 

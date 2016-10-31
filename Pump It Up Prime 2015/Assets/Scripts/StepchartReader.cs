@@ -193,20 +193,46 @@ public class StepchartReader : MonoBehaviour {
             stepchartMover.offset = float.Parse(tempStr);
         }
 
+        while (!timeData.ReadLine().Contains("#WARPS:")) ;
+        while ((tempStr = timeData.ReadLine()) != ";") { //Reading warp
+            for (var i = 0; i < tempStr.Length; i++) {
+                if (char.ConvertFromUtf32(tempStr[i]) == "=")
+                    equalPos[0] = i;
+            }
+            float beat = float.Parse(tempStr.Substring(0, equalPos[0]));
+            float warp = float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
+
+            stepchartMover.warps.Add(new StepchartMover.WarpInfo(beat, warp));
+        }
+
+        timeData.Close();
+        timeData = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex] + ".txt"));
+
+        int currentWarp = 0;
         float prevBpm = 0;
         float prevBeat = 0;
         float cummalativeTime = 0;
 
         while (!timeData.ReadLine().Contains("#BPMS:")) ;
-        while ((tempStr = timeData.ReadLine()) != ";") { //Reading bpms
+        while ((tempStr = timeData.ReadLine()) != ";") { //Reading bpms/warp
             for (var i = 0; i < tempStr.Length; i++) {
                 if (char.ConvertFromUtf32(tempStr[i]) == "=")
                     equalPos[0] = i;
             }
             float beat = float.Parse(tempStr.Substring(0, equalPos[0]));
             float bpm = float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
-            if (prevBpm != 0)
-                cummalativeTime += ((beat - prevBeat) * 60) / prevBpm; //(beat)
+
+            /*while (currentWarp < stepchartMover.warps.Count && stepchartMover.warps[currentWarp].beat <= beat) {
+                float warpTime = cummalativeTime + ((stepchartMover.warps[currentWarp].beat - prevBeat) * 60) / prevBpm;
+
+                stepchartMover.bpmData.Add(new StepchartMover.BPMData(stepchartMover.warps[currentWarp].beat, 0, warpTime));
+                stepchartMover.bpmData.Add(new StepchartMover.BPMData(stepchartMover.warps[currentWarp].beat + stepchartMover.warps[currentWarp].warp, prevBpm, warpTime));
+                prevBeat = stepchartMover.warps[currentWarp].beat + stepchartMover.warps[currentWarp].warp;
+                currentWarp++;
+            }*/
+
+            if (prevBpm > 0)
+                cummalativeTime += ((beat - prevBeat) * 60) / prevBpm;
 
             stepchartMover.bpmData.Add(new StepchartMover.BPMData(beat, bpm, cummalativeTime));
 
@@ -271,7 +297,10 @@ public class StepchartReader : MonoBehaviour {
             bpm = bpmInst.bpm;
             time = bpmInst.time;
         }
-        return time + (((currentBeat - beat) / bpm) * 60);
+
+        if (bpm > 0)
+            return time + (((currentBeat - beat) / bpm) * 60);
+        return time;
     }
 }
 

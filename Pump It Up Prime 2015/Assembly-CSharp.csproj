@@ -65,7 +65,9 @@
      <None Include="Assets\Stepcharts\SilhouetteEffect.txt" />
      <None Include="Assets\Stepcharts\Selfishness.txt" />
      <None Include="Assets\Stepcharts\BadApple.txt" />
+     <None Include="Assets\Stepcharts\Reminiscence.txt" />
      <None Include="Assets\Stepcharts\RedSwan.txt" />
+     <None Include="Assets\Stepcharts\Requiem.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/UnityForPIU/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
