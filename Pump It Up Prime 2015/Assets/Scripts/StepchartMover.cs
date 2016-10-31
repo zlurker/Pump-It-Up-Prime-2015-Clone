@@ -163,9 +163,8 @@ public class StepchartMover : MonoBehaviour {
 
         #region Timing Checks
         while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) { //Bpm changer 
-            if (bpmData[currentBpm].bpm >0)          
-            ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
-            Debug.Log(bpm);
+            if (bpmData[currentBpm].bpm > 0)
+                ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
             currentBpm++;
         }
 
@@ -192,6 +191,8 @@ public class StepchartMover : MonoBehaviour {
             ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
 
         transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
+        Debug.Log(prevDist);
+        Debug.Log((((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist)));
         #endregion
 
         #region Judgement
@@ -253,6 +254,7 @@ public class StepchartMover : MonoBehaviour {
 
         endTime = (endBpm / bpmToChange) * 60; //Changes ending time.
         bpm = bpmToChange; //Changes the BPM.
+        Debug.Log(cRealTime + " " + dOffset);
     }
     #endregion
 
