@@ -190,7 +190,7 @@ public class StepchartReader : MonoBehaviour {
 
         while (!timeData.ReadLine().Contains("#OFFSET:")) ;
         while ((tempStr = timeData.ReadLine()) != ";") {
-            stepchartMover.offset = float.Parse(tempStr);
+            stepchartMover.offset = -(float.Parse(tempStr));
         }
 
         float prevBpm = 0;
@@ -228,10 +228,12 @@ public class StepchartReader : MonoBehaviour {
             int j = 0;
 
             for (j = 0; j < stepchartMover.bpmData.Count; j++) {
+                
                 if (beat < stepchartMover.bpmData[j].beat) {
-                    bpm = stepchartMover.bpmData[j-1].bpm;
                     break;
                 }
+                if (stepchartMover.bpmData[j].bpm > 0)
+                    bpm = stepchartMover.bpmData[j].bpm;
             }
 
             float startWarpTiming = ReadTimeFromBPM(beat);
