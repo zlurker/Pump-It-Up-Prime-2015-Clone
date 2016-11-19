@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-//using UnityEditor;
 using System;
 using System.IO;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class StepchartReader : MonoBehaviour {
 
@@ -155,9 +158,13 @@ public class StepchartReader : MonoBehaviour {
             }
         }
         if (stepchartMover.beats[stepchartMover.beats.Count - 1].beats.Length == 10) {
-            sequenceZoneToMeasure.parent.position = new Vector2(2.5f, 0);
+            sequenceZoneToMeasure.parent.position = new Vector2(2 * beatScale, 0);
             sequenceZoneToMeasure.parent.GetChild(1).gameObject.SetActive(true);
             stepchartMover.transform.position = new Vector2(stepchartMover.transform.position.x - 3, stepchartMover.transform.position.y);
+
+            /*
+            stepchartMover.transform.position = new Vector2(4, stepchartMover.transform.position.y);
+            */
         }
 
         Debug.Log("LastBeat: " + lastBeat);
@@ -228,7 +235,7 @@ public class StepchartReader : MonoBehaviour {
             int j = 0;
 
             for (j = 0; j < stepchartMover.bpmData.Count; j++) {
-                
+
                 if (beat < stepchartMover.bpmData[j].beat) {
                     break;
                 }
@@ -247,7 +254,7 @@ public class StepchartReader : MonoBehaviour {
                 StepchartMover.BPMData inst = stepchartMover.bpmData[j];
                 inst.time -= timingDifference;
 
-                if (inst.time < stepchartMover.bpmData[f].time) {
+                if (inst.time <= stepchartMover.bpmData[f].time) {
                     inst.time = stepchartMover.bpmData[f].time;
 
                     if (inst.bpm > 0) {
@@ -255,17 +262,16 @@ public class StepchartReader : MonoBehaviour {
                         inst.bpm = 0;
                     }
                 }
+
                 stepchartMover.bpmData[j] = inst;
             }
 
             for (f += 1; f < stepchartMover.bpmData.Count; f++) {
-                if (beat+warp < stepchartMover.bpmData[f].beat)
+                if (beat + warp < stepchartMover.bpmData[f].beat)
                     break;
             }
 
             stepchartMover.bpmData.Insert(f, new StepchartMover.BPMData(beat + warp, bpm, startWarpTiming));
-
-            //stepchartMover.warps.Add(new StepchartMover.WarpInfo(beat, warp));
         }
 
         while (!timeData.ReadLine().Contains("#SPEEDS:")) ;
@@ -332,7 +338,8 @@ public class StepchartReader : MonoBehaviour {
     }
 }
 
-/*[CustomEditor(typeof(StepchartReader))]
+#if UNITY_EDITOR
+[CustomEditor(typeof(StepchartReader))]
 public class StepchartEditor : Editor {
 
     public override void OnInspectorGUI() {
@@ -341,13 +348,14 @@ public class StepchartEditor : Editor {
         StepchartReader toCreateChart = target as StepchartReader;
 
         if (GUILayout.Button("Create Stepchart"))
-            toCreateChart.CreateStepchart();
+            //toCreateChart.CreateStepchart();
 
-        if (GUILayout.Button("Clear Stepchart"))
-            toCreateChart.ClearStepchart();
+            if (GUILayout.Button("Clear Stepchart"))
+                toCreateChart.ClearStepchart();
 
         if (GUILayout.Button("Create Timing Data"))
             toCreateChart.CreateTimingData();
 
     }
-}*/
+}
+#endif
