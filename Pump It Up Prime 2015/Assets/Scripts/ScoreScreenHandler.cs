@@ -11,10 +11,10 @@ public class ScoreScreenHandler : MonoBehaviour {
     public Text score;
 
     void Start() {
-        perfect.text = PlayerPref.playerScore.perfect.ToString();
-        miss.text = PlayerPref.playerScore.miss.ToString();
-        maxCombo.text = PlayerPref.playerScore.maxCombo.ToString();
-        score.text = PlayerPref.playerScore.score.ToString();
+        perfect.text = PlayerPref.playerSettings[0].playerScore.perfect.ToString();
+        miss.text = PlayerPref.playerSettings[0].playerScore.miss.ToString();
+        maxCombo.text = PlayerPref.playerSettings[0].playerScore.maxCombo.ToString();
+        score.text = PlayerPref.playerSettings[0].playerScore.score.ToString();
     }
 
     void Update() {

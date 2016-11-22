@@ -4,14 +4,15 @@ using System.IO;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class MenuScript : MonoBehaviour {
+public class MenuController : MonoBehaviour {
 
     public string path;
     public Text dataPath;
-
     public Text songTitle;
-    public Text currSpeed;
+    //public Text currSpeed;
     public Text currRush;
+
+    public Text[] currSpeed;
 
     // Use this for initialization
     void Start() {
@@ -24,6 +25,7 @@ public class MenuScript : MonoBehaviour {
         dataPath.text = "Put stepchart files here: " + path;
 
         if (!PlayerPref.songsRegisted) {
+            PlayerPref.playerSettings = new PlayerSettings[2];
             PlayerPref.songsRegisted = true;
 
             DirectoryInfo stepchartDirectory = new DirectoryInfo(Path.Combine(path, "Stepcharts"));
@@ -36,20 +38,16 @@ public class MenuScript : MonoBehaviour {
             }
 
             PlayerPref.prefRush = 1;
-            PlayerPref.prefSpeed = 2;
+
+            for (var i = 0; i < 2; i++)
+                PlayerPref.playerSettings[i].prefSpeed = 2;
         }
 
-        PlayerPref.playerScore.perfect = 0;
-        PlayerPref.playerScore.miss = 0;
-        PlayerPref.playerScore.maxCombo = 0;
-        PlayerPref.playerScore.score = 0;
+        PlayerPref.playerSettings[0].playerScore.perfect = 0;
+        PlayerPref.playerSettings[0].playerScore.miss = 0;
+        PlayerPref.playerSettings[0].playerScore.maxCombo = 0;
+        PlayerPref.playerSettings[0].playerScore.score = 0;
 
-        RefreshUI();
-    }
-
-    public void ChangeSpeed(float value) {
-        if (PlayerPref.prefSpeed + value > 0 && PlayerPref.prefSpeed + value < 7)
-            PlayerPref.prefSpeed += value;
         RefreshUI();
     }
 
@@ -66,10 +64,13 @@ public class MenuScript : MonoBehaviour {
         RefreshUI();
     }
 
-    void RefreshUI() {
+    public void RefreshUI() {
         songTitle.text = PlayerPref.songs[PlayerPref.songIndex];
-        currSpeed.text = PlayerPref.prefSpeed.ToString();
+
         currRush.text = PlayerPref.prefRush.ToString();
+
+        for (var i = 0; i < 2; i++)
+            currSpeed[i].text = PlayerPref.playerSettings[i].prefSpeed.ToString();
     }
 
     public void LoadLevel() {

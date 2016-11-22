@@ -2,7 +2,7 @@
 using System.Collections;
 using System.IO;
 
-public class PlayerDataCreator : MonoBehaviour {
+public class MainPlayerController : MonoBehaviour {
 
     public StepchartMover[] stepcharts;
 
@@ -11,8 +11,7 @@ public class PlayerDataCreator : MonoBehaviour {
     public float offset;
     public string dataPath;
 
-
-    void Start () {
+    void Start() {
         for (var i = 0; i < stepcharts.Length; i++) {
             stepcharts[i].InitialiseStepchart();
             stepcharts[i].playerManager = this;
@@ -35,8 +34,8 @@ public class PlayerDataCreator : MonoBehaviour {
         songPlayer.Play();
         offset += Time.realtimeSinceStartup;
     }
-	
-	void Update () {
-        cRealTime = Time.realtimeSinceStartup - offset;	
-	}
+
+    void Update() {
+        cRealTime = Time.realtimeSinceStartup - offset;
+    }
 }

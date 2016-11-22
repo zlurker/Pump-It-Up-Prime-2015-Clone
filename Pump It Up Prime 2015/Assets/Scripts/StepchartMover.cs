@@ -130,14 +130,14 @@ public class StepchartMover : MonoBehaviour {
 
     public Text points;
     public float totalPoints;
-    public PlayerDataCreator playerManager;
+    public MainPlayerController playerManager;
     public Transform sequenceZone;
 
     public void InitialiseStepchart() {
         //for (var i = 0; i < legs.Length; i++)
         //KinectManager.Instance.legs[i] = legs[i];
 
-        stepchartBuilder.speed = PlayerPref.prefSpeed;
+        stepchartBuilder.speed = PlayerPref.playerSettings[0].prefSpeed;
         stepchartBuilder.stepchartMover = this;
         stepchartBuilder.CreateTimingData();
         stepchartBuilder.CreateStepchart(sequenceZone);
@@ -184,7 +184,7 @@ public class StepchartMover : MonoBehaviour {
             prevDist = scrollData[currentScroll - 1].dist;
 
             totalDist = scrollData[currentScroll].dist - prevDist;
-        } //Need to find a way to find warp positions... 
+        }
         #endregion
 
         #region Stepchart Movement
@@ -207,7 +207,7 @@ public class StepchartMover : MonoBehaviour {
 
             if (missedBeats > 0) {
                 BeatScore(-1);
-                PlayerPref.playerScore.miss++;
+                PlayerPref.playerSettings[0].playerScore.miss++;
             }
             currentBeat++;
         }
@@ -276,7 +276,7 @@ public class StepchartMover : MonoBehaviour {
 
                     if (!(missedBeats > 0)) {
                         BeatScore(1);
-                        PlayerPref.playerScore.perfect++;
+                        PlayerPref.playerSettings[0].playerScore.perfect++;
                     }
                     lanesInfo[beat].currentBeatInLane++;
                 }
@@ -292,10 +292,10 @@ public class StepchartMover : MonoBehaviour {
             else
                 combo++;
 
-            if (combo > PlayerPref.playerScore.maxCombo)
-                PlayerPref.playerScore.maxCombo = combo;
+            if (combo > PlayerPref.playerSettings[0].playerScore.maxCombo)
+                PlayerPref.playerSettings[0].playerScore.maxCombo = combo;
 
-            PlayerPref.playerScore.score += 1000;
+            PlayerPref.playerSettings[0].playerScore.score += 1000;
             gradeT.text = "PERFECT";
         } else {
             if (combo > 0)
