@@ -43,10 +43,12 @@ public class MenuController : MonoBehaviour {
                 PlayerPref.playerSettings[i].prefSpeed = 2;
         }
 
-        PlayerPref.playerSettings[0].playerScore.perfect = 0;
-        PlayerPref.playerSettings[0].playerScore.miss = 0;
-        PlayerPref.playerSettings[0].playerScore.maxCombo = 0;
-        PlayerPref.playerSettings[0].playerScore.score = 0;
+        for (var i = 0; i < 2; i++) {
+            PlayerPref.playerSettings[i].playerScore.perfect = 0;
+            PlayerPref.playerSettings[i].playerScore.miss = 0;
+            PlayerPref.playerSettings[i].playerScore.maxCombo = 0;
+            PlayerPref.playerSettings[i].playerScore.score = 0;
+        }
 
         RefreshUI();
     }

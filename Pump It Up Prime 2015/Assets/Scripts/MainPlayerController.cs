@@ -13,7 +13,7 @@ public class MainPlayerController : MonoBehaviour {
 
     void Start() {
         for (var i = 0; i < stepcharts.Length; i++) {
-            stepcharts[i].InitialiseStepchart();
+            stepcharts[i].InitialiseStepchart(i);
             stepcharts[i].playerManager = this;
         }
 

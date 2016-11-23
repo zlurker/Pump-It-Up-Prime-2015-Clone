@@ -154,18 +154,17 @@ public class StepchartReader : MonoBehaviour {
                 while (!(currentRow = readBeats.ReadLine()).Contains(",") && currentRow != ";")
                     numberOfRows++;
                 debugBeats++;
-
             }
         }
-        if (stepchartMover.beats[stepchartMover.beats.Count - 1].beats.Length == 10) {
+        /*if (stepchartMover.beats[stepchartMover.beats.Count - 1].beats.Length == 10) {
             sequenceZoneToMeasure.parent.position = new Vector2(2 * beatScale, 0);
             sequenceZoneToMeasure.parent.GetChild(1).gameObject.SetActive(true);
             stepchartMover.transform.position = new Vector2(stepchartMover.transform.position.x - 3, stepchartMover.transform.position.y);
 
             /*
             stepchartMover.transform.position = new Vector2(4, stepchartMover.transform.position.y);
-            */
-        }
+            
+        }*/
 
         Debug.Log("LastBeat: " + lastBeat);
         stepchart.Close();

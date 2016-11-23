@@ -15,7 +15,7 @@ public struct ScoreData {
 public struct PlayerSettings {
     public ScoreData playerScore;
     public float prefSpeed;
-    public int life;
+    public float life;
 }
 
 public static class PlayerPref {

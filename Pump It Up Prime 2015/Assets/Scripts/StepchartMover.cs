@@ -132,12 +132,14 @@ public class StepchartMover : MonoBehaviour {
     public float totalPoints;
     public MainPlayerController playerManager;
     public Transform sequenceZone;
+    public int index;
 
-    public void InitialiseStepchart() {
+    public void InitialiseStepchart(int playerIndex) {
         //for (var i = 0; i < legs.Length; i++)
         //KinectManager.Instance.legs[i] = legs[i];
+        index = playerIndex;
 
-        stepchartBuilder.speed = PlayerPref.playerSettings[0].prefSpeed;
+        stepchartBuilder.speed = PlayerPref.playerSettings[playerIndex].prefSpeed;
         stepchartBuilder.stepchartMover = this;
         stepchartBuilder.CreateTimingData();
         stepchartBuilder.CreateStepchart(sequenceZone);
@@ -293,9 +295,9 @@ public class StepchartMover : MonoBehaviour {
                 combo++;
 
             if (combo > PlayerPref.playerSettings[0].playerScore.maxCombo)
-                PlayerPref.playerSettings[0].playerScore.maxCombo = combo;
+                PlayerPref.playerSettings[index].playerScore.maxCombo = combo;
 
-            PlayerPref.playerSettings[0].playerScore.score += 1000;
+            PlayerPref.playerSettings[index].playerScore.score += 1000;
             gradeT.text = "PERFECT";
         } else {
             if (combo > 0)
