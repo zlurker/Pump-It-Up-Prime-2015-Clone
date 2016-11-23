@@ -45,20 +45,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Controllers\MenuController.cs" />
+     <Compile Include="Assets\Scripts\Controllers\ScoreScreenHandler.cs" />
+     <Compile Include="Assets\Scripts\Controllers\SubMenuController.cs" />
      <Compile Include="Assets\Scripts\Experiments\GamepadCalibrator.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpringEffectExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpriteExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\TimeExperiment.cs" />
-     <Compile Include="Assets\Scripts\GamePadInput.cs" />
-     <Compile Include="Assets\Scripts\KeyboardInput.cs" />
-     <Compile Include="Assets\Scripts\MainPlayerController.cs" />
-     <Compile Include="Assets\Scripts\MenuController.cs" />
-     <Compile Include="Assets\Scripts\MobileInput.cs" />
-     <Compile Include="Assets\Scripts\PlayerPref.cs" />
-     <Compile Include="Assets\Scripts\ScoreScreenHandler.cs" />
-     <Compile Include="Assets\Scripts\StepchartMover.cs" />
-     <Compile Include="Assets\Scripts\StepchartReader.cs" />
-     <Compile Include="Assets\Scripts\SubMenuController.cs" />
+     <Compile Include="Assets\Scripts\Gameplay\MainPlayerController.cs" />
+     <Compile Include="Assets\Scripts\Gameplay\PlayerPref.cs" />
+     <Compile Include="Assets\Scripts\Gameplay\StepchartMover.cs" />
+     <Compile Include="Assets\Scripts\Gameplay\StepchartReader.cs" />
+     <Compile Include="Assets\Scripts\Input\GamePadInput.cs" />
+     <Compile Include="Assets\Scripts\Input\InputBase.cs" />
+     <Compile Include="Assets\Scripts\Input\KeyboardInput.cs" />
+     <Compile Include="Assets\Scripts\Input\MobileInput.cs" />
      <None Include="Assets\Stepcharts\SuperFantasy.txt" />
      <None Include="Assets\Stepcharts\SugarConspiracyTheory.txt" />
      <None Include="Assets\Stepcharts\Elvis.txt" />

@@ -89,7 +89,6 @@ public class StepchartMover : MonoBehaviour {
     public Animation grade;
     public Text gradeT;
     public Text comboT;
-    public KeyCode[] controls;
     public float allowanceTime;
 
     public List<BPMData> bpmData;
@@ -209,7 +208,7 @@ public class StepchartMover : MonoBehaviour {
 
             if (missedBeats > 0) {
                 BeatScore(-1);
-                PlayerPref.playerSettings[0].playerScore.miss++;
+                PlayerPref.playerSettings[index].playerScore.miss++;
             }
             currentBeat++;
         }
@@ -266,8 +265,9 @@ public class StepchartMover : MonoBehaviour {
 
     #region Beat Handler
     public void BeatInput(int inputValue, int beat) {
+
         if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
-            if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime)
+            if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime) {
                 if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {
                     beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
 
@@ -278,10 +278,11 @@ public class StepchartMover : MonoBehaviour {
 
                     if (!(missedBeats > 0)) {
                         BeatScore(1);
-                        PlayerPref.playerSettings[0].playerScore.perfect++;
+                        PlayerPref.playerSettings[index].playerScore.perfect++;
                     }
                     lanesInfo[beat].currentBeatInLane++;
                 }
+            }
     }
 
     void BeatScore(int givenCombo) {
@@ -294,7 +295,7 @@ public class StepchartMover : MonoBehaviour {
             else
                 combo++;
 
-            if (combo > PlayerPref.playerSettings[0].playerScore.maxCombo)
+            if (combo > PlayerPref.playerSettings[index].playerScore.maxCombo)
                 PlayerPref.playerSettings[index].playerScore.maxCombo = combo;
 
             PlayerPref.playerSettings[index].playerScore.score += 1000;
