@@ -130,7 +130,6 @@ public class StepchartMover : MonoBehaviour {
     public Text points;
     public float totalPoints;
     public MainPlayerController playerManager;
-    public Transform sequenceZone;
     public int index;
 
     public void InitialiseStepchart(int playerIndex) {
@@ -141,7 +140,7 @@ public class StepchartMover : MonoBehaviour {
         stepchartBuilder.speed = PlayerPref.playerSettings[playerIndex].prefSpeed;
         stepchartBuilder.stepchartMover = this;
         stepchartBuilder.CreateTimingData();
-        stepchartBuilder.CreateStepchart(sequenceZone);
+        stepchartBuilder.CreateStepchart();
 
         rush = PlayerPref.prefRush;
         currentBeat = 0;

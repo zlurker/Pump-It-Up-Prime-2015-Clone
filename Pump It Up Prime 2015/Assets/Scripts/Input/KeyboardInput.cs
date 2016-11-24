@@ -4,7 +4,6 @@ using System.Collections;
 public class KeyboardInput : InputBase {
 
     public KeyCode[] keyboardInputs;
-    public StepchartMover stepchart;
     // Use this for initialization
     void Start() {
 
@@ -21,7 +20,7 @@ public class KeyboardInput : InputBase {
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
-            stepchart.ExitLevel();
+            players[0].ExitLevel();
     }
 
 }

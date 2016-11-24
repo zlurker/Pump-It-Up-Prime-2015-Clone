@@ -10,6 +10,7 @@ using UnityEditor;
 
 public class StepchartReader : MonoBehaviour {
 
+    public Transform[] sequenceZoneToMeasure;
     public bool invertStepchart;
     public GameObject[] beatArrows;
     public GameObject[] longBeatMid;
@@ -22,7 +23,7 @@ public class StepchartReader : MonoBehaviour {
     public float beatScale;
     public float screenSizeMultiplier;
     public StepchartMover stepchartMover;
-
+    public InputBase input;
     StreamReader stepchart;
     StreamReader readBeats;
     StreamReader timeData;
@@ -32,7 +33,7 @@ public class StepchartReader : MonoBehaviour {
 
     string dataPath;
 
-    public void CreateStepchart(Transform sequenceZoneToMeasure) {
+    public void CreateStepchart() {
         stepchart = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex] + ".txt"));
         readBeats = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex] + ".txt"));
 
@@ -50,6 +51,8 @@ public class StepchartReader : MonoBehaviour {
         toCreateLongBeatData = new bool[10];
         stepchartMover.lanesInfo = new StepchartMover.LaneInfo[10];
         float currentPos = 0;
+
+        stepchartMover.transform.position = sequenceZoneToMeasure[stepchartMover.index].position;
 
         for (var i = 0; i < stepchartMover.lanesInfo.Length; i++)
             stepchartMover.lanesInfo[i].beatPositions = new List<int>();
@@ -83,7 +86,7 @@ public class StepchartReader : MonoBehaviour {
 
                     switch (char.ConvertFromUtf32(beat)) {
                         case "F": //F is fake
-                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
@@ -93,7 +96,7 @@ public class StepchartReader : MonoBehaviour {
                         case "1":
                         case "X":
                         case "Y":
-                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
@@ -106,7 +109,7 @@ public class StepchartReader : MonoBehaviour {
                         case "2":
                         case "x":
                         case "y":
-                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
@@ -118,11 +121,11 @@ public class StepchartReader : MonoBehaviour {
                         case "3":
                             float dist = 0;
 
-                            inst = Instantiate(longBeatEnd[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            inst = Instantiate(longBeatEnd[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(sequenceZoneToMeasure.position.x - (2 * beatScale) + (e * beatScale), -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
+                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
                             temp.transform.localScale = new Vector2(2 * beatScale, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
 
                             inst.transform.parent = stepchartMover.transform;
@@ -156,15 +159,16 @@ public class StepchartReader : MonoBehaviour {
                 debugBeats++;
             }
         }
-        /*if (stepchartMover.beats[stepchartMover.beats.Count - 1].beats.Length == 10) {
-            sequenceZoneToMeasure.parent.position = new Vector2(2 * beatScale, 0);
-            sequenceZoneToMeasure.parent.GetChild(1).gameObject.SetActive(true);
-            stepchartMover.transform.position = new Vector2(stepchartMover.transform.position.x - 3, stepchartMover.transform.position.y);
 
-            /*
-            stepchartMover.transform.position = new Vector2(4, stepchartMover.transform.position.y);
+        if (stepchartMover.beats[stepchartMover.beats.Count - 1].beats.Length == 10) {
+            input.activePlayerIndex = stepchartMover.index;
+            input.currentGameMode = InputBase.GameMode.Double;
+            sequenceZoneToMeasure[0].position = new Vector3(2.7f, 0, 0);
+            sequenceZoneToMeasure[1].position = new Vector3(9f, 0, 0);
             
-        }*/
+
+            stepchartMover.transform.position = sequenceZoneToMeasure[0].position;
+        }
 
         Debug.Log("LastBeat: " + lastBeat);
         stepchart.Close();
@@ -174,6 +178,8 @@ public class StepchartReader : MonoBehaviour {
         stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats * 4, 0, ReadTimeFromBPM(debugBeats * 4), currentPos));
         stepchartMover.beatScale = 2 * beatScale;
         Debug.Log("Stepchart Deciphered");
+        Debug.Log(sequenceZoneToMeasure[0].position);
+        Debug.Log(sequenceZoneToMeasure[1].position);
     }
 
     public void ClearStepchart() {
@@ -354,7 +360,6 @@ public class StepchartEditor : Editor {
 
         if (GUILayout.Button("Create Timing Data"))
             toCreateChart.CreateTimingData();
-
     }
 }
 #endif
