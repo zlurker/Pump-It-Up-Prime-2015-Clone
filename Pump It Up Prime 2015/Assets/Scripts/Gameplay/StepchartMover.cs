@@ -264,24 +264,24 @@ public class StepchartMover : MonoBehaviour {
 
     #region Beat Handler
     public void BeatInput(int inputValue, int beat) {
+        if (isActiveAndEnabled)
+            if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
+                if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime) {
+                    if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {
+                        beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
 
-        if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
-            if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime) {
-                if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {
-                    beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
+                        int missedBeats = 0;
 
-                    int missedBeats = 0;
+                        foreach (int beatValue in beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats)
+                            missedBeats += beatValue;
 
-                    foreach (int beatValue in beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats)
-                        missedBeats += beatValue;
-
-                    if (!(missedBeats > 0)) {
-                        BeatScore(1);
-                        PlayerPref.playerSettings[index].playerScore.perfect++;
+                        if (!(missedBeats > 0)) {
+                            BeatScore(1);
+                            PlayerPref.playerSettings[index].playerScore.perfect++;
+                        }
+                        lanesInfo[beat].currentBeatInLane++;
                     }
-                    lanesInfo[beat].currentBeatInLane++;
                 }
-            }
     }
 
     void BeatScore(int givenCombo) {

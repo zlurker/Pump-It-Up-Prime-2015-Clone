@@ -24,6 +24,7 @@ public class StepchartReader : MonoBehaviour {
     public float screenSizeMultiplier;
     public StepchartMover stepchartMover;
     public InputBase input;
+    int currentLevel;
     StreamReader stepchart;
     StreamReader readBeats;
     StreamReader timeData;
@@ -34,8 +35,8 @@ public class StepchartReader : MonoBehaviour {
     string dataPath;
 
     public void CreateStepchart() {
-        stepchart = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex] + ".txt"));
-        readBeats = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex] + ".txt"));
+        stepchart = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex].name + ".txt"));
+        readBeats = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex].name + ".txt"));
 
         stepchartMover.beats = new List<StepchartMover.BeatsInfo>();
 
@@ -51,11 +52,18 @@ public class StepchartReader : MonoBehaviour {
         toCreateLongBeatData = new bool[10];
         stepchartMover.lanesInfo = new StepchartMover.LaneInfo[10];
         float currentPos = 0;
+        currentLevel = 0;
 
         stepchartMover.transform.position = sequenceZoneToMeasure[stepchartMover.index].position;
 
         for (var i = 0; i < stepchartMover.lanesInfo.Length; i++)
             stepchartMover.lanesInfo[i].beatPositions = new List<int>();
+
+        while (currentLevel != PlayerPref.playerSettings[stepchartMover.index].currentSongLevel+1) {
+            readBeats.ReadLine();
+            if (stepchart.ReadLine().Contains("#STEPSTYPE:"))
+                currentLevel++;
+        }
 
         while (!stepchart.ReadLine().Contains("#NOTES:")) ;
         while (!readBeats.ReadLine().Contains("#NOTES:")) ;
@@ -165,8 +173,9 @@ public class StepchartReader : MonoBehaviour {
             input.currentGameMode = InputBase.GameMode.Double;
             sequenceZoneToMeasure[0].position = new Vector3(2.7f, 0, 0);
             sequenceZoneToMeasure[1].position = new Vector3(9f, 0, 0);
-            
 
+            sequenceZoneToMeasure[0].gameObject.SetActive(true);
+            sequenceZoneToMeasure[1].gameObject.SetActive(true);
             stepchartMover.transform.position = sequenceZoneToMeasure[0].position;
         }
 
@@ -178,8 +187,7 @@ public class StepchartReader : MonoBehaviour {
         stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats * 4, 0, ReadTimeFromBPM(debugBeats * 4), currentPos));
         stepchartMover.beatScale = 2 * beatScale;
         Debug.Log("Stepchart Deciphered");
-        Debug.Log(sequenceZoneToMeasure[0].position);
-        Debug.Log(sequenceZoneToMeasure[1].position);
+
     }
 
     public void ClearStepchart() {
@@ -192,18 +200,25 @@ public class StepchartReader : MonoBehaviour {
         dataPath = Application.dataPath;
         speed *= screenSizeMultiplier;
 
-        timeData = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex] + ".txt"));
+        timeData = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex].name + ".txt"));
 
         stepchartMover.bpmData = new List<StepchartMover.BPMData>();
         stepchartMover.speedData = new List<StepchartMover.SpeedData>();
 
         string tempStr = "";
         int[] equalPos = new int[3];
+        currentLevel = 0;
 
+        while (currentLevel != PlayerPref.playerSettings[stepchartMover.index].currentSongLevel+1) {
+            if (timeData.ReadLine().Contains("#STEPSTYPE:"))
+                currentLevel++;
+        }
+        
         while (!timeData.ReadLine().Contains("#OFFSET:")) ;
         while ((tempStr = timeData.ReadLine()) != ";") {
             stepchartMover.offset = -(float.Parse(tempStr));
         }
+        Debug.Log("PastOffset");
 
         float prevBpm = 0;
         float prevBeat = 0;
@@ -321,7 +336,9 @@ public class StepchartReader : MonoBehaviour {
             scrollIndex++;
         }
         timeData.Close();
+        Debug.Log("Timing Data Generated");
     }
+
 
     float ReadTimeFromBPM(float currentBeat) {
         float beat = 0;

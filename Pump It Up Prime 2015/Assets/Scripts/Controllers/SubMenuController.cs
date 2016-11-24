@@ -3,8 +3,9 @@ using System.Collections;
 
 public class SubMenuController : MonoBehaviour {
 
-    public MenuController mainController;
+    public MainMenu mainController;
     public int playerIndex;
+    //int currentSongSelection;
 
     void Start () {
 	
@@ -13,6 +14,12 @@ public class SubMenuController : MonoBehaviour {
     public void ChangeSpeed(float value) {
         if (PlayerPref.playerSettings[playerIndex].prefSpeed + value > 0 && PlayerPref.playerSettings[playerIndex].prefSpeed + value < 7)
             PlayerPref.playerSettings[playerIndex].prefSpeed += value;
+        mainController.RefreshUI();
+    }
+
+    public void ChangeSongLevel(int value) {
+        if (PlayerPref.playerSettings[playerIndex].currentSongLevel + value > -1 && PlayerPref.playerSettings[playerIndex].currentSongLevel + value < PlayerPref.songs[PlayerPref.songIndex].levels.Count)
+            PlayerPref.playerSettings[playerIndex].currentSongLevel += value;
         mainController.RefreshUI();
     }
 }
