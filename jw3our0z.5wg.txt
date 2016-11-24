@@ -1,0 +1,37 @@
+﻿Commit v0.645
+
+-Double reimplemented
+
+Lifes need to be implemented next.
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Thu Nov 24 09:43:03 2016 +0800
+#
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   Pump It Up Prime 2015/.vs/Pump It Up Prime 2015/v14/.suo
+#	modified:   Pump It Up Prime 2015/Assets/Scenes/DemoLevel.unity
+#	modified:   Pump It Up Prime 2015/Assets/Scripts/Gameplay/StepchartMover.cs
+#	modified:   Pump It Up Prime 2015/Assets/Scripts/Gameplay/StepchartReader.cs
+#	modified:   Pump It Up Prime 2015/Assets/Scripts/Input/KeyboardInput.cs
+#	modified:   Pump It Up Prime 2015/Library/CurrentLayout.dwlt
+#	modified:   Pump It Up Prime 2015/Library/CurrentMaximizeLayout.dwlt
+#	modified:   Pump It Up Prime 2015/Library/InspectorExpandedItems.asset
+#	modified:   Pump It Up Prime 2015/Library/LastSceneManagerSetup.txt
+#	modified:   Pump It Up Prime 2015/Library/ScriptAssemblies/Assembly-CSharp.dll
+#	modified:   Pump It Up Prime 2015/Library/ScriptAssemblies/Assembly-CSharp.dll.mdb
+#	modified:   Pump It Up Prime 2015/Library/assetDatabase3
+#	modified:   Pump It Up Prime 2015/Library/expandedItems
+#	modified:   Pump It Up Prime 2015/Library/metadata/00/00000000000000004000000000000000
+#	modified:   Pump It Up Prime 2015/Library/metadata/00/00000000000000006000000000000000
+#	modified:   Pump It Up Prime 2015/Library/metadata/00/00000000000000006100000000000000
+#	modified:   Pump It Up Prime 2015/Library/metadata/0f/0fd0ddd8533d9e847995a36851ac3bd8
+#	modified:   Pump It Up Prime 2015/Library/metadata/9c/9cee835f128524a468047c7302abf0ad
+#	modified:   Pump It Up Prime 2015/Library/metadata/fb/fbf77e411ac5a4845ac27f5a1c83ae53
+#	modified:   Pump It Up Prime 2015/ProjectSettings/AudioManager.asset
+#
+
