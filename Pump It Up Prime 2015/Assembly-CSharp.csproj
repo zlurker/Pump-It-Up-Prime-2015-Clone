@@ -62,7 +62,6 @@
      <Compile Include="Assets\Scripts\Input\MobileInput.cs" />
      <None Include="Assets\Stepcharts\Imprinting.txt" />
      <None Include="Assets\Stepcharts\SuperFantasy.txt" />
-     <None Include="Assets\Songs\Step Pack.txt" />
      <None Include="Assets\Stepcharts\SugarConspiracyTheory.txt" />
      <None Include="Assets\Stepcharts\Elvis.txt" />
      <None Include="Assets\Stepcharts\RockTheHouse.txt" />

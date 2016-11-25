@@ -59,7 +59,7 @@ public class StepchartReader : MonoBehaviour {
         for (var i = 0; i < stepchartMover.lanesInfo.Length; i++)
             stepchartMover.lanesInfo[i].beatPositions = new List<int>();
 
-        while (currentLevel != PlayerPref.playerSettings[stepchartMover.index].currentSongLevel+1) {
+        while (currentLevel != PlayerPref.playerSettings[stepchartMover.index].currentSongLevel + 1) {
             readBeats.ReadLine();
             if (stepchart.ReadLine().Contains("#STEPSTYPE:"))
                 currentLevel++;
@@ -104,6 +104,7 @@ public class StepchartReader : MonoBehaviour {
                         case "1":
                         case "X":
                         case "Y":
+                        case "Z":
                             inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
@@ -117,6 +118,7 @@ public class StepchartReader : MonoBehaviour {
                         case "2":
                         case "x":
                         case "y":
+                        case "z":
                             inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
@@ -209,23 +211,25 @@ public class StepchartReader : MonoBehaviour {
         int[] equalPos = new int[3];
         currentLevel = 0;
 
-        while (currentLevel != PlayerPref.playerSettings[stepchartMover.index].currentSongLevel+1) {
+        while (currentLevel != PlayerPref.playerSettings[stepchartMover.index].currentSongLevel + 1) {
             if (timeData.ReadLine().Contains("#STEPSTYPE:"))
                 currentLevel++;
         }
-        
-        while (!timeData.ReadLine().Contains("#OFFSET:")) ;
-        while ((tempStr = timeData.ReadLine()) != ";") {
-            stepchartMover.offset = -(float.Parse(tempStr));
-        }
-        Debug.Log("PastOffset");
 
+        while (!(tempStr = timeData.ReadLine()).Contains("#OFFSET:")) ;
+        tempStr = tempStr.Remove(0, 8);
+        tempStr = tempStr.Remove(tempStr.Length - 1, 1);
+        stepchartMover.offset = -(float.Parse(tempStr));//-(float.Parse(tempStr));
+
+        Debug.Log("PastOffset");
         float prevBpm = 0;
         float prevBeat = 0;
         float cummalativeTime = 0;
 
-        while (!timeData.ReadLine().Contains("#BPMS:")) ;
-        while ((tempStr = timeData.ReadLine()) != ";") { //Reading bpms/warp
+        while (!(tempStr = timeData.ReadLine()).Contains("#BPMS:")) ;
+        tempStr = tempStr.Remove(0, 6);
+        
+        while (tempStr != ";") { //Reading bpms/warp
             for (var i = 0; i < tempStr.Length; i++) {
                 if (char.ConvertFromUtf32(tempStr[i]) == "=")
                     equalPos[0] = i;
@@ -240,10 +244,14 @@ public class StepchartReader : MonoBehaviour {
 
             prevBpm = bpm;
             prevBeat = beat;
+            tempStr = timeData.ReadLine();
         }
 
-        while (!timeData.ReadLine().Contains("#WARPS:")) ;
-        while ((tempStr = timeData.ReadLine()) != ";") { //Reading warp
+        Debug.Log("PastBPM");
+
+        while (!(tempStr = timeData.ReadLine()).Contains("#WARPS:")) ;
+        tempStr = tempStr.Remove(0, 7);
+        while (tempStr != ";") { //Reading warp
             for (var i = 0; i < tempStr.Length; i++) {
                 if (char.ConvertFromUtf32(tempStr[i]) == "=")
                     equalPos[0] = i;
@@ -292,10 +300,12 @@ public class StepchartReader : MonoBehaviour {
             }
 
             stepchartMover.bpmData.Insert(f, new StepchartMover.BPMData(beat + warp, bpm, startWarpTiming));
+            tempStr = timeData.ReadLine();
         }
 
-        while (!timeData.ReadLine().Contains("#SPEEDS:")) ;
-        while ((tempStr = timeData.ReadLine()) != ";") { //Reading speed
+        while (!(tempStr = timeData.ReadLine()).Contains("#SPEEDS:")) ;
+        tempStr = tempStr.Remove(0, 8);
+        while (tempStr != ";") { //Reading speed
             int posInEA = 0;
             for (var i = 0; i < tempStr.Length; i++) {
                 if (char.ConvertFromUtf32(tempStr[i]) == "=") {
@@ -312,14 +322,15 @@ public class StepchartReader : MonoBehaviour {
                 timeAllowed = ReadTimeFromBPM(speedBeat + timeAllowed) - ReadTimeFromBPM(speedBeat);
 
             stepchartMover.speedData.Add(new StepchartMover.SpeedData(speedBeat, float.Parse(tempStr.Substring(equalPos[0] + 1, equalPos[1] - equalPos[0] - 1)), timeAllowed, ReadTimeFromBPM(speedBeat)));
+            tempStr = timeData.ReadLine();
         }
 
 
-        while (!timeData.ReadLine().Contains("#SCROLLS:")) ;
-
+        while (!(tempStr = timeData.ReadLine()).Contains("#SCROLLS:")) ;
+        tempStr = tempStr.Remove(0, 9);
         int scrollIndex = 0;
 
-        while ((tempStr = timeData.ReadLine()) != ";") { //Reading Scrolls
+        while (tempStr != ";") { //Reading Scrolls
             for (var i = 0; i < tempStr.Length; i++) {
                 if (char.ConvertFromUtf32(tempStr[i]) == "=")
                     equalPos[0] = i;
@@ -334,6 +345,7 @@ public class StepchartReader : MonoBehaviour {
 
             stepchartMover.scrollData.Add(new StepchartMover.ScrollData(beat, scroll, ReadTimeFromBPM(beat), dist));
             scrollIndex++;
+            tempStr = timeData.ReadLine();
         }
         timeData.Close();
         Debug.Log("Timing Data Generated");

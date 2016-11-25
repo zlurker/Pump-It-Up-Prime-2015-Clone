@@ -41,7 +41,7 @@ public class MainMenu : MonoBehaviour {
             }
 
             PlayerPref.playerSettings[0].life = 5;
-            PlayerPref.playerSettings[1].life = 5;
+            //PlayerPref.playerSettings[1].life = 5;
         }
 
         for (var i = 0; i < 2; i++) {
@@ -88,6 +88,11 @@ public class MainMenu : MonoBehaviour {
         SceneManager.LoadScene(1 + PlayerPref.sceneValueOffset);
     }
 
+    public void KillPlayer(int player) {
+        PlayerPref.playerSettings[player].life = 0;
+        RefreshUI();
+    }
+
     void LoadSongsFromDirectory() {
         DirectoryInfo stepchartDirectory = new DirectoryInfo(Path.Combine(path, "Stepcharts"));
         FileInfo[] stepcharts = stepchartDirectory.GetFiles("*.txt");
@@ -102,7 +107,6 @@ public class MainMenu : MonoBehaviour {
     }
 
     void ReadStepchartLevelData(int songIndex, string songPath) {
-        //PlayerPref.songs[i].levels.Add("s1");
         StreamReader stepchart;
         string tempStr;
         string level = "";
