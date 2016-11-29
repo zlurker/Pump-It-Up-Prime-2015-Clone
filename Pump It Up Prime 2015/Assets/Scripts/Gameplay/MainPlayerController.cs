@@ -23,18 +23,22 @@ public class MainPlayerController : MonoBehaviour {
                     stepcharts[i].stepchartBuilder.sequenceZoneToMeasure[i].gameObject.SetActive(false);
             }
 
-        string endExt = ".wav";
         dataPath = Application.dataPath;
 
 #if UNITY_ANDROID
         dataPath = Application.persistentDataPath;
         endExt = ".mp3";
 #endif
+        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
+        FileInfo[] temp = directory.GetFiles("*.wav");
+        Debug.Log(temp[0]);
 
-        WWW song = new WWW("file:///" + Path.Combine(Path.Combine(dataPath, "Songs"), PlayerPref.songs[PlayerPref.songIndex].name + endExt));
+        WWW song = new WWW("file:///" + temp[0]);
+        
+        while (!song.isDone)
+            Debug.Log(song.progress);
 
-        while (!song.isDone) ;
-        songPlayer.clip = song.GetAudioClip(false);
+        songPlayer.clip = song.GetAudioClip(false,false,AudioType.WAV);
 
         songPlayer.pitch = PlayerPref.prefRush;
         songPlayer.Play();

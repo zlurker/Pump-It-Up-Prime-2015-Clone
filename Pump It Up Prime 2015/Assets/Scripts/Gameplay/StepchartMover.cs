@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -139,8 +140,10 @@ public class StepchartMover : MonoBehaviour {
 
         stepchartBuilder.speed = PlayerPref.playerSettings[playerIndex].prefSpeed;
         stepchartBuilder.stepchartMover = this;
-        stepchartBuilder.CreateTimingData();
-        stepchartBuilder.CreateStepchart();
+        DirectoryInfo songFolder = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
+        FileInfo[] stepchart = songFolder.GetFiles("*.ssc");
+
+        stepchartBuilder.CreateTimingData(stepchart[0].FullName);
 
         rush = PlayerPref.prefRush;
         currentBeat = 0;
@@ -276,7 +279,7 @@ public class StepchartMover : MonoBehaviour {
                             missedBeats += beatValue;
 
                         if (!(missedBeats > 0)) {
-                            BeatScore(1);
+                            BeatScore(4);
                             PlayerPref.playerSettings[index].playerScore.perfect++;
                         }
                         lanesInfo[beat].currentBeatInLane++;
@@ -297,18 +300,35 @@ public class StepchartMover : MonoBehaviour {
             if (combo > PlayerPref.playerSettings[index].playerScore.maxCombo)
                 PlayerPref.playerSettings[index].playerScore.maxCombo = combo;
 
-            PlayerPref.playerSettings[index].playerScore.score += 1000;
-            gradeT.text = "PERFECT";
         } else {
             if (combo > 0)
                 combo = 0;
             else
                 combo--;
-
-            gradeT.text = "MISS";
         }
 
+        switch (givenCombo) {
+            case -1:
+                gradeT.text = "MISS";
+                break;
+            case 1:
+                gradeT.text = "BAD";
+                break;
+            case 2:
+                gradeT.text = "GOOD";
+                break;
+            case 3:
+                gradeT.text = "GREAT";
+                break;
+            case 4:
+                gradeT.text = "PERFECT";
+                break;
+        }
 
+        PlayerPref.playerSettings[index].playerScore.score += 1000 * givenCombo;
+
+        if (PlayerPref.playerSettings[index].playerScore.score < 0)
+            PlayerPref.playerSettings[index].playerScore.score = 0;
 
         comboT.text = Mathf.Abs(combo).ToString();
     }

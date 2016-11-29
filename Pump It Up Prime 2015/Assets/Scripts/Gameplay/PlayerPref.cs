@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 public struct SongData {
     public string name;
-    public List<string> levels;
+    public string path;
+    public List<string> levels;   
 }
 
 public struct ScoreData {
@@ -29,7 +30,7 @@ public static class PlayerPref {
     public static int sceneValueOffset;
     //Global Settings  
     public static bool songsRegisted;
-    public static SongData[] songs;
+    public static List<SongData> songs;
     public static int songIndex;
     public static float prefRush;
     //SP settings

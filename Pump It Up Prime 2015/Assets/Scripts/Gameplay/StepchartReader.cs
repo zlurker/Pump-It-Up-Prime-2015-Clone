@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class StepchartReader : MonoBehaviour {
 
@@ -34,9 +31,9 @@ public class StepchartReader : MonoBehaviour {
 
     string dataPath;
 
-    public void CreateStepchart() {
-        stepchart = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex].name + ".txt"));
-        readBeats = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex].name + ".txt"));
+    public void CreateStepchart(string path) {
+        stepchart = File.OpenText(path);
+        readBeats = File.OpenText(path);
 
         stepchartMover.beats = new List<StepchartMover.BeatsInfo>();
 
@@ -198,11 +195,11 @@ public class StepchartReader : MonoBehaviour {
                 DestroyImmediate(beat.gameObject);
     }
 
-    public void CreateTimingData() {
+    public void CreateTimingData(string path) {
         dataPath = Application.dataPath;
         speed *= screenSizeMultiplier;
 
-        timeData = File.OpenText(Path.Combine(Path.Combine(dataPath, "Stepcharts"), PlayerPref.songs[PlayerPref.songIndex].name + ".txt"));
+        timeData = File.OpenText(path);
 
         stepchartMover.bpmData = new List<StepchartMover.BPMData>();
         stepchartMover.speedData = new List<StepchartMover.SpeedData>();
@@ -221,7 +218,6 @@ public class StepchartReader : MonoBehaviour {
         tempStr = tempStr.Remove(tempStr.Length - 1, 1);
         stepchartMover.offset = -(float.Parse(tempStr));//-(float.Parse(tempStr));
 
-        Debug.Log("PastOffset");
         float prevBpm = 0;
         float prevBeat = 0;
         float cummalativeTime = 0;
@@ -246,8 +242,6 @@ public class StepchartReader : MonoBehaviour {
             prevBeat = beat;
             tempStr = timeData.ReadLine();
         }
-
-        Debug.Log("PastBPM");
 
         while (!(tempStr = timeData.ReadLine()).Contains("#WARPS:")) ;
         tempStr = tempStr.Remove(0, 7);
@@ -349,8 +343,8 @@ public class StepchartReader : MonoBehaviour {
         }
         timeData.Close();
         Debug.Log("Timing Data Generated");
+        CreateStepchart(path);
     }
-
 
     float ReadTimeFromBPM(float currentBeat) {
         float beat = 0;
@@ -371,24 +365,3 @@ public class StepchartReader : MonoBehaviour {
         return time;
     }
 }
-
-#if UNITY_EDITOR
-[CustomEditor(typeof(StepchartReader))]
-public class StepchartEditor : Editor {
-
-    public override void OnInspectorGUI() {
-        DrawDefaultInspector();
-
-        StepchartReader toCreateChart = target as StepchartReader;
-
-        if (GUILayout.Button("Create Stepchart"))
-            //toCreateChart.CreateStepchart();
-
-            if (GUILayout.Button("Clear Stepchart"))
-                toCreateChart.ClearStepchart();
-
-        if (GUILayout.Button("Create Timing Data"))
-            toCreateChart.CreateTimingData();
-    }
-}
-#endif

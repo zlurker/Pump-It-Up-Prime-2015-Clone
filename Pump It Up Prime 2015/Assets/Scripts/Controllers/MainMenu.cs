@@ -17,20 +17,18 @@ public class MainMenu : MonoBehaviour {
     public Text[] currSpeed;
     public Text[] currLevel;
 
-    //string test = "#METER:15;";
-    // Use this for initialization
     void Start() {
-        //Debug.Log(test.Remove(0, 7));
         path = Application.dataPath;
 
 #if UNITY_ANDROID
 		path = Application.persistentDataPath;;
 #endif
 
-        dataPath.text = "Put stepchart files here: " + path;
+        dataPath.text = "Put song folder here: " + path;
 
         if (!PlayerPref.songsRegisted) {
-            LoadSongsFromDirectory();
+            PlayerPref.songs = new List<SongData>();
+            LoadSongsFromDirectory(new DirectoryInfo(Path.Combine(Application.dataPath, "Songs")));
 
             PlayerPref.playerSettings = new PlayerSettings[2];
             PlayerPref.songsRegisted = true;
@@ -40,7 +38,7 @@ public class MainMenu : MonoBehaviour {
                 PlayerPref.playerSettings[i].prefSpeed = 2;
             }
 
-            PlayerPref.playerSettings[0].life = 5;
+            //PlayerPref.playerSettings[0].life = 5;
             //PlayerPref.playerSettings[1].life = 5;
         }
 
@@ -61,7 +59,7 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void ChangeMusicMenu(int value) {
-        if (PlayerPref.songIndex + value > -1 && PlayerPref.songIndex + value < PlayerPref.songs.Length) {
+        if (PlayerPref.songIndex + value > -1 && PlayerPref.songIndex + value < PlayerPref.songs.Count) {
             PlayerPref.songIndex += value;
             for (var i = 0; i < 2; i++)
                 PlayerPref.playerSettings[i].currentSongLevel = 0;
@@ -89,43 +87,55 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void KillPlayer(int player) {
-        PlayerPref.playerSettings[player].life = 0;
+        if (PlayerPref.playerSettings[player].life > 0)
+            PlayerPref.playerSettings[player].life = 0;
+        else
+            PlayerPref.playerSettings[player].life = 5;
         RefreshUI();
     }
 
-    void LoadSongsFromDirectory() {
-        DirectoryInfo stepchartDirectory = new DirectoryInfo(Path.Combine(path, "Stepcharts"));
-        FileInfo[] stepcharts = stepchartDirectory.GetFiles("*.txt");
-        PlayerPref.songs = new SongData[stepcharts.Length];
+    void LoadSongsFromDirectory(DirectoryInfo directoryInfo) {
+        FileInfo[] stepcharts = directoryInfo.GetFiles("*.ssc");
+        DirectoryInfo[] directories = directoryInfo.GetDirectories();
 
-        for (var i = 0; i < PlayerPref.songs.Length; i++) {
-            PlayerPref.songs[i].name = stepcharts[i].FullName.Substring(path.Length + 12, stepcharts[i].FullName.Length - path.Length - 12 - 4);
-
-            PlayerPref.songs[i].levels = new List<string>();
-            ReadStepchartLevelData(i, stepcharts[i].FullName);
+        for (var i = 0; i < stepcharts.Length; i++) {
+            PlayerPref.songs.Add(ReadStepchartLevelData(stepcharts[i].FullName, directoryInfo.FullName));
         }
+
+        foreach (DirectoryInfo directory in directories)
+            LoadSongsFromDirectory(directory);
     }
 
-    void ReadStepchartLevelData(int songIndex, string songPath) {
+    SongData ReadStepchartLevelData(string songPath, string rootPath) {
+        SongData instance = new SongData();
         StreamReader stepchart;
         string tempStr;
         string level = "";
+
+        instance.path = rootPath;
+        instance.name = songPath.Substring(path.Length + 12, songPath.Length - path.Length - 12 - 4);
+        instance.levels = new List<string>();
         stepchart = File.OpenText(songPath);
 
         while ((tempStr = stepchart.ReadLine()) != null) {
 
+            if (tempStr.Contains("#TITLE:"))
+                instance.name = tempStr.Substring(7, tempStr.Length - 1);
+
             if (tempStr.Contains("pump-single"))
                 level = "S";
-            else if (tempStr.Contains("pump-double"))
+            else if (tempStr.Contains("pump-double") || tempStr.Contains("pump-routine"))
                 level = "D";
 
             if (tempStr.Contains("#METER:")) {
                 level += tempStr.Remove(0, 7);
                 level = level.Remove(level.Length - 1, 1);
-                PlayerPref.songs[songIndex].levels.Add(level);
+                instance.levels.Add(level);
             }
         }
 
         stepchart.Close();
+        return instance;
     }
 }
+
