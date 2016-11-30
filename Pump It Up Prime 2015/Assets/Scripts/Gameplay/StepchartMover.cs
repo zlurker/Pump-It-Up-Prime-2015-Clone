@@ -21,6 +21,19 @@ public class StepchartMover : MonoBehaviour {
         }
     }
 
+    [System.Serializable]
+    public struct DelayData {
+        public float beat;
+        public float delay;
+        public float time;
+
+        public DelayData(float givenBeat, float givenDelay, float calculatedTime) {
+            beat = givenBeat;
+            delay = givenDelay;
+            time = calculatedTime;
+        }
+    }
+
 
     [System.Serializable]
     public struct WarpInfo {
@@ -93,6 +106,7 @@ public class StepchartMover : MonoBehaviour {
     public float allowanceTime;
 
     public List<BPMData> bpmData;
+    public List<DelayData> delayData;
     public List<SpeedData> speedData;
     public List<ScrollData> scrollData;
     public List<BeatsInfo> beats;
@@ -110,15 +124,17 @@ public class StepchartMover : MonoBehaviour {
     float endTime;
     float dOffset;
 
+    float originalTime;
+
     float prevBeat;
     float prevDist;
     float prevOffset;
 
     int currentBpm;
+    int currentDelay;
     int currentBeat;
     int currentSpeed;
     int currentScroll;
-    int currentWarp;
 
     public float prevSpeed;
 
@@ -149,8 +165,8 @@ public class StepchartMover : MonoBehaviour {
         currentBeat = 0;
         currentSpeed = 0;
         currentBpm = 0;
+        currentDelay = 0;
         currentScroll = 0;
-        currentWarp = 0;
         prevBeat = 0;
         prevSpeed = 0;
 
@@ -160,66 +176,82 @@ public class StepchartMover : MonoBehaviour {
 
         endBpm = scrollData[scrollData.Count - 1].beat;
         totalDist = scrollData[scrollData.Count - 1].dist;
+
+        originalTime = playerManager.cRealTime - offset;
     }
 
     void Update() {
         cRealTime = playerManager.cRealTime - offset;
 
-        #region Timing Checks
-        while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) {
+        //Debug.Log("RT " + cRealTime);
+       // Debug.Log("OT " +originalTime);
+        
+        if (originalTime <= cRealTime) {
+            
+            #region Timing Checks
+            while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) {
 
-            ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
-            currentBpm++;
-        }
+                ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
+                currentBpm++;
+            }
 
-        while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
-            if (currentSpeed - 1 > -1)
-                prevSpeed = speedData[currentSpeed - 1].speed;
-            currentSpeed++;
-        }
+            while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
+                if (currentSpeed - 1 > -1)
+                    prevSpeed = speedData[currentSpeed - 1].speed;
+                currentSpeed++;
+            }
 
-        while (currentScroll < scrollData.Count - 1 && scrollData[currentScroll].time / rush < cRealTime) {
-            currentScroll++;
+            while (currentScroll < scrollData.Count - 1 && scrollData[currentScroll].time / rush < cRealTime) {
+                currentScroll++;
 
-            endBpm = scrollData[currentScroll].beat - scrollData[currentScroll - 1].beat;
-            endTime = (endBpm / bpm) * 60;
-            prevBeat = scrollData[currentScroll - 1].beat;
-            prevDist = scrollData[currentScroll - 1].dist;
+                endBpm = scrollData[currentScroll].beat - scrollData[currentScroll - 1].beat;
+                endTime = (endBpm / bpm) * 60;
+                prevBeat = scrollData[currentScroll - 1].beat;
+                prevDist = scrollData[currentScroll - 1].dist;
 
-            totalDist = scrollData[currentScroll].dist - prevDist;
-        }
-        #endregion
+                totalDist = scrollData[currentScroll].dist - prevDist;
+            }
 
-        #region Stepchart Movement
-        if (currentSpeed - 1 > 0)
-            ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
+            while (currentDelay < delayData.Count && delayData[currentDelay].time / rush < cRealTime) {
+                originalTime = cRealTime;
+                offset += delayData[currentDelay].delay/rush;
+                currentDelay++;
+            }
+            #endregion
 
-        transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
-        #endregion
+            #region Stepchart Movement
+            if (currentSpeed - 1 > 0)
+                ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
 
-        #region Judgement
-        while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
+            transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
+            #endregion
 
-            float missedBeats = 0;
-            for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
-                if (beats[currentBeat].beats[i] > 0) {
-                    lanesInfo[i].currentBeatInLane++;
-                    missedBeats++;
+
+            #region Judgement
+            while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
+
+                float missedBeats = 0;
+                for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
+                    if (beats[currentBeat].beats[i] > 0) {
+                        lanesInfo[i].currentBeatInLane++;
+                        missedBeats++;
+                    }
                 }
+
+                if (missedBeats > 0) {
+                    BeatScore(-1);
+                    PlayerPref.playerSettings[index].playerScore.miss++;
+                }
+                currentBeat++;
             }
 
-            if (missedBeats > 0) {
-                BeatScore(-1);
-                PlayerPref.playerSettings[index].playerScore.miss++;
-            }
-            currentBeat++;
+            if (!(currentBeat < beats.Count))
+                if ((beats[beats.Count - 1].beatTiming / rush) + 3 < cRealTime)
+                    SceneManager.LoadScene(2 + PlayerPref.sceneValueOffset);
+
+            #endregion
         }
-
-        if (!(currentBeat < beats.Count))
-            if ((beats[beats.Count - 1].beatTiming / rush) + 3 < cRealTime)
-                SceneManager.LoadScene(2 + PlayerPref.sceneValueOffset);
-
-        #endregion
+        
     }
 
     #region Stepchart Effects

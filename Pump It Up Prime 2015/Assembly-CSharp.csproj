@@ -60,20 +60,6 @@
      <Compile Include="Assets\Scripts\Input\InputBase.cs" />
      <Compile Include="Assets\Scripts\Input\KeyboardInput.cs" />
      <Compile Include="Assets\Scripts\Input\MobileInput.cs" />
-     <None Include="Assets\Stepcharts\Imprinting.txt" />
-     <None Include="Assets\Stepcharts\SuperFantasy.txt" />
-     <None Include="Assets\Stepcharts\SugarConspiracyTheory.txt" />
-     <None Include="Assets\Stepcharts\Elvis.txt" />
-     <None Include="Assets\Stepcharts\RockTheHouse.txt" />
-     <None Include="Assets\Stepcharts\MilkyWay.txt" />
-     <None Include="Assets\Stepcharts\One.txt" />
-     <None Include="Assets\Stepcharts\SilhouetteEffect.txt" />
-     <None Include="Assets\Stepcharts\Selfishness.txt" />
-     <None Include="Assets\Stepcharts\BadApple.txt" />
-     <None Include="Assets\Stepcharts\Reminiscence.txt" />
-     <None Include="Assets\Stepcharts\RedSwan.txt" />
-     <None Include="Assets\Stepcharts\Requiem.txt" />
-     <None Include="Assets\Stepcharts\IneffectiveBossWithoutPower.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

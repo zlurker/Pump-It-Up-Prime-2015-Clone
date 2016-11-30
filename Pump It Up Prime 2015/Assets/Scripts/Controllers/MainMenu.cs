@@ -120,7 +120,7 @@ public class MainMenu : MonoBehaviour {
         while ((tempStr = stepchart.ReadLine()) != null) {
 
             if (tempStr.Contains("#TITLE:"))
-                instance.name = tempStr.Substring(7, tempStr.Length - 1);
+                instance.name = tempStr.Substring(7, tempStr.Length - 1 -7);
 
             if (tempStr.Contains("pump-single"))
                 level = "S";

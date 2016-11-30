@@ -202,6 +202,7 @@ public class StepchartReader : MonoBehaviour {
         timeData = File.OpenText(path);
 
         stepchartMover.bpmData = new List<StepchartMover.BPMData>();
+        stepchartMover.delayData = new List<StepchartMover.DelayData>();
         stepchartMover.speedData = new List<StepchartMover.SpeedData>();
 
         string tempStr = "";
@@ -224,12 +225,12 @@ public class StepchartReader : MonoBehaviour {
 
         while (!(tempStr = timeData.ReadLine()).Contains("#BPMS:")) ;
         tempStr = tempStr.Remove(0, 6);
-        
+
         while (tempStr != ";") { //Reading bpms/warp
-            for (var i = 0; i < tempStr.Length; i++) {
+            for (var i = 0; i < tempStr.Length; i++)
                 if (char.ConvertFromUtf32(tempStr[i]) == "=")
                     equalPos[0] = i;
-            }
+
             float beat = float.Parse(tempStr.Substring(0, equalPos[0]));
             float bpm = float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
 
@@ -242,6 +243,22 @@ public class StepchartReader : MonoBehaviour {
             prevBeat = beat;
             tempStr = timeData.ReadLine();
         }
+
+        while (!(tempStr = timeData.ReadLine()).Contains("#DELAYS:")) ;
+        tempStr = tempStr.Remove(0, 8);
+
+        while (tempStr != ";") {
+            for (var i = 0; i < tempStr.Length; i++)
+                if (char.ConvertFromUtf32(tempStr[i]) == "=")
+                    equalPos[0] = i;
+
+            float beat = float.Parse(tempStr.Substring(0, equalPos[0]));
+            float delay = float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
+
+            stepchartMover.delayData.Add(new StepchartMover.DelayData(beat, delay, ReadTimeFromBPM(beat)));
+            tempStr = timeData.ReadLine();
+        }
+        
 
         while (!(tempStr = timeData.ReadLine()).Contains("#WARPS:")) ;
         tempStr = tempStr.Remove(0, 7);
