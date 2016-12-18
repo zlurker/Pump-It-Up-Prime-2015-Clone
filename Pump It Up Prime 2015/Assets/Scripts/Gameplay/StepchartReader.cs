@@ -185,6 +185,17 @@ public class StepchartReader : MonoBehaviour {
         currentPos = stepchartMover.scrollData[currentScroll - 1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll - 1].scroll);
         stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats * 4, 0, ReadTimeFromBPM(debugBeats * 4), currentPos));
         stepchartMover.beatScale = 2 * beatScale;
+
+        for (var i = 0; i < stepchartMover.bpmData.Count; i++) {
+            StepchartMover.BPMData returnInst = stepchartMover.bpmData[i];
+            foreach (StepchartMover.DelayData delayInst in stepchartMover.delayData) {
+                if (delayInst.beat >= stepchartMover.bpmData[i].beat)
+                    break;
+
+                returnInst.time += delayInst.delay;
+            }
+            stepchartMover.bpmData[i] = returnInst;
+        }
         Debug.Log("Stepchart Deciphered");
 
     }
@@ -254,8 +265,9 @@ public class StepchartReader : MonoBehaviour {
 
             float beat = float.Parse(tempStr.Substring(0, equalPos[0]));
             float delay = float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
+            float tempTime = ReadTimeFromBPM(beat);
 
-            stepchartMover.delayData.Add(new StepchartMover.DelayData(beat, delay, ReadTimeFromBPM(beat)));
+            stepchartMover.delayData.Add(new StepchartMover.DelayData(beat, delay, tempTime));
             tempStr = timeData.ReadLine();
         }
 
@@ -377,16 +389,6 @@ public class StepchartReader : MonoBehaviour {
         }
         timeData.Close();
 
-        for (var i = 0; i < stepchartMover.bpmData.Count; i++) {
-            StepchartMover.BPMData returnInst = stepchartMover.bpmData[i];
-            foreach (StepchartMover.DelayData delayInst in stepchartMover.delayData) {
-                if (delayInst.beat > stepchartMover.bpmData[i].beat)
-                    break;
-
-                returnInst.time += delayInst.delay;
-            }
-            stepchartMover.bpmData[i] = returnInst;
-        }
         Debug.Log("Timing Data Generated");
         CreateStepchart(path);
     }

@@ -188,18 +188,6 @@ public class StepchartMover : MonoBehaviour {
         //if (originalTime < cRealTime) 
         #region Timing Checks
 
-        while (currentDelay < delayData.Count && delayData[currentDelay].time / rush < cRealTime) {
-            originalTime = cRealTime;
-            offset += delayData[currentDelay].delay / rush;
-
-            transform.position = new Vector2(transform.position.x, (prevDist + (((delayData[currentDelay].beat - prevBeat) / (scrollData[currentScroll].beat - prevBeat)) * (totalDist))) * transform.localScale.y);
-            Debug.Log("Calculated: " + (prevDist + (((delayData[currentDelay].beat - prevBeat) / (scrollData[currentScroll].beat - prevBeat)) * (totalDist))) * transform.localScale.y);
-            Debug.Log(delayData[currentDelay].beat - prevBeat);
-            Debug.Log(scrollData[currentScroll].beat - prevBeat);
-
-            currentDelay++;
-        }
-
         while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) {
             ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
             currentBpm++;
@@ -222,20 +210,26 @@ public class StepchartMover : MonoBehaviour {
             totalDist = scrollData[currentScroll].dist - prevDist;
         }
 
-        #endregion
+        while (currentDelay < delayData.Count && delayData[currentDelay].time / rush < cRealTime) {
+            originalTime = cRealTime - dOffset;
+            dOffset += delayData[currentDelay].delay / rush;
+            transform.position = new Vector2(transform.position.x, (prevDist + (((delayData[currentDelay].beat - prevBeat) / (scrollData[currentScroll].beat - prevBeat)) * (totalDist))) * transform.localScale.y);
 
-        #region Stepchart Movement
-        if (originalTime < cRealTime) {
-            if (currentSpeed - 1 > 0)
-                ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
-
-            transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
+            currentDelay++;
         }
         #endregion
 
+        #region Stepchart Movement
+        if (originalTime < cRealTime - dOffset) {
+            if (currentSpeed - 1 > 0)
+                ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
+
+            transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y);           
+        }
+        #endregion
 
         #region Judgement
-        while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
+        while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) {
 
             float missedBeats = 0;
             for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
@@ -255,10 +249,7 @@ public class StepchartMover : MonoBehaviour {
         if (!(currentBeat < beats.Count))
             if ((beats[beats.Count - 1].beatTiming / rush) + 3 < cRealTime)
                 SceneManager.LoadScene(2 + PlayerPref.sceneValueOffset);
-
         #endregion
-
-
     }
 
     #region Stepchart Effects
