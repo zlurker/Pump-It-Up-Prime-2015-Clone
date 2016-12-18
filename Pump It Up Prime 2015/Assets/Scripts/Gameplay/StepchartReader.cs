@@ -258,7 +258,24 @@ public class StepchartReader : MonoBehaviour {
             stepchartMover.delayData.Add(new StepchartMover.DelayData(beat, delay, ReadTimeFromBPM(beat)));
             tempStr = timeData.ReadLine();
         }
-        
+
+        /*while (!(tempStr = timeData.ReadLine()).Contains("#STOPS:")) ;
+        tempStr = tempStr.Remove(0, 7);
+
+        while (tempStr != ";") {
+            for (var i = 0; i < tempStr.Length; i++)
+                if (char.ConvertFromUtf32(tempStr[i]) == "=")
+                    equalPos[0] = i;
+
+            float beat = float.Parse(tempStr.Substring(0, equalPos[0]));
+            float delay = float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
+
+            //for (var i = 0;)
+
+            stepchartMover.delayData.Add(new StepchartMover.DelayData(beat, delay, ReadTimeFromBPM(beat)));
+            tempStr = timeData.ReadLine();
+        }*/
+
 
         while (!(tempStr = timeData.ReadLine()).Contains("#WARPS:")) ;
         tempStr = tempStr.Remove(0, 7);
@@ -359,6 +376,17 @@ public class StepchartReader : MonoBehaviour {
             tempStr = timeData.ReadLine();
         }
         timeData.Close();
+
+        for (var i = 0; i < stepchartMover.bpmData.Count; i++) {
+            StepchartMover.BPMData returnInst = stepchartMover.bpmData[i];
+            foreach (StepchartMover.DelayData delayInst in stepchartMover.delayData) {
+                if (delayInst.beat > stepchartMover.bpmData[i].beat)
+                    break;
+
+                returnInst.time += delayInst.delay;
+            }
+            stepchartMover.bpmData[i] = returnInst;
+        }
         Debug.Log("Timing Data Generated");
         CreateStepchart(path);
     }
@@ -377,8 +405,16 @@ public class StepchartReader : MonoBehaviour {
             time = bpmInst.time;
         }
 
+        foreach (StepchartMover.DelayData delayInst in stepchartMover.delayData) {
+            if (delayInst.beat >= currentBeat)
+                break;
+
+            time += delayInst.delay;
+        }
+
         if (bpm > 0)
             return time + (((currentBeat - beat) / bpm) * 60);
+
         return time;
     }
 }

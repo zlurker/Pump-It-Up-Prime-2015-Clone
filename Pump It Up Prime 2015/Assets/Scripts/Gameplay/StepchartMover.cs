@@ -44,7 +44,6 @@ public class StepchartMover : MonoBehaviour {
             beat = givenBeat;
             warp = givenWarp;
         }
-
     }
 
     [System.Serializable]
@@ -184,74 +183,82 @@ public class StepchartMover : MonoBehaviour {
         cRealTime = playerManager.cRealTime - offset;
 
         //Debug.Log("RT " + cRealTime);
-       // Debug.Log("OT " +originalTime);
-        
-        if (originalTime <= cRealTime) {
-            
-            #region Timing Checks
-            while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) {
+        // Debug.Log("OT " +originalTime);
 
-                ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
-                currentBpm++;
-            }
+        //if (originalTime < cRealTime) 
+        #region Timing Checks
 
-            while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
-                if (currentSpeed - 1 > -1)
-                    prevSpeed = speedData[currentSpeed - 1].speed;
-                currentSpeed++;
-            }
+        while (currentDelay < delayData.Count && delayData[currentDelay].time / rush < cRealTime) {
+            originalTime = cRealTime;
+            offset += delayData[currentDelay].delay / rush;
 
-            while (currentScroll < scrollData.Count - 1 && scrollData[currentScroll].time / rush < cRealTime) {
-                currentScroll++;
+            transform.position = new Vector2(transform.position.x, (prevDist + (((delayData[currentDelay].beat - prevBeat) / (scrollData[currentScroll].beat - prevBeat)) * (totalDist))) * transform.localScale.y);
+            Debug.Log("Calculated: " + (prevDist + (((delayData[currentDelay].beat - prevBeat) / (scrollData[currentScroll].beat - prevBeat)) * (totalDist))) * transform.localScale.y);
+            Debug.Log(delayData[currentDelay].beat - prevBeat);
+            Debug.Log(scrollData[currentScroll].beat - prevBeat);
 
-                endBpm = scrollData[currentScroll].beat - scrollData[currentScroll - 1].beat;
-                endTime = (endBpm / bpm) * 60;
-                prevBeat = scrollData[currentScroll - 1].beat;
-                prevDist = scrollData[currentScroll - 1].dist;
+            currentDelay++;
+        }
 
-                totalDist = scrollData[currentScroll].dist - prevDist;
-            }
+        while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) {
+            ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
+            currentBpm++;
+        }
 
-            while (currentDelay < delayData.Count && delayData[currentDelay].time / rush < cRealTime) {
-                originalTime = cRealTime;
-                offset += delayData[currentDelay].delay/rush;
-                currentDelay++;
-            }
-            #endregion
+        while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
+            if (currentSpeed - 1 > -1)
+                prevSpeed = speedData[currentSpeed - 1].speed;
+            currentSpeed++;
+        }
 
-            #region Stepchart Movement
+        while (currentScroll < scrollData.Count - 1 && scrollData[currentScroll].time / rush < cRealTime) {
+            currentScroll++;
+
+            endBpm = scrollData[currentScroll].beat - scrollData[currentScroll - 1].beat;
+            endTime = (endBpm / bpm) * 60;
+            prevBeat = scrollData[currentScroll - 1].beat;
+            prevDist = scrollData[currentScroll - 1].dist;
+
+            totalDist = scrollData[currentScroll].dist - prevDist;
+        }
+
+        #endregion
+
+        #region Stepchart Movement
+        if (originalTime < cRealTime) {
             if (currentSpeed - 1 > 0)
                 ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
 
             transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y); //Movement
-            #endregion
+        }
+        #endregion
 
 
-            #region Judgement
-            while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
+        #region Judgement
+        while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) { //Considered as Late.     
 
-                float missedBeats = 0;
-                for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
-                    if (beats[currentBeat].beats[i] > 0) {
-                        lanesInfo[i].currentBeatInLane++;
-                        missedBeats++;
-                    }
+            float missedBeats = 0;
+            for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
+                if (beats[currentBeat].beats[i] > 0) {
+                    lanesInfo[i].currentBeatInLane++;
+                    missedBeats++;
                 }
-
-                if (missedBeats > 0) {
-                    BeatScore(-1);
-                    PlayerPref.playerSettings[index].playerScore.miss++;
-                }
-                currentBeat++;
             }
 
-            if (!(currentBeat < beats.Count))
-                if ((beats[beats.Count - 1].beatTiming / rush) + 3 < cRealTime)
-                    SceneManager.LoadScene(2 + PlayerPref.sceneValueOffset);
-
-            #endregion
+            if (missedBeats > 0) {
+                BeatScore(-1);
+                PlayerPref.playerSettings[index].playerScore.miss++;
+            }
+            currentBeat++;
         }
-        
+
+        if (!(currentBeat < beats.Count))
+            if ((beats[beats.Count - 1].beatTiming / rush) + 3 < cRealTime)
+                SceneManager.LoadScene(2 + PlayerPref.sceneValueOffset);
+
+        #endregion
+
+
     }
 
     #region Stepchart Effects
@@ -301,22 +308,23 @@ public class StepchartMover : MonoBehaviour {
     public void BeatInput(int inputValue, int beat) {
         if (isActiveAndEnabled)
             if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
-                if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime) {
-                    if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {
-                        beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
+                if (originalTime <= cRealTime)
+                    if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime) {
+                        if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {
+                            beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
 
-                        int missedBeats = 0;
+                            int missedBeats = 0;
 
-                        foreach (int beatValue in beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats)
-                            missedBeats += beatValue;
+                            foreach (int beatValue in beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats)
+                                missedBeats += beatValue;
 
-                        if (!(missedBeats > 0)) {
-                            BeatScore(4);
-                            PlayerPref.playerSettings[index].playerScore.perfect++;
+                            if (!(missedBeats > 0)) {
+                                BeatScore(4);
+                                PlayerPref.playerSettings[index].playerScore.perfect++;
+                            }
+                            lanesInfo[beat].currentBeatInLane++;
                         }
-                        lanesInfo[beat].currentBeatInLane++;
                     }
-                }
     }
 
     void BeatScore(int givenCombo) {
