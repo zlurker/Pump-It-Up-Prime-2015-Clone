@@ -32,10 +32,9 @@ public class MainPlayerController : MonoBehaviour {
         DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
         FileInfo[] temp = directory.GetFiles("*.wav");
 
-        WWW song = new WWW("file:///" + temp[0]);
-        
-        while (!song.isDone)
+        WWW song = new WWW("file:///" + temp[0].FullName);
 
+        while (!song.isDone) ;
         songPlayer.clip = song.GetAudioClip(false);
 
         songPlayer.pitch = PlayerPref.prefRush;

@@ -188,18 +188,18 @@ public class StepchartMover : MonoBehaviour {
         //if (originalTime < cRealTime) 
         #region Timing Checks
 
-        while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush < cRealTime) {
+        while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush <= cRealTime) {
             ChangeBpm(bpmData[currentBpm].bpm, bpmData[currentBpm].beat);
             currentBpm++;
         }
 
-        while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush < cRealTime) { //Speed changer
+        while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush <= cRealTime) { //Speed changer
             if (currentSpeed - 1 > -1)
                 prevSpeed = speedData[currentSpeed - 1].speed;
             currentSpeed++;
         }
 
-        while (currentScroll < scrollData.Count - 1 && scrollData[currentScroll].time / rush < cRealTime) {
+        while (currentScroll < scrollData.Count - 1 && scrollData[currentScroll].time / rush <= cRealTime) {
             currentScroll++;
 
             endBpm = scrollData[currentScroll].beat - scrollData[currentScroll - 1].beat;
@@ -207,15 +207,16 @@ public class StepchartMover : MonoBehaviour {
             prevBeat = scrollData[currentScroll - 1].beat;
             prevDist = scrollData[currentScroll - 1].dist;
 
-            totalDist = scrollData[currentScroll].dist - prevDist;
+            totalDist = scrollData[currentScroll].dist - prevDist;           
         }
 
-        while (currentDelay < delayData.Count && delayData[currentDelay].time / rush < cRealTime) {
+        while (currentDelay < delayData.Count && delayData[currentDelay].time / rush <= cRealTime) {
             originalTime = cRealTime - dOffset;
             dOffset += delayData[currentDelay].delay / rush;
             transform.position = new Vector2(transform.position.x, (prevDist + (((delayData[currentDelay].beat - prevBeat) / (scrollData[currentScroll].beat - prevBeat)) * (totalDist))) * transform.localScale.y);
 
             currentDelay++;
+            Debug.Log("Suspected delay is suspect");
         }
         #endregion
 
@@ -224,7 +225,7 @@ public class StepchartMover : MonoBehaviour {
             if (currentSpeed - 1 > 0)
                 ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
 
-            transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y);           
+            transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y);
         }
         #endregion
 
