@@ -45,6 +45,50 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\KinectImport\Kinect Scripts\AvatarController.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\AvatarControllerClassic.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\BackgroundRemovalManager.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\BodySlicer.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Cubeman\CubemanController.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Cubeman\PointmanController.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\FacetrackingManager.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Filters\BoneOrientationsConstraint.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Filters\JointPositionsFilter.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\InteractionManager.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Interfaces\DepthSensorInterface.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Interfaces\DummyK2Interface.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Interfaces\Kinect1Interface.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Interfaces\Kinect2Interface.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Interfaces\OpenNI2Interface.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\KinectDataServer.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\KinectGestures.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\KinectInterop.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\KinectManager.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\KinectRecorderPlayer.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\MultiScene\LoadFirstLevel.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\MultiScene\LoadLevelWhenNoUser.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\MultiScene\LoadLevelWhenUserDetected.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\MultiScene\LoadLevelWithDelay.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\MultiScene\LocateAvatarsAndGestureListeners.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\PortraitBackground.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\FollowUserRotation.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\GetFacePointsDemo.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\GetFaceSmileStatus.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\GetJointPositionDemo.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\JointOrientationView.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\JointPositionView.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\K2SensorChecker.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\MouseControl.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\PointCloudView.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\RaiseHandListener.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\SimpleBackgroundRemoval.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\SimpleGestureListener.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\SimpleInteractionListener.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\SimpleUserMovie.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\Samples\SimpleVisualGestureListener.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\SpeechErrorHandler.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\SpeechManager.cs" />
+     <Compile Include="Assets\KinectImport\Kinect Scripts\VisualGestureManager.cs" />
      <Compile Include="Assets\Scripts\Controllers\MainMenu.cs" />
      <Compile Include="Assets\Scripts\Controllers\ScoreScreenHandler.cs" />
      <Compile Include="Assets\Scripts\Controllers\SubMenuController.cs" />
@@ -64,12 +108,35 @@
      <Compile Include="Assets\Scripts\Input\KeyboardInput.cs" />
      <Compile Include="Assets\Scripts\Input\MobileInput.cs" />
      <Compile Include="Assets\Scripts\Input\PlayerBase.cs" />
+     <None Include="Assets\Resources\BlurShader.shader" />
+     <None Include="Assets\Resources\DepthShader.shader" />
+     <None Include="Assets\Resources\SpeechGrammar.grxml.txt" />
+     <None Include="Assets\Resources\BlurShader3.shader" />
+     <None Include="Assets\Resources\Color2DepthShader.shader" />
+     <None Include="Assets\Resources\BlurShader2.shader" />
+     <None Include="Assets\Resources\Depth2ColorShader.shader" />
+     <None Include="Assets\Resources\Erode.shader" />
+     <None Include="Assets\Resources\BodyShader.shader" />
+     <None Include="Assets\Resources\Dilate.shader" />
+     <None Include="Assets\Resources\BlurShader5.shader" />
+     <None Include="Assets\Resources\Color2BodyShader.shader" />
+     <None Include="Assets\Resources\BlurShader4.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
  </Reference>
+ <Reference Include="LZ4Sharp">
+ <HintPath>C:/Users/zlurker/Desktop/UnityProjects/Pump-It-Up-Prime-2015-Clone/Pump It Up Prime 2015/Assets/KinectImport/Kinect Scripts/LZ4Sharp/LZ4Sharp.dll</HintPath>
+ </Reference>
+ <Reference Include="ICSharpCode.SharpZipLib">
+ <HintPath>C:/Users/zlurker/Desktop/UnityProjects/Pump-It-Up-Prime-2015-Clone/Pump It Up Prime 2015/Assets/KinectImport/Kinect Scripts/SharpZipLib/ICSharpCode.SharpZipLib.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{EFC5F38F-0B15-1694-3EA5-58E1F4C0C113}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
