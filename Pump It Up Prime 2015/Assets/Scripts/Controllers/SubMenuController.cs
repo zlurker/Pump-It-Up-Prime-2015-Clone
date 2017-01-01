@@ -1,16 +1,56 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SubMenuController : MonoBehaviour {
+public class SubMenuController : PlayerBase {
 
     public MainMenu mainController;
     public int playerIndex;
     //int currentSongSelection;
 
-    void Start () {
-	
-	}
-	
+    void Awake() {
+        InputBase.players[playerIndex] = this;
+    }
+
+    public override void BeatInput(int inputValue, int beat) {
+        if (PlayerPref.playerSettings[playerIndex].life > 0)
+            if (inputValue > 1) {
+                int value = 0;
+                switch (beat) {
+                    case 0:
+                        value = -1;
+                        break;
+
+                    case 4:
+                        value = 1;
+                        break;
+
+                    case 2:
+                        if (mainController.menuState == MainMenu.MenuState.SelectSongLevel)
+                            mainController.LoadLevel();
+                        else
+                            mainController.menuState = MainMenu.MenuState.SelectSongLevel;
+                        break;
+
+                    case 1:
+                    case 3:
+                        mainController.menuState = MainMenu.MenuState.SelectSong;
+                        break;
+                }
+
+                if (value != 0)
+                    switch (mainController.menuState) {
+                        case MainMenu.MenuState.SelectSong:
+                            mainController.ChangeMusicMenu(value);
+                            break;
+                        case MainMenu.MenuState.SelectSongLevel:
+                            ChangeSongLevel(value);
+                            break;
+                    }
+
+                mainController.RefreshUI();
+            }
+    }
+
     public void ChangeSpeed(float value) {
         if (PlayerPref.playerSettings[playerIndex].prefSpeed + value > 0 && PlayerPref.playerSettings[playerIndex].prefSpeed + value < 7)
             PlayerPref.playerSettings[playerIndex].prefSpeed += value;

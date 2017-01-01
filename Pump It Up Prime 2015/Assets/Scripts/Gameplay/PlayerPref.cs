@@ -5,6 +5,9 @@ using System.Collections.Generic;
 public struct SongData {
     public string name;
     public string path;
+
+    public float previewStart;
+    public float previewEnd;
     public List<string> levels;   
 }
 

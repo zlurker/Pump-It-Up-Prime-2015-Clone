@@ -7,15 +7,22 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour {
 
+    public enum MenuState {
+        SelectSong, SelectSongLevel
+    }
     public string path;
     public Text dataPath;
     public Text songTitle;
+    public GUITexture previewImage;
     //public Text currSpeed;
     public Text currRush;
 
     public GameObject[] playerMenu;
     public Text[] currSpeed;
     public Text[] currLevel;
+    public AudioSource previewSong;
+    public MenuState menuState;
+
 
     void Start() {
         path = Application.dataPath;
@@ -49,7 +56,17 @@ public class MainMenu : MonoBehaviour {
             PlayerPref.playerSettings[i].playerScore.score = 0;
         }
 
+        InputBase.currentGameMode = InputBase.GameMode.Single;
+
+        ChangeMusicMenu(0);
         RefreshUI();
+    }
+
+    void Update() {
+        if (previewSong.time > PlayerPref.songs[PlayerPref.songIndex].previewEnd)
+            previewSong.Pause();
+        else
+            previewSong.volume = (PlayerPref.songs[PlayerPref.songIndex].previewEnd - previewSong.time) / 5;
     }
 
     public void ChangeRush(float value) {
@@ -59,10 +76,29 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void ChangeMusicMenu(int value) {
+
         if (PlayerPref.songIndex + value > -1 && PlayerPref.songIndex + value < PlayerPref.songs.Count) {
             PlayerPref.songIndex += value;
-            for (var i = 0; i < 2; i++)
-                PlayerPref.playerSettings[i].currentSongLevel = 0;
+
+            if (value != 0)
+                for (var i = 0; i < 2; i++)
+                    PlayerPref.playerSettings[i].currentSongLevel = 0;
+
+            DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
+            FileInfo[] temp = directory.GetFiles("*.wav");
+
+            Destroy(previewSong.clip);
+            using (WWW song = new WWW("file:///" + temp[0].FullName)) {
+                while (!song.isDone) ;
+                previewSong.clip = song.GetAudioClip(false);
+            }
+
+            previewSong.volume = 1;
+
+            previewSong.pitch = PlayerPref.prefRush;
+            previewSong.Play();
+
+            previewSong.time = PlayerPref.songs[PlayerPref.songIndex].previewStart;
         }
         RefreshUI();
     }
@@ -71,8 +107,19 @@ public class MainMenu : MonoBehaviour {
         songTitle.text = PlayerPref.songs[PlayerPref.songIndex].name;
         currRush.text = PlayerPref.prefRush.ToString();
 
+        //Destroy(previewImage.texture);
+
+        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
+        FileInfo[] temp = directory.GetFiles("*.PNG");
+
+        using (WWW image = new WWW("file:///" + temp[0].FullName)) {
+            while (!image.isDone) ;
+            previewImage.texture = image.texture;
+        }
+
         for (var i = 0; i < 2; i++) {
-            if (PlayerPref.playerSettings[i].life == 0)
+
+            if (PlayerPref.playerSettings[i].life == 0 || menuState != MenuState.SelectSongLevel)
                 playerMenu[i].SetActive(false);
             else
                 playerMenu[i].SetActive(true);
@@ -120,7 +167,13 @@ public class MainMenu : MonoBehaviour {
         while ((tempStr = stepchart.ReadLine()) != null) {
 
             if (tempStr.Contains("#TITLE:"))
-                instance.name = tempStr.Substring(7, tempStr.Length - 1 -7);
+                instance.name = tempStr.Substring(7, tempStr.Length - 1 - 7);
+
+            if (tempStr.Contains("#SAMPLESTART:"))
+                instance.previewStart = float.Parse(tempStr.Substring(13, tempStr.Length - 1 - 13));
+
+            if (tempStr.Contains("#SAMPLELENGTH:"))
+                instance.previewEnd = instance.previewStart + float.Parse(tempStr.Substring(14, tempStr.Length - 1 - 14));
 
             if (tempStr.Contains("pump-single"))
                 level = "S";

@@ -20,7 +20,6 @@ public class StepchartReader : MonoBehaviour {
     public float beatScale;
     public float screenSizeMultiplier;
     public StepchartMover stepchartMover;
-    public InputBase input;
     int currentLevel;
     StreamReader stepchart;
     StreamReader readBeats;
@@ -168,8 +167,8 @@ public class StepchartReader : MonoBehaviour {
         }
 
         if (stepchartMover.beats[stepchartMover.beats.Count - 1].beats.Length == 10) {
-            input.activePlayerIndex = stepchartMover.index;
-            input.currentGameMode = InputBase.GameMode.Double;
+            InputBase.activePlayerIndex = stepchartMover.index;
+            InputBase.currentGameMode = InputBase.GameMode.Double;
             sequenceZoneToMeasure[0].position = new Vector3(2.7f, 0, 0);
             sequenceZoneToMeasure[1].position = new Vector3(9f, 0, 0);
 
@@ -258,9 +257,9 @@ public class StepchartReader : MonoBehaviour {
         }
 
         while (!(tempStr = timeDataTemp.ReadLine()).Contains("#WARPS:")) {
-            Debug.Log(tempStr);
+            //Debug.Log(tempStr);
         }
-        Debug.Log(tempStr);
+        //Debug.Log(tempStr);
         tempStr = tempStr.Remove(0, 7);
         while (tempStr != ";") {
             Debug.Log(tempStr);

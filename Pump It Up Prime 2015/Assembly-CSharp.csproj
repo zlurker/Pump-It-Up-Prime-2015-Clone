@@ -48,7 +48,10 @@
      <Compile Include="Assets\Scripts\Controllers\MainMenu.cs" />
      <Compile Include="Assets\Scripts\Controllers\ScoreScreenHandler.cs" />
      <Compile Include="Assets\Scripts\Controllers\SubMenuController.cs" />
+     <Compile Include="Assets\Scripts\Experiments\Expnasion1.cs" />
+     <Compile Include="Assets\Scripts\Experiments\Expnasion2.cs" />
      <Compile Include="Assets\Scripts\Experiments\GamepadCalibrator.cs" />
+     <Compile Include="Assets\Scripts\Experiments\Root.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpringEffectExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpriteExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\TimeExperiment.cs" />
@@ -60,6 +63,7 @@
      <Compile Include="Assets\Scripts\Input\InputBase.cs" />
      <Compile Include="Assets\Scripts\Input\KeyboardInput.cs" />
      <Compile Include="Assets\Scripts\Input\MobileInput.cs" />
+     <Compile Include="Assets\Scripts\Input\PlayerBase.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

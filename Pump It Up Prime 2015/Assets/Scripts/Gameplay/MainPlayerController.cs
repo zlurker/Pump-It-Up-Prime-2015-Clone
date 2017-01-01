@@ -1,25 +1,27 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.IO;
+using UnityEngine.UI;
 
 public class MainPlayerController : MonoBehaviour {
 
     public StepchartMover[] stepcharts;
-    public InputBase inputBase;
 
     public AudioSource songPlayer;
     public float cRealTime;
     public float offset;
     public string dataPath;
 
+    public RawImage previewImage;
+
     void Start() {
         for (var i = 0; i < stepcharts.Length; i++)
             if (PlayerPref.playerSettings[i].life > 0) {
                 stepcharts[i].playerManager = this;
-                stepcharts[i].InitialiseStepchart(i);                
+                stepcharts[i].InitialiseStepchart(i);
             } else {
                 stepcharts[i].gameObject.SetActive(false);
-                if (inputBase.currentGameMode == InputBase.GameMode.Single)
+                if (InputBase.currentGameMode == InputBase.GameMode.Single)
                     stepcharts[i].stepchartBuilder.sequenceZoneToMeasure[i].gameObject.SetActive(false);
             }
 
@@ -36,6 +38,14 @@ public class MainPlayerController : MonoBehaviour {
 
         while (!song.isDone) ;
         songPlayer.clip = song.GetAudioClip(false);
+
+
+        temp = directory.GetFiles("*.PNG");
+
+        using (WWW image = new WWW("file:///" + temp[0].FullName)) {
+            while (!image.isDone) ;
+            previewImage.texture = image.texture;
+        }
 
         songPlayer.pitch = PlayerPref.prefRush;
         songPlayer.Play();

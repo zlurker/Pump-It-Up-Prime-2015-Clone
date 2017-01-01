@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class InputBase : MonoBehaviour {
 
@@ -7,9 +8,16 @@ public class InputBase : MonoBehaviour {
         Single, Double
     }
 
-    public GameMode currentGameMode;
-    public StepchartMover[] players;
-    public int activePlayerIndex;
+    public static GameMode currentGameMode;
+    public static PlayerBase[] players;
+    public static int activePlayerIndex;
+
+    void Awake() {
+        DontDestroyOnLoad(gameObject);
+        players = new PlayerBase[2];
+        PlayerPref.sceneValueOffset++;
+        ExitLevel();
+    }
 
     protected void InputProcessor(int givenInput, int givenBeat) {
         switch (currentGameMode) {
@@ -17,12 +25,17 @@ public class InputBase : MonoBehaviour {
                 if (givenBeat > 4) {
                     givenBeat -= 5;
                     players[1].BeatInput(givenInput, givenBeat);
-                } else
+                } else {
                     players[0].BeatInput(givenInput, givenBeat);
+                }
                 break;
             case GameMode.Double:
                 players[activePlayerIndex].BeatInput(givenInput, givenBeat);
                 break;
         }
+    }
+
+    protected void ExitLevel() {
+        SceneManager.LoadScene("Menu");
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class StepchartMover : MonoBehaviour {
+public class StepchartMover : PlayerBase {
 
     #region Data Structures
     [System.Serializable]
@@ -148,6 +148,10 @@ public class StepchartMover : MonoBehaviour {
     public MainPlayerController playerManager;
     public int index;
 
+    void Awake() {
+        InputBase.players[index] = this;
+    }
+
     public void InitialiseStepchart(int playerIndex) {
         //for (var i = 0; i < legs.Length; i++)
         //KinectManager.Instance.legs[i] = legs[i];
@@ -207,7 +211,7 @@ public class StepchartMover : MonoBehaviour {
             prevBeat = scrollData[currentScroll - 1].beat;
             prevDist = scrollData[currentScroll - 1].dist;
 
-            totalDist = scrollData[currentScroll].dist - prevDist;           
+            totalDist = scrollData[currentScroll].dist - prevDist;
         }
 
         while (currentDelay < delayData.Count && delayData[currentDelay].time / rush <= cRealTime) {
@@ -297,7 +301,7 @@ public class StepchartMover : MonoBehaviour {
     #endregion
 
     #region Beat Handler
-    public void BeatInput(int inputValue, int beat) {
+    public override void BeatInput(int inputValue, int beat) {
         if (isActiveAndEnabled)
             if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
                 if (originalTime <= cRealTime)
@@ -363,12 +367,6 @@ public class StepchartMover : MonoBehaviour {
             PlayerPref.playerSettings[index].playerScore.score = 0;
 
         comboT.text = Mathf.Abs(combo).ToString();
-    }
-    #endregion
-
-    #region Input handler
-    public void ExitLevel() {
-        SceneManager.LoadScene("Menu");
     }
     #endregion
 }
