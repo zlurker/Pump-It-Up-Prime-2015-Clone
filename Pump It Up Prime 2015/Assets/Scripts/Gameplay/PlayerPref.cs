@@ -8,7 +8,7 @@ public struct SongData {
 
     public float previewStart;
     public float previewEnd;
-    public List<string> levels;   
+    public List<string> levels;
 }
 
 public struct ScoreData {
@@ -38,4 +38,11 @@ public static class PlayerPref {
     public static float prefRush;
     //SP settings
     public static PlayerSettings[] playerSettings;
+}
+
+public static class SceneIndex { //All the sceneindexs
+    public static int setUp = 0;
+    public static int menu = 1;
+    public static int gameplayLevel = 2;
+    public static int scoreScreen = 3;
 }

@@ -15,27 +15,29 @@ public class InputBase : MonoBehaviour {
     void Awake() {
         DontDestroyOnLoad(gameObject);
         players = new PlayerBase[2];
-        PlayerPref.sceneValueOffset++;
-        ExitLevel();
+        //ExitLevel();
     }
 
     protected void InputProcessor(int givenInput, int givenBeat) {
         switch (currentGameMode) {
             case GameMode.Single:
+                int playerIndex = 0;
+
                 if (givenBeat > 4) {
                     givenBeat -= 5;
-                    players[1].BeatInput(givenInput, givenBeat);
-                } else {
-                    players[0].BeatInput(givenInput, givenBeat);
+                    playerIndex = 1;
                 }
+                if (players[playerIndex])
+                    players[playerIndex].BeatInput(givenInput, givenBeat);
                 break;
             case GameMode.Double:
-                players[activePlayerIndex].BeatInput(givenInput, givenBeat);
+                if (players[activePlayerIndex])
+                    players[activePlayerIndex].BeatInput(givenInput, givenBeat);
                 break;
         }
     }
 
-    protected void ExitLevel() {
-        SceneManager.LoadScene("Menu");
+    public void ExitLevel() {
+        SceneManager.LoadScene(SceneIndex.menu);
     }
 }

@@ -80,7 +80,8 @@ public class KinectManager : MonoBehaviour
 	
 	[Tooltip("Whether to update the AvatarControllers in LateUpdate(), instead of in Update(). Needed for Mocap-Mecanim blending.")]
 	public bool lateUpdateAvatars = false;
-	
+
+    public static Vector3 currentUserPosition;
 	public enum Smoothing : int { None, Default, Medium, Aggressive }
 	[Tooltip("Set of joint smoothing parameters.")]
 	public Smoothing smoothing = Smoothing.Default;
@@ -2259,7 +2260,7 @@ public class KinectManager : MonoBehaviour
 					usersMapRect = new Rect(cameraRect.width - displayWidth, cameraRect.height, displayWidth, -displayHeight);
 				}
 
-	            GUI.DrawTexture(usersMapRect, usersLblTex);
+	            //GUI.DrawTexture(usersMapRect, usersLblTex);
 	        }
 			else if(computeColorMap && displayColorMap)
 			{
@@ -2632,9 +2633,6 @@ public class KinectManager : MonoBehaviour
 					KinectInterop.RenderTex2Tex2D(sensorData.depthImageTexture, ref usersLblTex);
 				}
 			}
-
-            Debug.Log("Working");
-
             
 
             /*if(userMapType != UserMapType.RawUserDepth)
@@ -3612,20 +3610,29 @@ public class KinectManager : MonoBehaviour
                 Vector2 posJoint = KinectInterop.MapSpacePointToDepthCoords(sensorData, bodyData.joint[i].kinectPos);
 
                 if (posParent != Vector2.zero && posJoint != Vector2.zero) {
-
+                    Vector3 temp = Vector3.zero;
                     //Color lineColor = playerJointsTracked[i] && playerJointsTracked[parent] ? Color.red : Color.yellow;
-                    if (i == 15 && legs[0] != null) { //The two joints I need. Use these two to create feet.
+                    if (i == 15) { //The two joints I need. Use these two to create feet.
                         //KinectInterop.DrawLine(aTexture, (int)posParent.x, (int)posParent.y, (int)posJoint.x, (int)posJoint.y, Color.yellow);
                         //Debug.Log(i + " " + bodyData.joint[i].kinectPos);
-                        legs[0].position = bodyData.joint[i].kinectPos;
-                        //legs[0].position *= 7.5f;
+                        temp = bodyData.joint[i].kinectPos;
+                        temp.y = 0;
+                        legs[0].position = temp;
+                        currentUserPosition = bodyData.joint[i].kinectPos;
+                        //legs[0].position *= 7.5f;'
+                        //KinectInput.instance.DrawCollider(bodyData.joint[i].kinectPos,0.05f);
                     }
-                    if (i == 19 && legs[1] != null) {
+                    if (i == 19) {
                         //KinectInterop.DrawLine(aTexture, (int)posParent.x, (int)posParent.y, (int)posJoint.x, (int)posJoint.y, Color.yellow);
-                        //Debug.Log(i + " " + bodyData.joint[i].kinectPos);
-                        legs[1].position = bodyData.joint[i].kinectPos;
+                        temp = bodyData.joint[i].kinectPos;
+                        temp.y = 0;
+                        legs[1].position = temp;
                         //legs[1].position *= 7.5f;
+                        //KinectInput.instance.DrawCollider(bodyData.joint[i].kinectPos, 0.05f);
                     }
+
+                    //if (i == 2)
+                        //currentUserPosition = bodyData.joint[i].kinectPos;
                     //Instantiate(new GameObject(), posParent, Quaternion.identity);
                     //Instantiate(new GameObject(), posJoint, Quaternion.identity);
                 }

@@ -38,8 +38,6 @@ public class MainPlayerController : MonoBehaviour {
 
         while (!song.isDone) ;
         songPlayer.clip = song.GetAudioClip(false);
-
-
         temp = directory.GetFiles("*.PNG");
 
         using (WWW image = new WWW("file:///" + temp[0].FullName)) {

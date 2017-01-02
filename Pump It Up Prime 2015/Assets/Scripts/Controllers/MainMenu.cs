@@ -60,6 +60,8 @@ public class MainMenu : MonoBehaviour {
 
         ChangeMusicMenu(0);
         RefreshUI();
+
+        KinectInput.inMenu = true;
     }
 
     void Update() {
@@ -130,7 +132,8 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void LoadLevel() {
-        SceneManager.LoadScene(1 + PlayerPref.sceneValueOffset);
+        KinectInput.inMenu = false;
+        SceneManager.LoadScene(SceneIndex.gameplayLevel);
     }
 
     public void KillPlayer(int player) {

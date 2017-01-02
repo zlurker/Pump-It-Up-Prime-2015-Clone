@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.IO;
 
 public class ScoreScreenHandler : MonoBehaviour {
 
@@ -11,6 +12,7 @@ public class ScoreScreenHandler : MonoBehaviour {
     }
 
     public TextBox[] scoreBoxes;
+    public RawImage previewImage;
 
     void Start() {
         for (var i = 0; i < 2; i++) {
@@ -19,11 +21,19 @@ public class ScoreScreenHandler : MonoBehaviour {
             scoreBoxes[i].textBoxes[2].text = PlayerPref.playerSettings[i].playerScore.maxCombo.ToString();
             scoreBoxes[i].textBoxes[3].text = PlayerPref.playerSettings[i].playerScore.score.ToString();
         }
+
+        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
+        FileInfo[] temp = directory.GetFiles("*.PNG");
+
+        using (WWW image = new WWW("file:///" + temp[0].FullName)) {
+            while (!image.isDone) ;
+            previewImage.texture = image.texture;
+        }
     }
 
     void Update() {
         if (Input.GetKeyDown(KeyCode.Escape))
-            SceneManager.LoadScene(0 + PlayerPref.sceneValueOffset);
+            SceneManager.LoadScene(SceneIndex.menu);
     }
 
 }

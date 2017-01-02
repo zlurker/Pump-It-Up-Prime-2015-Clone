@@ -89,6 +89,8 @@
      <Compile Include="Assets\KinectImport\Kinect Scripts\SpeechErrorHandler.cs" />
      <Compile Include="Assets\KinectImport\Kinect Scripts\SpeechManager.cs" />
      <Compile Include="Assets\KinectImport\Kinect Scripts\VisualGestureManager.cs" />
+     <Compile Include="Assets\KinectInput.cs" />
+     <Compile Include="Assets\Scripts\Controllers\KinectDancePadCalibrator.cs" />
      <Compile Include="Assets\Scripts\Controllers\MainMenu.cs" />
      <Compile Include="Assets\Scripts\Controllers\ScoreScreenHandler.cs" />
      <Compile Include="Assets\Scripts\Controllers\SubMenuController.cs" />
@@ -118,6 +120,7 @@
      <None Include="Assets\Resources\Erode.shader" />
      <None Include="Assets\Resources\BodyShader.shader" />
      <None Include="Assets\Resources\Dilate.shader" />
+     <None Include="Assets\DancePadData.txt" />
      <None Include="Assets\Resources\BlurShader5.shader" />
      <None Include="Assets\Resources\Color2BodyShader.shader" />
      <None Include="Assets\Resources\BlurShader4.shader" />

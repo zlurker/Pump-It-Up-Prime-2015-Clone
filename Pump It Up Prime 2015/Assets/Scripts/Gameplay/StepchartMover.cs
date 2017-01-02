@@ -220,7 +220,6 @@ public class StepchartMover : PlayerBase {
             transform.position = new Vector2(transform.position.x, (prevDist + (((delayData[currentDelay].beat - prevBeat) / (scrollData[currentScroll].beat - prevBeat)) * (totalDist))) * transform.localScale.y);
 
             currentDelay++;
-            Debug.Log("Suspected delay is suspect");
         }
         #endregion
 
@@ -253,7 +252,7 @@ public class StepchartMover : PlayerBase {
 
         if (!(currentBeat < beats.Count))
             if ((beats[beats.Count - 1].beatTiming / rush) + 3 < cRealTime)
-                SceneManager.LoadScene(2 + PlayerPref.sceneValueOffset);
+                SceneManager.LoadScene(SceneIndex.scoreScreen);
         #endregion
     }
 
@@ -335,7 +334,6 @@ public class StepchartMover : PlayerBase {
 
             if (combo > PlayerPref.playerSettings[index].playerScore.maxCombo)
                 PlayerPref.playerSettings[index].playerScore.maxCombo = combo;
-
         } else {
             if (combo > 0)
                 combo = 0;

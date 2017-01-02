@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/StartCalibrationScene.unity
+- path: Assets/KinectImport/Kinect Demos/AvatarsDemo/KinectAvatarsDemo1.unity
   isLoaded: 1
   isActive: 1
