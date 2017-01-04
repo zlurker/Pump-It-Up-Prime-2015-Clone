@@ -129,7 +129,7 @@ public class SimpleGestureListener : MonoBehaviour, KinectGestures.GestureListen
 
 	public void Update()
 	{
-		if(progressDisplayed && ((Time.realtimeSinceStartup - progressGestureTime) > 2f))
+		/*if(progressDisplayed && ((Time.realtimeSinceStartup - progressGestureTime) > 2f))
 		{
 			progressDisplayed = false;
 			
@@ -138,8 +138,9 @@ public class SimpleGestureListener : MonoBehaviour, KinectGestures.GestureListen
 				gestureInfo.text = String.Empty;
 			}
 
-			Debug.Log("Forced progress to end.");
-		}
+			
+    Debug.Log("Forced progress to end.");
+		}*/
 	}
 	
 }

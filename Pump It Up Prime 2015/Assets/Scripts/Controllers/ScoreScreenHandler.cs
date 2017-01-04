@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.IO;
 
-public class ScoreScreenHandler : MonoBehaviour {
+public class ScoreScreenHandler : PlayerBase {
 
     [System.Serializable]
     public struct TextBox {
@@ -12,7 +12,9 @@ public class ScoreScreenHandler : MonoBehaviour {
     }
 
     public TextBox[] scoreBoxes;
+    public Text displayTimer;
     public RawImage previewImage;
+    public float timer;
 
     void Start() {
         for (var i = 0; i < 2; i++) {
@@ -29,11 +31,22 @@ public class ScoreScreenHandler : MonoBehaviour {
             while (!image.isDone) ;
             previewImage.texture = image.texture;
         }
+
+        InputBase.players[0] = this;
+        InputBase.players[1] = this;
+        timer = Time.time + 10f;
     }
 
     void Update() {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || timer < Time.time)
             SceneManager.LoadScene(SceneIndex.menu);
+        else
+            displayTimer.text = Mathf.Floor(timer - Time.time).ToString();
     }
 
+    public override void BeatInput(int inputValue, int beat) {
+        if (beat == 2) {
+            SceneManager.LoadScene(SceneIndex.menu);
+        }
+    }
 }

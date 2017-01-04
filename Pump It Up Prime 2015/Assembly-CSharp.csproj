@@ -89,7 +89,6 @@
      <Compile Include="Assets\KinectImport\Kinect Scripts\SpeechErrorHandler.cs" />
      <Compile Include="Assets\KinectImport\Kinect Scripts\SpeechManager.cs" />
      <Compile Include="Assets\KinectImport\Kinect Scripts\VisualGestureManager.cs" />
-     <Compile Include="Assets\KinectInput.cs" />
      <Compile Include="Assets\Scripts\Controllers\KinectDancePadCalibrator.cs" />
      <Compile Include="Assets\Scripts\Controllers\MainMenu.cs" />
      <Compile Include="Assets\Scripts\Controllers\ScoreScreenHandler.cs" />
@@ -108,6 +107,7 @@
      <Compile Include="Assets\Scripts\Input\GamePadInput.cs" />
      <Compile Include="Assets\Scripts\Input\InputBase.cs" />
      <Compile Include="Assets\Scripts\Input\KeyboardInput.cs" />
+     <Compile Include="Assets\Scripts\Input\KinectInput.cs" />
      <Compile Include="Assets\Scripts\Input\MobileInput.cs" />
      <Compile Include="Assets\Scripts\Input\PlayerBase.cs" />
      <None Include="Assets\Resources\BlurShader.shader" />

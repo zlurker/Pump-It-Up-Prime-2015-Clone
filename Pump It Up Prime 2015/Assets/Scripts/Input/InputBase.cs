@@ -9,13 +9,11 @@ public class InputBase : MonoBehaviour {
     }
 
     public static GameMode currentGameMode;
-    public static PlayerBase[] players;
+    public static PlayerBase[] players= new PlayerBase[2];
     public static int activePlayerIndex;
 
     void Awake() {
         DontDestroyOnLoad(gameObject);
-        players = new PlayerBase[2];
-        //ExitLevel();
     }
 
     protected void InputProcessor(int givenInput, int givenBeat) {

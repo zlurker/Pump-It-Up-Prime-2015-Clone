@@ -45,8 +45,8 @@ public class MainMenu : MonoBehaviour {
                 PlayerPref.playerSettings[i].prefSpeed = 2;
             }
 
-            //PlayerPref.playerSettings[0].life = 5;
-            //PlayerPref.playerSettings[1].life = 5;
+            PlayerPref.playerSettings[0].life = 5;
+            PlayerPref.playerSettings[1].life = 5;
         }
 
         for (var i = 0; i < 2; i++) {
@@ -61,7 +61,6 @@ public class MainMenu : MonoBehaviour {
         ChangeMusicMenu(0);
         RefreshUI();
 
-        KinectInput.inMenu = true;
     }
 
     void Update() {
@@ -132,7 +131,6 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void LoadLevel() {
-        KinectInput.inMenu = false;
         SceneManager.LoadScene(SceneIndex.gameplayLevel);
     }
 

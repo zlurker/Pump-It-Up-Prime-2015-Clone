@@ -4,6 +4,7 @@ using System.Collections;
 public class KeyboardInput : InputBase {
 
     public KeyCode[] keyboardInputs;
+    public GameObject advancedMenu;
 
     void Update() {
         for (var i = 0; i < keyboardInputs.Length; i++) {
@@ -15,7 +16,11 @@ public class KeyboardInput : InputBase {
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
-            ExitLevel();
+            if (players[0] is StepchartMover)
+                ExitLevel();
+            else if (players[0] is SubMenuController)
+                (players[0] as SubMenuController).AdvancedMenuOption();
+
     }
 
 }

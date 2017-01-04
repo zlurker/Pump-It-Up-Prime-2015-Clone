@@ -5,10 +5,12 @@ public class SubMenuController : PlayerBase {
 
     public MainMenu mainController;
     public int playerIndex;
+    public GameObject advancedMenu;
     //int currentSongSelection;
 
     void Awake() {
         InputBase.players[playerIndex] = this;
+        
     }
 
     public override void BeatInput(int inputValue, int beat) {
@@ -61,5 +63,12 @@ public class SubMenuController : PlayerBase {
         if (PlayerPref.playerSettings[playerIndex].currentSongLevel + value > -1 && PlayerPref.playerSettings[playerIndex].currentSongLevel + value < PlayerPref.songs[PlayerPref.songIndex].levels.Count)
             PlayerPref.playerSettings[playerIndex].currentSongLevel += value;
         mainController.RefreshUI();
+    }
+
+    public void AdvancedMenuOption() {
+        if (!advancedMenu.activeInHierarchy)
+            advancedMenu.SetActive(true);
+        else
+            advancedMenu.SetActive(false);
     }
 }
