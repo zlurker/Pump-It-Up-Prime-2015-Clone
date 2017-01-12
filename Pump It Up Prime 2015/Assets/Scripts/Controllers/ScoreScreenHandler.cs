@@ -45,8 +45,8 @@ public class ScoreScreenHandler : PlayerBase {
     }
 
     public override void BeatInput(int inputValue, int beat) {
-        if (beat == 2) {
-            SceneManager.LoadScene(SceneIndex.menu);
-        }
+        //if (beat == 2) {
+          //  SceneManager.LoadScene(SceneIndex.menu);
+        //}
     }
 }

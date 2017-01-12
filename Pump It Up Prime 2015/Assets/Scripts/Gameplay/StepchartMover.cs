@@ -102,6 +102,9 @@ public class StepchartMover : PlayerBase {
     public Animation grade;
     public Text gradeT;
     public Text comboT;
+
+    public Text gradeTBG;
+    public Text comboTBG;
     public float allowanceTime;
 
     public List<BPMData> bpmData;
@@ -180,7 +183,8 @@ public class StepchartMover : PlayerBase {
         endBpm = scrollData[scrollData.Count - 1].beat;
         totalDist = scrollData[scrollData.Count - 1].dist;
 
-        originalTime = playerManager.cRealTime - offset;
+        offset /= rush;
+        originalTime = playerManager.cRealTime - offset;     
     }
 
     void Update() {
@@ -343,7 +347,10 @@ public class StepchartMover : PlayerBase {
 
         switch (givenCombo) {
             case -1:
-                gradeT.text = "MISS";
+                gradeT.text  = "MISS";
+                gradeTBG.text = "MISS";
+
+                gradeT.color = Color.red;
                 break;
             case 1:
                 gradeT.text = "BAD";
@@ -356,6 +363,9 @@ public class StepchartMover : PlayerBase {
                 break;
             case 4:
                 gradeT.text = "PERFECT";
+                gradeTBG.text = "PERFECT";
+
+                gradeT.color = Color.cyan;
                 break;
         }
 
@@ -365,6 +375,7 @@ public class StepchartMover : PlayerBase {
             PlayerPref.playerSettings[index].playerScore.score = 0;
 
         comboT.text = Mathf.Abs(combo).ToString();
+        comboTBG.text = Mathf.Abs(combo).ToString();
     }
     #endregion
 }

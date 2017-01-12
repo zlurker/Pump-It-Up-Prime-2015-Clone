@@ -61,6 +61,8 @@ public class MainMenu : MonoBehaviour {
         ChangeMusicMenu(0);
         RefreshUI();
 
+        KinectManager.ChangeFeetSize(0.05f);
+
     }
 
     void Update() {
@@ -68,6 +70,10 @@ public class MainMenu : MonoBehaviour {
             previewSong.Pause();
         else
             previewSong.volume = (PlayerPref.songs[PlayerPref.songIndex].previewEnd - previewSong.time) / 5;
+    }
+
+    public void Replay() {
+        previewSong.time = PlayerPref.songs[PlayerPref.songIndex].previewStart;
     }
 
     public void ChangeRush(float value) {

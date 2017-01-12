@@ -202,6 +202,7 @@ public class KinectManager : MonoBehaviour {
     // background kinect thread
     //protected System.Threading.Thread kinectReaderThread = null;
     protected bool kinectReaderRunning = false;
+    static float feetSize;
 
 
     /// <summary>
@@ -211,6 +212,16 @@ public class KinectManager : MonoBehaviour {
     public static KinectManager Instance {
         get {
             return instance;
+        }
+    }
+
+    public static void ChangeFeetSize(float newFeetSize) {
+        feetSize = newFeetSize;
+
+        GameObject[] legs = GameObject.FindGameObjectsWithTag("Leg");
+
+        for (var i=0; i < legs.Length; i++) {
+            legs[i].transform.localScale = Vector3.one * newFeetSize;
         }
     }
 
@@ -2178,6 +2189,9 @@ public class KinectManager : MonoBehaviour {
                 instance.legs[0].parent = transform;
                 instance.legs[1].parent = transform;
 
+                instance.legs[0].localScale = Vector3.one * feetSize;
+                instance.legs[1].localScale = Vector3.one * feetSize;
+
                 bodyParts[bodyParts.Count - 1] = instance;
             }
 
@@ -3058,8 +3072,8 @@ public class KinectManager : MonoBehaviour {
 
                 Debug.Log("Adding user " + uidIndex + ", ID: " + userId + ", Body: " + bodyIndex);
                 if (uidIndex < bodyParts.Count) {
-                bodyParts[uidIndex].legs[0].gameObject.SetActive(true);
-                bodyParts[uidIndex].legs[1].gameObject.SetActive(true);
+                    bodyParts[uidIndex].legs[0].gameObject.SetActive(true);
+                    bodyParts[uidIndex].legs[1].gameObject.SetActive(true);
                 }
 
                 dictUserIdToIndex[userId] = bodyIndex;

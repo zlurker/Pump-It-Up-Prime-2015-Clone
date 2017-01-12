@@ -13,6 +13,7 @@ public class MainPlayerController : MonoBehaviour {
     public string dataPath;
 
     public RawImage previewImage;
+    public CursorLockMode cursorMode;
 
     void Start() {
         for (var i = 0; i < stepcharts.Length; i++)
@@ -48,9 +49,12 @@ public class MainPlayerController : MonoBehaviour {
         songPlayer.pitch = PlayerPref.prefRush;
         songPlayer.Play();
         offset += Time.realtimeSinceStartup;
+        KinectManager.ChangeFeetSize(0.2f);
+
     }
 
     void Update() {
+        cursorMode = CursorLockMode.Locked;
         cRealTime = Time.realtimeSinceStartup - offset;
     }
 }
