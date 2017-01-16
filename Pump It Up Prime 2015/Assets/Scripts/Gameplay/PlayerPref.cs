@@ -26,6 +26,7 @@ public struct PlayerSettings {
     public int currentSongLevel;
     public float prefSpeed;
     public float life;
+    public bool autoPlay;
 }
 
 public static class PlayerPref {

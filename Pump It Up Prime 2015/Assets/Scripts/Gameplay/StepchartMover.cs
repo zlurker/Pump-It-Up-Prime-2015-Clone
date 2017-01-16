@@ -237,21 +237,28 @@ public class StepchartMover : PlayerBase {
         #endregion
 
         #region Judgement
-        while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) {
+        
 
-            float missedBeats = 0;
-            for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
-                if (beats[currentBeat].beats[i] > 0) {
-                    lanesInfo[i].currentBeatInLane++;
-                    missedBeats++;
+        if (PlayerPref.playerSettings[index].autoPlay) {
+            while (currentBeat < beats.Count && (beats[currentBeat].beatTiming / rush <= cRealTime)) {
+                BeatScore(4);
+                currentBeat++;
+            }
+        } else {
+            while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) {
+                float missedBeats = 0;
+                for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
+                    if (beats[currentBeat].beats[i] > 0) {
+                        lanesInfo[i].currentBeatInLane++;
+                        missedBeats++;
+                    }
                 }
-            }
 
-            if (missedBeats > 0) {
-                BeatScore(-1);
-                PlayerPref.playerSettings[index].playerScore.miss++;
+                if (missedBeats > 0) 
+                    BeatScore(-1);
+                
+                currentBeat++;
             }
-            currentBeat++;
         }
 
         if (!(currentBeat < beats.Count))
@@ -306,6 +313,7 @@ public class StepchartMover : PlayerBase {
     #region Beat Handler
     public override void BeatInput(int inputValue, int beat) {
         if (isActiveAndEnabled)
+            if (!PlayerPref.playerSettings[index].autoPlay)
             if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
                 if (originalTime <= cRealTime)
                     if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime) {
@@ -317,10 +325,9 @@ public class StepchartMover : PlayerBase {
                             foreach (int beatValue in beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats)
                                 missedBeats += beatValue;
 
-                            if (!(missedBeats > 0)) {
+                            if (!(missedBeats > 0)) 
                                 BeatScore(4);
-                                PlayerPref.playerSettings[index].playerScore.perfect++;
-                            }
+                            
                             lanesInfo[beat].currentBeatInLane++;
                         }
                     }
@@ -348,7 +355,8 @@ public class StepchartMover : PlayerBase {
         switch (givenCombo) {
             case -1:
                 gradeT.text  = "MISS";
-                gradeTBG.text = "MISS";
+                //gradeTBG.text = "MISS";
+                PlayerPref.playerSettings[index].playerScore.miss++;
 
                 gradeT.color = Color.red;
                 break;
@@ -363,7 +371,8 @@ public class StepchartMover : PlayerBase {
                 break;
             case 4:
                 gradeT.text = "PERFECT";
-                gradeTBG.text = "PERFECT";
+                //gradeTBG.text = "PERFECT";
+                PlayerPref.playerSettings[index].playerScore.perfect++;
 
                 gradeT.color = Color.cyan;
                 break;
@@ -375,7 +384,7 @@ public class StepchartMover : PlayerBase {
             PlayerPref.playerSettings[index].playerScore.score = 0;
 
         comboT.text = Mathf.Abs(combo).ToString();
-        comboTBG.text = Mathf.Abs(combo).ToString();
+        //comboTBG.text = Mathf.Abs(combo).ToString();
     }
     #endregion
 }

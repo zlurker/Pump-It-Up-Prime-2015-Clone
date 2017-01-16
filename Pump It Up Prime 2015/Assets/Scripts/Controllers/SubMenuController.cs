@@ -65,6 +65,10 @@ public class SubMenuController : PlayerBase {
         mainController.RefreshUI();
     }
 
+    public void ToogleAutoPlay() {
+            PlayerPref.playerSettings[playerIndex].autoPlay = true ? !PlayerPref.playerSettings[playerIndex].autoPlay:PlayerPref.playerSettings[playerIndex].autoPlay;
+    }
+
     public void AdvancedMenuOption() {
         if (!advancedMenu.activeInHierarchy)
             advancedMenu.SetActive(true);
