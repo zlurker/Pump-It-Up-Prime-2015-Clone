@@ -43,7 +43,8 @@ public static class PlayerPref {
 
 public static class SceneIndex { //All the sceneindexs
     public static int setUp = 0;
-    public static int menu = 1;
-    public static int gameplayLevel = 2;
-    public static int scoreScreen = 3;
+    public static int startUpScreen = 1;
+    public static int menu = 2;
+    public static int gameplayLevel = 3;
+    public static int scoreScreen = 4;
 }

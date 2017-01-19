@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class KeyboardInput : InputBase {
 
@@ -20,7 +21,10 @@ public class KeyboardInput : InputBase {
                 ExitLevel();
             else if (players[0] is SubMenuController)
                 (players[0] as SubMenuController).AdvancedMenuOption();
-
+        
+        if (Input.GetKeyDown(KeyCode.F1)) 
+            SceneManager.LoadScene(SceneIndex.startUpScreen);
+        
     }
 
 }

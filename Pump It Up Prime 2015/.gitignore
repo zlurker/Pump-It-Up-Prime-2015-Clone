@@ -35,6 +35,7 @@ sysinfo.txt
 *.wav.meta
 *.ogg
 *.ogg.meta
+*.ogv
 
 *.png
 *.mpg

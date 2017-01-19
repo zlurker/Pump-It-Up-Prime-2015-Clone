@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using UnityEngine.UI;
 public class SubMenuController : PlayerBase {
 
     public MainMenu mainController;
@@ -10,7 +10,6 @@ public class SubMenuController : PlayerBase {
 
     void Awake() {
         InputBase.players[playerIndex] = this;
-        
     }
 
     public override void BeatInput(int inputValue, int beat) {

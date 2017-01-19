@@ -15,6 +15,11 @@ public class MainPlayerController : MonoBehaviour {
     public RawImage previewImage;
     public CursorLockMode cursorMode;
 
+    public RawImage video;
+    public string path;
+    WWW startUpClip;
+    MovieTexture instance;
+
     void Start() {
         for (var i = 0; i < stepcharts.Length; i++)
             if (PlayerPref.playerSettings[i].life > 0) {
@@ -46,15 +51,31 @@ public class MainPlayerController : MonoBehaviour {
             previewImage.texture = image.texture;
         }
 
+        temp = directory.GetFiles("*.ogv");
+
+        
+
+        if (temp.Length > 0)
+            path = temp[0].FullName;
+        else
+            path = Path.Combine(Application.dataPath, path);
+
+        startUpClip = new WWW("file:///" + path);
+
+        instance = startUpClip.movie;
+        while (!instance.isReadyToPlay) ;
+        previewImage.texture = instance;
+        instance.loop = true;
+
         songPlayer.pitch = PlayerPref.prefRush;
+        instance.Play();
         songPlayer.Play();
         offset += Time.realtimeSinceStartup;
         KinectManager.ChangeFeetSize(0.2f);
-
     }
 
     void Update() {
-        cursorMode = CursorLockMode.Locked;
+        //cursorMode = CursorLockMode.Locked;
         cRealTime = Time.realtimeSinceStartup - offset;
     }
 }

@@ -13,7 +13,7 @@ public class MainMenu : MonoBehaviour {
     public string path;
     public Text dataPath;
     public Text songTitle;
-    public GUITexture previewImage;
+    public RawImage previewImage;
     //public Text currSpeed;
     public Text currRush;
 
@@ -23,8 +23,20 @@ public class MainMenu : MonoBehaviour {
     public AudioSource previewSong;
     public MenuState menuState;
 
+    public RawImage video;
+    public string videoPath;
+    WWW startUpClip;
 
     void Start() {
+
+        startUpClip = new WWW("file:///" + Path.Combine(Application.dataPath, videoPath));
+
+        MovieTexture instance = startUpClip.movie;
+        while (!instance.isReadyToPlay) ;
+        video.texture = instance;
+        instance.Play();
+        instance.loop = true;
+
         path = Application.dataPath;
 
 #if UNITY_ANDROID
