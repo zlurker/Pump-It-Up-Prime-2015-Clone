@@ -24,7 +24,6 @@ public class StartupScreen : PlayerBase {
 
     public override void BeatInput(int inputValue, int beat) {
         if (beat == 2) 
-            SceneManager.LoadScene(SceneIndex.menu);
-        
+            SceneManager.LoadScene(SceneIndex.menu);       
     }
 }

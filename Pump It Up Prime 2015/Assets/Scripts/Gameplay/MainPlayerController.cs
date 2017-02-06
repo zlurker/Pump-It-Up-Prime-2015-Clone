@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MainPlayerController : MonoBehaviour {
 
@@ -53,7 +54,7 @@ public class MainPlayerController : MonoBehaviour {
 
         temp = directory.GetFiles("*.ogv");
 
-        
+
 
         if (temp.Length > 0)
             path = temp[0].FullName;
@@ -75,7 +76,9 @@ public class MainPlayerController : MonoBehaviour {
     }
 
     void Update() {
-        //cursorMode = CursorLockMode.Locked;
         cRealTime = Time.realtimeSinceStartup - offset;
+
+        if (!songPlayer.isPlaying)
+            SceneManager.LoadScene(SceneIndex.scoreScreen);
     }
 }

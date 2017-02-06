@@ -61,12 +61,9 @@ public class MainMenu : MonoBehaviour {
             PlayerPref.playerSettings[1].life = 5;
         }
 
-        for (var i = 0; i < 2; i++) {
-            PlayerPref.playerSettings[i].playerScore.perfect = 0;
-            PlayerPref.playerSettings[i].playerScore.miss = 0;
-            PlayerPref.playerSettings[i].playerScore.maxCombo = 0;
-            PlayerPref.playerSettings[i].playerScore.score = 0;
-        }
+        for (var i = 0; i < 2; i++)
+            PlayerPref.playerSettings[i].playerScore = new float[7];
+
 
         InputBase.currentGameMode = InputBase.GameMode.Single;
 
@@ -74,7 +71,6 @@ public class MainMenu : MonoBehaviour {
         RefreshUI();
 
         KinectManager.ChangeFeetSize(0.05f);
-
     }
 
     void Update() {

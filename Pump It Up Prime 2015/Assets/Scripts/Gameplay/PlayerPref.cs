@@ -11,18 +11,8 @@ public struct SongData {
     public List<string> levels;
 }
 
-public struct ScoreData {
-    public float perfect;
-    public float great;
-    public float good;
-    public float bad;
-    public float miss;
-    public float maxCombo;
-    public float score;
-}
-
 public struct PlayerSettings {
-    public ScoreData playerScore;
+    public float[] playerScore; // 0 -- perfect, 1 -- great, 2 -- good, 3 -- bad, 4 -- miss, 5 -- max combo, 6 -- score
     public int currentSongLevel;
     public float prefSpeed;
     public float life;

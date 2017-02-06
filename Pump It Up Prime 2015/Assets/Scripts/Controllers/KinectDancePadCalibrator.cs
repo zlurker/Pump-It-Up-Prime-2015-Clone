@@ -18,8 +18,8 @@ public class KinectDancePadCalibrator : MonoBehaviour {
 
         if (!File.Exists(padDataPath))
             File.CreateText(padDataPath).Close();
-        //else
-            //SceneManager.LoadScene(SceneIndex.startUpScreen);
+        else
+            SceneManager.LoadScene(SceneIndex.startUpScreen);
 
         ReadCurrentPadData();
     }

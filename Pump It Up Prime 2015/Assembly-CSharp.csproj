@@ -112,6 +112,7 @@
      <Compile Include="Assets\Scripts\Input\KinectInput.cs" />
      <Compile Include="Assets\Scripts\Input\MobileInput.cs" />
      <Compile Include="Assets\Scripts\Input\PlayerBase.cs" />
+     <Compile Include="Assets\VideoPlaybackExperiment.cs" />
      <None Include="Assets\Resources\BlurShader.shader" />
      <None Include="Assets\Resources\DepthShader.shader" />
      <None Include="Assets\Resources\SpeechGrammar.grxml.txt" />
