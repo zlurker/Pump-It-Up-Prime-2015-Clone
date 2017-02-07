@@ -30,10 +30,12 @@ public class ScoreScreenHandler : PlayerBase {
 
     void Start() {
         for (var i = 0; i < 2; i++) {
-            for (var j = 0; j < PlayerPref.playerSettings[i].playerScore.Length; j++)
-                scoreBoxes[i].textBoxes[j].text = PlayerPref.playerSettings[i].playerScore[j].ToString();
+            if (PlayerPref.playerSettings[i].life > 0) {
+                for (var j = 0; j < PlayerPref.playerSettings[i].playerScore.Length; j++)
+                    scoreBoxes[i].textBoxes[j].text = PlayerPref.playerSettings[i].playerScore[j].ToString();
 
-            grades[i].sprite = gradingCiteria[TabulateGrade(i)].gradeImage;
+                grades[i].sprite = gradingCiteria[TabulateGrade(i)].gradeImage;
+            }
         }
 
         DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
@@ -69,7 +71,7 @@ public class ScoreScreenHandler : PlayerBase {
         if (Input.GetKeyDown(KeyCode.Escape) || timer < Time.realtimeSinceStartup)
             SceneManager.LoadScene(SceneIndex.menu);
         else
-            displayTimer.text = Mathf.Floor(timer - Time.time).ToString();
+            displayTimer.text = Mathf.Floor(timer - Time.realtimeSinceStartup).ToString();
     }
 
     public override void BeatInput(int inputValue, int beat) {

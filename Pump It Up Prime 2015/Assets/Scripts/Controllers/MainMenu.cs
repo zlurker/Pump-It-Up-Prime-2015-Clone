@@ -7,9 +7,18 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour {
 
-    public enum MenuState {
-        SelectSong, SelectSongLevel
+    [System.Serializable]
+    public struct SecretCodes {
+        public int[] keyValue;
+        [HideInInspector]
+        public int[] playersAtValue;
     }
+
+    public enum MenuState {
+        ChannelSelect, SelectSong, SelectSongLevel
+    }
+
+    public SecretCodes[] codes;
     public string path;
     public Text dataPath;
     public Text songTitle;
@@ -28,6 +37,8 @@ public class MainMenu : MonoBehaviour {
     WWW startUpClip;
 
     void Start() {
+        for (var i = 0; i < codes.Length; i++)
+            codes[i].playersAtValue = new int[2];
 
         startUpClip = new WWW("file:///" + Path.Combine(Application.dataPath, videoPath));
 
@@ -39,13 +50,21 @@ public class MainMenu : MonoBehaviour {
 
         path = Application.dataPath;
 
-#if UNITY_ANDROID
-		path = Application.persistentDataPath;;
-#endif
-
         dataPath.text = "Put song folder here: " + path;
 
         if (!PlayerPref.songsRegisted) {
+            PlayerPref.currentChannel = 0;
+            PlayerPref.channels = new Channel[5];
+
+            PlayerPref.channels[0].channelName = "ALLTUNES";
+            PlayerPref.channels[1].channelName = "WORLD MUSIC";
+            PlayerPref.channels[2].channelName = "K-POP";
+            PlayerPref.channels[3].channelName = "J-POP";
+            PlayerPref.channels[4].channelName = "FULL SONG";
+
+            for (var i = 0; i < PlayerPref.channels.Length; i++)
+                PlayerPref.channels[i].references = new List<int>();
+
             PlayerPref.songs = new List<SongData>();
             LoadSongsFromDirectory(new DirectoryInfo(Path.Combine(Application.dataPath, "Songs")));
 
@@ -59,11 +78,15 @@ public class MainMenu : MonoBehaviour {
 
             PlayerPref.playerSettings[0].life = 5;
             PlayerPref.playerSettings[1].life = 5;
+
+            for (var i = 0; i < PlayerPref.channels.Length; i++)
+                for (var j = 0; j < PlayerPref.channels[i].references.Count; j++)
+                    Debug.Log(PlayerPref.channels[i].channelName + " - " + PlayerPref.songs[PlayerPref.channels[i].references[j]].name);
+
         }
 
         for (var i = 0; i < 2; i++)
             PlayerPref.playerSettings[i].playerScore = new float[7];
-
 
         InputBase.currentGameMode = InputBase.GameMode.Single;
 
@@ -122,8 +145,6 @@ public class MainMenu : MonoBehaviour {
         songTitle.text = PlayerPref.songs[PlayerPref.songIndex].name;
         currRush.text = PlayerPref.prefRush.ToString();
 
-        //Destroy(previewImage.texture);
-
         DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
         FileInfo[] temp = directory.GetFiles("*.PNG");
 
@@ -179,10 +200,17 @@ public class MainMenu : MonoBehaviour {
         instance.levels = new List<string>();
         stepchart = File.OpenText(songPath);
 
+        PlayerPref.channels[0].references.Add(PlayerPref.songs.Count);
+
         while ((tempStr = stepchart.ReadLine()) != null) {
 
             if (tempStr.Contains("#TITLE:"))
                 instance.name = tempStr.Substring(7, tempStr.Length - 1 - 7);
+
+            if (tempStr.Contains("#GENRE:"))
+                for (var i = 0; i < PlayerPref.channels.Length; i++)
+                    if (PlayerPref.channels[i].channelName == tempStr.Substring(7, tempStr.Length - 1 - 7))
+                        PlayerPref.channels[i].references.Add(PlayerPref.songs.Count);
 
             if (tempStr.Contains("#SAMPLESTART:"))
                 instance.previewStart = float.Parse(tempStr.Substring(13, tempStr.Length - 1 - 13));

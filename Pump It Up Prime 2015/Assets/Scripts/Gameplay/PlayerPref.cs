@@ -11,6 +11,11 @@ public struct SongData {
     public List<string> levels;
 }
 
+public struct Channel {
+    public string channelName;
+    public List<int> references;
+}
+
 public struct PlayerSettings {
     public float[] playerScore; // 0 -- perfect, 1 -- great, 2 -- good, 3 -- bad, 4 -- miss, 5 -- max combo, 6 -- score
     public int currentSongLevel;
@@ -20,10 +25,11 @@ public struct PlayerSettings {
 }
 
 public static class PlayerPref {
-
     public static int sceneValueOffset;
     //Global Settings  
     public static bool songsRegisted;
+    public static Channel[] channels;
+    public static int currentChannel;
     public static List<SongData> songs;
     public static int songIndex;
     public static float prefRush;

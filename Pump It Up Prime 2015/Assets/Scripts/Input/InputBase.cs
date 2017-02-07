@@ -9,7 +9,7 @@ public class InputBase : MonoBehaviour {
     }
 
     public static GameMode currentGameMode;
-    public static PlayerBase[] players= new PlayerBase[2];
+    public static PlayerBase[] players = new PlayerBase[2];
     public static int activePlayerIndex;
 
     void Awake() {
@@ -28,6 +28,7 @@ public class InputBase : MonoBehaviour {
                 if (players[playerIndex])
                     players[playerIndex].BeatInput(givenInput, givenBeat);
                 break;
+
             case GameMode.Double:
                 if (players[activePlayerIndex])
                     players[activePlayerIndex].BeatInput(givenInput, givenBeat);

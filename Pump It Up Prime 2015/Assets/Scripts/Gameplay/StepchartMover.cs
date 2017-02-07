@@ -190,10 +190,6 @@ public class StepchartMover : PlayerBase {
     void Update() {
         cRealTime = playerManager.cRealTime - offset;
 
-        //Debug.Log("RT " + cRealTime);
-        // Debug.Log("OT " +originalTime);
-
-        //if (originalTime < cRealTime) 
         #region Timing Checks
 
         while (currentBpm < bpmData.Count && bpmData[currentBpm].time / rush <= cRealTime) {
@@ -201,7 +197,7 @@ public class StepchartMover : PlayerBase {
             currentBpm++;
         }
 
-        while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush <= cRealTime) { //Speed changer
+        while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush <= cRealTime) {
             if (currentSpeed - 1 > -1)
                 prevSpeed = speedData[currentSpeed - 1].speed;
             currentSpeed++;
@@ -237,8 +233,6 @@ public class StepchartMover : PlayerBase {
         #endregion
 
         #region Judgement
-
-
         if (PlayerPref.playerSettings[index].autoPlay) {
             while (currentBeat < beats.Count && (beats[currentBeat].beatTiming / rush <= cRealTime)) {
                 BeatScore(4);
@@ -373,8 +367,8 @@ public class StepchartMover : PlayerBase {
 
         PlayerPref.playerSettings[index].playerScore[6] += 1000 * givenCombo;
 
-        if (PlayerPref.playerSettings[index].playerScore[5] < 0)
-            PlayerPref.playerSettings[index].playerScore[5] = 0;
+        if (PlayerPref.playerSettings[index].playerScore[6] < 0)
+            PlayerPref.playerSettings[index].playerScore[6] = 0;
 
         comboT.text = Mathf.Abs(combo).ToString();
         //comboTBG.text = Mathf.Abs(combo).ToString();

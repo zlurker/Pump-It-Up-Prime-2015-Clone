@@ -177,10 +177,10 @@ public class StepchartReader : MonoBehaviour {
             stepchartMover.transform.position = sequenceZoneToMeasure[0].position;
         }
 
-        Debug.Log("LastBeat: " + lastBeat);
+        //Debug.Log("LastBeat: " + lastBeat);
         stepchart.Close();
         readBeats.Close();
-        Debug.Log("Number of 4-beats: " + debugBeats);
+        //Debug.Log("Number of 4-beats: " + debugBeats);
         currentPos = stepchartMover.scrollData[currentScroll - 1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll - 1].scroll);
         stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats * 4, 0, ReadTimeFromBPM(debugBeats * 4), currentPos));
         stepchartMover.beatScale = 2 * beatScale;
@@ -328,7 +328,7 @@ public class StepchartReader : MonoBehaviour {
             float delay = float.Parse(tempStr.Substring(equalPos[0] + 1, tempStr.Length - 1 - equalPos[0]));
             //float temp = 0;
             //float tempTime = ReadTimeFromBPM(beat,out temp);
-           // Debug.Log("BPM: " +temp);
+            // Debug.Log("BPM: " +temp);
             stepchartMover.delayData.Add(new StepchartMover.DelayData(beat, delay, ReadTimeFromBPM(beat)));
             tempStr = timeData.ReadLine();
         }
@@ -415,7 +415,7 @@ public class StepchartReader : MonoBehaviour {
         }
 
         foreach (StepchartMover.DelayData delayInst in stepchartMover.delayData) {
-            if (delayInst.beat >= currentBeat)
+            if (delayInst.beat > currentBeat)
                 break;
 
             time += delayInst.delay;
