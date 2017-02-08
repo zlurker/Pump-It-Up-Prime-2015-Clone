@@ -34,11 +34,7 @@ public class MainPlayerController : MonoBehaviour {
 
         dataPath = Application.dataPath;
 
-#if UNITY_ANDROID
-        dataPath = Application.persistentDataPath;
-        endExt = ".mp3";
-#endif
-        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
+        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].path);
         FileInfo[] temp = directory.GetFiles("*.wav");
 
         WWW song = new WWW("file:///" + temp[0].FullName);
@@ -53,8 +49,6 @@ public class MainPlayerController : MonoBehaviour {
         }
 
         temp = directory.GetFiles("*.ogv");
-
-
 
         if (temp.Length > 0)
             path = temp[0].FullName;

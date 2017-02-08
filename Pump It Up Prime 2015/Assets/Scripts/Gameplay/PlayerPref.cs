@@ -11,6 +11,10 @@ public struct SongData {
     public List<string> levels;
 }
 
+public enum MenuState {
+    ChannelSelect, SelectSong, SelectSongLevel
+}
+
 public struct Channel {
     public string channelName;
     public List<int> references;
@@ -28,13 +32,20 @@ public static class PlayerPref {
     public static int sceneValueOffset;
     //Global Settings  
     public static bool songsRegisted;
+    public static MenuState menuState;
     public static Channel[] channels;
-    public static int currentChannel;
     public static List<SongData> songs;
-    public static int songIndex;
+
+    public static int currentChannel;
+    public static int currentChannelSong;
     public static float prefRush;
     //SP settings
     public static PlayerSettings[] playerSettings;
+}
+
+public static class MenuData {
+    public static List<Texture> channelImages;
+    public static List<AudioClip> channelSounds;
 }
 
 public static class SceneIndex { //All the sceneindexs

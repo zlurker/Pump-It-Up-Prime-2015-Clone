@@ -262,7 +262,6 @@ public class StepchartReader : MonoBehaviour {
         //Debug.Log(tempStr);
         tempStr = tempStr.Remove(0, 7);
         while (tempStr != ";") {
-            Debug.Log(tempStr);
             for (var i = 0; i < tempStr.Length; i++) {
                 if (char.ConvertFromUtf32(tempStr[i]) == "=")
                     equalPos[0] = i;

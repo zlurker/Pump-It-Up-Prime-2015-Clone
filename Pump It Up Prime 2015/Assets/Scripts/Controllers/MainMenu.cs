@@ -14,29 +14,34 @@ public class MainMenu : MonoBehaviour {
         public int[] playersAtValue;
     }
 
-    public enum MenuState {
-        ChannelSelect, SelectSong, SelectSongLevel
+    [System.Serializable]
+    public struct UIElements {
+        public GameObject[] uiElements;
     }
 
     public SecretCodes[] codes;
+    public UIElements[] ui;
     public string path;
+    public string imageAssetPath;
     public Text dataPath;
     public Text songTitle;
     public RawImage previewImage;
-    //public Text currSpeed;
+    public RawImage channelImage;
     public Text currRush;
 
     public GameObject[] playerMenu;
     public Text[] currSpeed;
     public Text[] currLevel;
     public AudioSource previewSong;
-    public MenuState menuState;
+    public AudioSource bgSound;
+    public AudioSource actionSound;
 
     public RawImage video;
     public string videoPath;
     WWW startUpClip;
 
     void Start() {
+
         for (var i = 0; i < codes.Length; i++)
             codes[i].playersAtValue = new int[2];
 
@@ -53,14 +58,15 @@ public class MainMenu : MonoBehaviour {
         dataPath.text = "Put song folder here: " + path;
 
         if (!PlayerPref.songsRegisted) {
-            PlayerPref.currentChannel = 0;
-            PlayerPref.channels = new Channel[5];
+            PlayerPref.menuState = MenuState.SelectSong;
+            PlayerPref.channels = new Channel[6];
 
             PlayerPref.channels[0].channelName = "ALLTUNES";
             PlayerPref.channels[1].channelName = "WORLD MUSIC";
             PlayerPref.channels[2].channelName = "K-POP";
             PlayerPref.channels[3].channelName = "J-POP";
-            PlayerPref.channels[4].channelName = "FULL SONG";
+            PlayerPref.channels[4].channelName = "ORIGINAL";
+            PlayerPref.channels[5].channelName = "FULL SONG";
 
             for (var i = 0; i < PlayerPref.channels.Length; i++)
                 PlayerPref.channels[i].references = new List<int>();
@@ -79,10 +85,18 @@ public class MainMenu : MonoBehaviour {
             PlayerPref.playerSettings[0].life = 5;
             PlayerPref.playerSettings[1].life = 5;
 
-            for (var i = 0; i < PlayerPref.channels.Length; i++)
-                for (var j = 0; j < PlayerPref.channels[i].references.Count; j++)
-                    Debug.Log(PlayerPref.channels[i].channelName + " - " + PlayerPref.songs[PlayerPref.channels[i].references[j]].name);
+            MenuData.channelImages = new List<Texture>();
 
+            DirectoryInfo directory = new DirectoryInfo(Path.Combine(path, imageAssetPath));
+            FileInfo[] temp = directory.GetFiles("CHANNEL*.PNG");
+
+            for (var i = 0; i < temp.Length; i++) {
+                using (WWW image = new WWW("file:///" + temp[i].FullName)) {
+                    while (!image.isDone) ;
+                    MenuData.channelImages.Add(image.texture);
+                    Destroy(image.texture);
+                }
+            }
         }
 
         for (var i = 0; i < 2; i++)
@@ -97,14 +111,10 @@ public class MainMenu : MonoBehaviour {
     }
 
     void Update() {
-        if (previewSong.time > PlayerPref.songs[PlayerPref.songIndex].previewEnd)
+        if (previewSong.time > PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].previewEnd)
             previewSong.Pause();
         else
-            previewSong.volume = (PlayerPref.songs[PlayerPref.songIndex].previewEnd - previewSong.time) / 5;
-    }
-
-    public void Replay() {
-        previewSong.time = PlayerPref.songs[PlayerPref.songIndex].previewStart;
+            previewSong.volume = (PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].previewEnd - previewSong.time) / 5;
     }
 
     public void ChangeRush(float value) {
@@ -115,14 +125,14 @@ public class MainMenu : MonoBehaviour {
 
     public void ChangeMusicMenu(int value) {
 
-        if (PlayerPref.songIndex + value > -1 && PlayerPref.songIndex + value < PlayerPref.songs.Count) {
-            PlayerPref.songIndex += value;
+        if (PlayerPref.currentChannelSong + value > -1 && PlayerPref.currentChannelSong + value < PlayerPref.channels[PlayerPref.currentChannel].references.Count) {
+            PlayerPref.currentChannelSong += value;
 
             if (value != 0)
                 for (var i = 0; i < 2; i++)
                     PlayerPref.playerSettings[i].currentSongLevel = 0;
 
-            DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
+            DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].path);
             FileInfo[] temp = directory.GetFiles("*.wav");
 
             Destroy(previewSong.clip);
@@ -136,36 +146,62 @@ public class MainMenu : MonoBehaviour {
             previewSong.pitch = PlayerPref.prefRush;
             previewSong.Play();
 
-            previewSong.time = PlayerPref.songs[PlayerPref.songIndex].previewStart;
+            previewSong.time = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].previewStart;
         }
         RefreshUI();
     }
 
+    public void ChangeChannel(int value) {
+        if (PlayerPref.currentChannel + value > -1 && PlayerPref.currentChannel + value < PlayerPref.channels.Length)
+            PlayerPref.currentChannel += value;
+
+        if (value != 0)
+            for (var i = 0; i < 2; i++)
+                PlayerPref.playerSettings[i].currentSongLevel = 0;
+
+        PlayerPref.currentChannelSong = 0;
+        previewSong.Pause();
+        Destroy(previewSong.clip);
+        //Debug.Log(PlayerPref.channels[PlayerPref.currentChannel].channelName);
+    }
+
     public void RefreshUI() {
-        songTitle.text = PlayerPref.songs[PlayerPref.songIndex].name;
-        currRush.text = PlayerPref.prefRush.ToString();
+        switch (PlayerPref.menuState) {
+            case MenuState.ChannelSelect:
+                channelImage.texture = MenuData.channelImages[PlayerPref.currentChannel];
+                break;
 
-        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
-        FileInfo[] temp = directory.GetFiles("*.PNG");
+            case MenuState.SelectSong:
+            case MenuState.SelectSongLevel:
+                songTitle.text = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].name;
+                currRush.text = PlayerPref.prefRush.ToString();
 
-        using (WWW image = new WWW("file:///" + temp[0].FullName)) {
-            while (!image.isDone) ;
-            previewImage.texture = image.texture;
+                DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].path);
+                FileInfo[] temp = directory.GetFiles("*.PNG");
+
+                Destroy(previewImage.texture);
+
+                using (WWW image = new WWW("file:///" + temp[0].FullName)) {
+                    while (!image.isDone) ;
+                    previewImage.texture = image.texture;
+                }
+
+                for (var i = 0; i < 2; i++) {
+                    if (PlayerPref.playerSettings[i].life == 0 || PlayerPref.menuState != MenuState.SelectSongLevel)
+                        playerMenu[i].SetActive(false);
+                    else
+                        playerMenu[i].SetActive(true);
+
+                    currSpeed[i].text = PlayerPref.playerSettings[i].prefSpeed.ToString();
+                    currLevel[i].text = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].levels[PlayerPref.playerSettings[i].currentSongLevel];
+                }
+                break;
         }
-
-        for (var i = 0; i < 2; i++) {
-
-            if (PlayerPref.playerSettings[i].life == 0 || menuState != MenuState.SelectSongLevel)
-                playerMenu[i].SetActive(false);
-            else
-                playerMenu[i].SetActive(true);
-
-            currSpeed[i].text = PlayerPref.playerSettings[i].prefSpeed.ToString();
-            currLevel[i].text = PlayerPref.songs[PlayerPref.songIndex].levels[PlayerPref.playerSettings[i].currentSongLevel];
-        }
+        CheckUIElements();
     }
 
     public void LoadLevel() {
+        PlayerPref.menuState = MenuState.SelectSong;
         SceneManager.LoadScene(SceneIndex.gameplayLevel);
     }
 
@@ -232,6 +268,23 @@ public class MainMenu : MonoBehaviour {
 
         stepchart.Close();
         return instance;
+    }
+
+    public void LoadImageFromPath() {
+
+    }
+
+    public void CheckUIElements() {
+        int valueInst = 0;
+        for (var i = 0; i < ui.Length; i++)
+            if (i == (int)PlayerPref.menuState)
+                valueInst = i;
+            else
+                for (var j = 0; j < ui[i].uiElements.Length; j++)
+                    ui[i].uiElements[j].SetActive(false);
+
+        for (var j = 0; j < ui[valueInst].uiElements.Length; j++)
+            ui[valueInst].uiElements[j].SetActive(true);
     }
 }
 

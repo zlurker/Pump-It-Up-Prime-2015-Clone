@@ -6,7 +6,6 @@ public class SubMenuController : PlayerBase {
     public MainMenu mainController;
     public int playerIndex;
     public GameObject advancedMenu;
-    //int currentSongSelection;
 
     void Awake() {
         InputBase.players[playerIndex] = this;
@@ -26,30 +25,36 @@ public class SubMenuController : PlayerBase {
                         break;
 
                     case 2:
-                        if (mainController.menuState == MainMenu.MenuState.SelectSongLevel)
+                        if (PlayerPref.menuState == MenuState.SelectSongLevel)
                             mainController.LoadLevel();
                         else
-                            mainController.menuState = MainMenu.MenuState.SelectSongLevel;
+                            PlayerPref.menuState += 1;
                         break;
 
                     case 1:
                     case 3:
-                        mainController.menuState = MainMenu.MenuState.SelectSong;
+                        if (PlayerPref.menuState > 0)
+                            PlayerPref.menuState -= 1;
                         break;
                 }
 
                 if (value != 0)
-                    switch (mainController.menuState) {
-                        case MainMenu.MenuState.SelectSong:
+                    switch (PlayerPref.menuState) {
+                        case MenuState.ChannelSelect:
+                            mainController.ChangeChannel(value);
+                            break;
+
+                        case MenuState.SelectSong:
                             mainController.ChangeMusicMenu(value);
                             break;
-                        case MainMenu.MenuState.SelectSongLevel:
+
+                        case MenuState.SelectSongLevel:
                             ChangeSongLevel(value);
                             break;
                     }
 
-                mainController.RefreshUI();
                 SecretCodeChecker(beat);
+                mainController.RefreshUI();
             }
     }
 
@@ -75,7 +80,7 @@ public class SubMenuController : PlayerBase {
     }
 
     public void ChangeSongLevel(int value) {
-        if (PlayerPref.playerSettings[playerIndex].currentSongLevel + value > -1 && PlayerPref.playerSettings[playerIndex].currentSongLevel + value < PlayerPref.songs[PlayerPref.songIndex].levels.Count)
+        if (PlayerPref.playerSettings[playerIndex].currentSongLevel + value > -1 && PlayerPref.playerSettings[playerIndex].currentSongLevel + value < PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].levels.Count)
             PlayerPref.playerSettings[playerIndex].currentSongLevel += value;
         mainController.RefreshUI();
     }

@@ -160,9 +160,11 @@ public class StepchartMover : PlayerBase {
         //KinectManager.Instance.legs[i] = legs[i];
         index = playerIndex;
 
+
+
         stepchartBuilder.speed = PlayerPref.playerSettings[playerIndex].prefSpeed;
         stepchartBuilder.stepchartMover = this;
-        DirectoryInfo songFolder = new DirectoryInfo(PlayerPref.songs[PlayerPref.songIndex].path);
+        DirectoryInfo songFolder = new DirectoryInfo(PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].path);
         FileInfo[] stepchart = songFolder.GetFiles("*.ssc");
 
         stepchartBuilder.CreateTimingData(stepchart[0].FullName);
