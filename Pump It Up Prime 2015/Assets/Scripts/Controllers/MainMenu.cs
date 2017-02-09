@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class MainMenu : MonoBehaviour {
+public class MainMenu : AssetLoadingBase {
 
     [System.Serializable]
     public struct SecretCodes {
@@ -27,6 +27,7 @@ public class MainMenu : MonoBehaviour {
     public Text songTitle;
     public RawImage previewImage;
     public RawImage channelImage;
+
     public Text currRush;
 
     public GameObject[] playerMenu;
@@ -78,25 +79,11 @@ public class MainMenu : MonoBehaviour {
             PlayerPref.songsRegisted = true;
             PlayerPref.prefRush = 1;
 
-            for (var i = 0; i < 2; i++) {
+            for (var i = 0; i < 2; i++)
                 PlayerPref.playerSettings[i].prefSpeed = 2;
-            }
 
             PlayerPref.playerSettings[0].life = 5;
             PlayerPref.playerSettings[1].life = 5;
-
-            MenuData.channelImages = new List<Texture>();
-
-            DirectoryInfo directory = new DirectoryInfo(Path.Combine(path, imageAssetPath));
-            FileInfo[] temp = directory.GetFiles("CHANNEL*.PNG");
-
-            for (var i = 0; i < temp.Length; i++) {
-                using (WWW image = new WWW("file:///" + temp[i].FullName)) {
-                    while (!image.isDone) ;
-                    MenuData.channelImages.Add(image.texture);
-                    Destroy(image.texture);
-                }
-            }
         }
 
         for (var i = 0; i < 2; i++)
@@ -162,13 +149,12 @@ public class MainMenu : MonoBehaviour {
         PlayerPref.currentChannelSong = 0;
         previewSong.Pause();
         Destroy(previewSong.clip);
-        //Debug.Log(PlayerPref.channels[PlayerPref.currentChannel].channelName);
     }
 
     public void RefreshUI() {
         switch (PlayerPref.menuState) {
             case MenuState.ChannelSelect:
-                channelImage.texture = MenuData.channelImages[PlayerPref.currentChannel];
+                channelImage.texture = AssetDatabase.data.dataGroups[0].dataBits[PlayerPref.currentChannel].image;
                 break;
 
             case MenuState.SelectSong:
@@ -268,10 +254,6 @@ public class MainMenu : MonoBehaviour {
 
         stepchart.Close();
         return instance;
-    }
-
-    public void LoadImageFromPath() {
-
     }
 
     public void CheckUIElements() {

@@ -28,6 +28,25 @@ public struct PlayerSettings {
     public bool autoPlay;
 }
 
+public struct Data {
+    public DataGroup[] dataGroups;
+}
+
+public struct DataGroup {
+    public List<DataBit> dataBits;
+}
+
+public struct DataBit {
+
+    public DataBit(Texture text) {
+        image = text;
+        //sound = clip;
+    }
+
+    public Texture image;
+    //public AudioClip sound;
+}
+
 public static class PlayerPref {
     public static int sceneValueOffset;
     //Global Settings  
@@ -43,9 +62,8 @@ public static class PlayerPref {
     public static PlayerSettings[] playerSettings;
 }
 
-public static class MenuData {
-    public static List<Texture> channelImages;
-    public static List<AudioClip> channelSounds;
+public static class AssetDatabase {
+    public static Data data;
 }
 
 public static class SceneIndex { //All the sceneindexs
