@@ -10,6 +10,7 @@ public class ScoreScreenHandler : PlayerBase {
         public int grade;
         public float maxPercentageAllowed;
     }
+
     [System.Serializable]
     public struct GradingCiteria {
         public GradeRequirements[] requirements;

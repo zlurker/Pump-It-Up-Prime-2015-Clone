@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class MainPlayerController : MonoBehaviour {
+public class MainPlayerController : AssetLoadingBase {
 
     public StepchartMover[] stepcharts;
 
