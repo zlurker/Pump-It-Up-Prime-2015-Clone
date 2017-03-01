@@ -30,6 +30,7 @@ public class AssetLoadingBase : MonoBehaviour {
             for (var j = 0; j < imageScreenGroup[i].imageScreens.Length; j++) {
                 imageScreenGroup[i].imageScreens[j].texture = LoadDataFromDatabase(i, 0);
                 imageScreenGroup[i].imageScreens[j].SetNativeSize();
+                imageScreenGroup[i].imageScreens[j].name = i.ToString();
             }
     }
 
@@ -55,8 +56,7 @@ public class AssetLoadingBase : MonoBehaviour {
                 LoadGraphicFromDirectory(directories[i], i);
         } else {
             FileInfo[] imageFiles = directoryInfo.GetFiles("*.png");
-            FileInfo[] soundFiles = directoryInfo.GetFiles("*.wav");
-            Debug.Log(imageIndex);
+            //Debug.Log(imageIndex);
 
             AssetDatabase.data.dataGroups[imageIndex].dataBits = new List<DataBit>();
 
@@ -66,7 +66,7 @@ public class AssetLoadingBase : MonoBehaviour {
                     AssetDatabase.data.dataGroups[imageIndex].dataBits.Add(new DataBit(image.texture));
                     Destroy(image.texture);
                 }
-                Debug.Log(imageIndex + " " + i + " " + " " + imageFiles[i].Name);
+                //Debug.Log(imageIndex + " " + i + " " + " " + imageFiles[i].Name);
             }
         }
     }

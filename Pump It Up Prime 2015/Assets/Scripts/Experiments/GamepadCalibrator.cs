@@ -12,7 +12,7 @@ public class GamepadCalibrator : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        Debug.Log(Input.GetAxis("Horizontal"));
+        Debug.Log(Input.GetAxisRaw("Horizontal"));
         for (var i = 0; i < 5; i++) {
             if (i != 2) {
                 if (Input.GetButton(i.ToString()))

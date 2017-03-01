@@ -10,17 +10,40 @@ public class MainMenu : AssetLoadingBase {
     [System.Serializable]
     public struct SecretCodes {
         public int[] keyValue;
+        public int resultToPlayer;
         [HideInInspector]
         public int[] playersAtValue;
     }
 
     [System.Serializable]
-    public struct UIElements {
+    public struct SpeedMod {
+        public float value;
+        public NumberModifier modifier;
+    }
+
+    [System.Serializable]
+    public struct MenuInterfaceGroup {
+        public int menuInterfaceBits;
         public GameObject[] uiElements;
     }
 
+    [System.Serializable]
+    public struct MenuInterface {
+        public MenuInterfaceGroup[] menuInterfaceGroup;
+        public bool layerClosesOtherLayers;
+        public int numberOfPlayerIndexes;
+    }
+
+    public enum NumberModifier {
+        Set, Add
+    }
+
     public SecretCodes[] codes;
-    public UIElements[] ui;
+    public SpeedMod[] speedModifier;
+    public MenuInterface[] menuInterface;
+    public RawImage[] dynaMainMenuScreeens;
+
+    public SubMenuController[] players;
     public string path;
     public string imageAssetPath;
     public Text dataPath;
@@ -33,6 +56,7 @@ public class MainMenu : AssetLoadingBase {
     public GameObject[] playerMenu;
     public Text[] currSpeed;
     public Text[] currLevel;
+    public RawImage[] currMod;
     public AudioSource previewSong;
     public AudioSource bgSound;
     public AudioSource actionSound;
@@ -42,7 +66,6 @@ public class MainMenu : AssetLoadingBase {
     WWW startUpClip;
 
     void Start() {
-
         for (var i = 0; i < codes.Length; i++)
             codes[i].playersAtValue = new int[2];
 
@@ -59,7 +82,7 @@ public class MainMenu : AssetLoadingBase {
         dataPath.text = "Put song folder here: " + path;
 
         if (!PlayerPref.songsRegisted) {
-            PlayerPref.menuState = MenuState.SelectSong;
+            //PlayerPref.menuState = MenuState.SelectSong;
             PlayerPref.channels = new Channel[6];
 
             PlayerPref.channels[0].channelName = "ALLTUNES";
@@ -84,15 +107,28 @@ public class MainMenu : AssetLoadingBase {
 
             PlayerPref.playerSettings[0].life = 5;
             PlayerPref.playerSettings[1].life = 5;
-        }
 
-        for (var i = 0; i < 2; i++)
+            PlayerPref.menuIndexes = new IndexData[menuInterface.Length];
+
+            for (var i = 0; i < menuInterface.Length; i++) {
+                PlayerPref.menuIndexes[i].indexDataGroup = new IndexDataGroup[menuInterface[i].menuInterfaceGroup.Length];
+                PlayerPref.menuIndexes[i].dataGroupPoint = new int[menuInterface[i].numberOfPlayerIndexes];
+                for (var j = 0; j < menuInterface[i].menuInterfaceGroup.Length; j++)
+                    PlayerPref.menuIndexes[i].indexDataGroup[j].indexDataBit = new int[menuInterface[i].menuInterfaceGroup[j].menuInterfaceBits];
+                //Debug.Log(menuInterface[i].menuInterfaceGroup[j].menuInterfaceBit.Length + " " + menuInterface[i].menuInterfaceGroup[j].menuInterfaceBit[0].name);
+            }
+        }
+        PlayerPref.currentPlayerLayer = new int[2];
+
+        for (var i = 0; i < 2; i++) {
             PlayerPref.playerSettings[i].playerScore = new float[7];
+            RefreshUI(i);
+        }
 
         InputBase.currentGameMode = InputBase.GameMode.Single;
 
         ChangeMusicMenu(0);
-        RefreshUI();
+
 
         KinectManager.ChangeFeetSize(0.05f);
     }
@@ -107,11 +143,9 @@ public class MainMenu : AssetLoadingBase {
     public void ChangeRush(float value) {
         if (PlayerPref.prefRush + value > 0.7f && PlayerPref.prefRush + value < 1.6f)
             PlayerPref.prefRush += value;
-        RefreshUI();
     }
 
     public void ChangeMusicMenu(int value) {
-
         if (PlayerPref.currentChannelSong + value > -1 && PlayerPref.currentChannelSong + value < PlayerPref.channels[PlayerPref.currentChannel].references.Count) {
             PlayerPref.currentChannelSong += value;
 
@@ -135,7 +169,6 @@ public class MainMenu : AssetLoadingBase {
 
             previewSong.time = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].previewStart;
         }
-        RefreshUI();
     }
 
     public void ChangeChannel(int value) {
@@ -151,14 +184,28 @@ public class MainMenu : AssetLoadingBase {
         Destroy(previewSong.clip);
     }
 
-    public void RefreshUI() {
-        switch (PlayerPref.menuState) {
-            case MenuState.ChannelSelect:
+    public void RefreshUI(int player) {
+        int[] dataGroupPoint = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint;
+        int valueInst = dataGroupPoint[dataGroupPoint[PlayerPref.IndexCheck(dataGroupPoint.Length, player)]];
+        int[] lengthChecker = new int[valueInst+1];
+
+        for (var i = 0; i < lengthChecker.Length; i++) {
+            lengthChecker[i] = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[i].indexDataBit[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[i].indexDataBit.Length, player)];
+            Debug.LogFormat("i is {0} and valued at {1}", i, lengthChecker[i]);
+        }
+        PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[valueInst].indexDataBit[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[valueInst].indexDataBit.Length, player)] = PlayerPref.ProcessRawIndex(lengthChecker[lengthChecker.Length - 1], LengthData(PlayerPref.currentPlayerLayer[player], lengthChecker));
+
+        int currentDataGroup = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint.Length, player)];
+        int index = PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[currentDataGroup].indexDataBit.Length, player);
+        Debug.Log(PlayerPref.currentPlayerLayer[player] + " " + PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint.Length, player)] + " " + PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[currentDataGroup].indexDataBit[index]);
+
+        switch (PlayerPref.menuIndexes[0].dataGroupPoint[0]) {
+            case 0:
                 channelImage.texture = AssetDatabase.data.dataGroups[0].dataBits[PlayerPref.currentChannel].image;
                 break;
 
-            case MenuState.SelectSong:
-            case MenuState.SelectSongLevel:
+            case 1:
+            case 2:
                 songTitle.text = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].name;
                 currRush.text = PlayerPref.prefRush.ToString();
 
@@ -173,30 +220,54 @@ public class MainMenu : AssetLoadingBase {
                 }
 
                 for (var i = 0; i < 2; i++) {
-                    if (PlayerPref.playerSettings[i].life == 0 || PlayerPref.menuState != MenuState.SelectSongLevel)
+                    if (PlayerPref.playerSettings[i].life == 0)
                         playerMenu[i].SetActive(false);
                     else
                         playerMenu[i].SetActive(true);
 
                     currSpeed[i].text = PlayerPref.playerSettings[i].prefSpeed.ToString();
-                    currLevel[i].text = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].levels[PlayerPref.playerSettings[i].currentSongLevel];
+                    currLevel[i].text = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].levels[PlayerPref.playerSettings[i].currentSongLevel].level;
+                    players[i].levelBubble.texture = LoadDataFromDatabase(int.Parse(players[i].levelBubble.name), (int)PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].levels[PlayerPref.playerSettings[i].currentSongLevel].stepType);
+                }
+                break;
+
+                //case MenuState.Confirmation:
+                //LoadLevel();
+                // break;
+        }
+        CheckUIElements(menuInterface[0].menuInterfaceGroup[PlayerPref.menuIndexes[0].dataGroupPoint[0]].uiElements);
+    }
+
+    int LengthData(int currScreen, int[] indexes) {
+        int lengthInstance = 0;
+        switch (currScreen) {
+            case 0:
+                switch (indexes.Length) {
+                    case 1:
+                        lengthInstance = PlayerPref.channels.Length;
+                        break;
+                    case 2:
+                        lengthInstance = PlayerPref.channels[indexes[0]].references.Count;
+                        break;
+                    case 3:
+                        lengthInstance = PlayerPref.songs[PlayerPref.channels[indexes[0]].references[1]].levels.Count;
+                        break;
                 }
                 break;
         }
-        CheckUIElements();
+        return lengthInstance;
     }
 
     public void LoadLevel() {
-        PlayerPref.menuState = MenuState.SelectSong;
         SceneManager.LoadScene(SceneIndex.gameplayLevel);
     }
 
-    public void KillPlayer(int player) {
+    public void TooglePlayer(int player) {
         if (PlayerPref.playerSettings[player].life > 0)
             PlayerPref.playerSettings[player].life = 0;
         else
             PlayerPref.playerSettings[player].life = 5;
-        RefreshUI();
+        RefreshUI(player);
     }
 
     void LoadSongsFromDirectory(DirectoryInfo directoryInfo) {
@@ -213,19 +284,18 @@ public class MainMenu : AssetLoadingBase {
 
     SongData ReadStepchartLevelData(string songPath, string rootPath) {
         SongData instance = new SongData();
+        LevelType level = new LevelType();
         StreamReader stepchart;
         string tempStr;
-        string level = "";
 
         instance.path = rootPath;
         instance.name = songPath.Substring(path.Length + 12, songPath.Length - path.Length - 12 - 4);
-        instance.levels = new List<string>();
+        instance.levels = new List<LevelType>();
         stepchart = File.OpenText(songPath);
 
         PlayerPref.channels[0].references.Add(PlayerPref.songs.Count);
 
         while ((tempStr = stepchart.ReadLine()) != null) {
-
             if (tempStr.Contains("#TITLE:"))
                 instance.name = tempStr.Substring(7, tempStr.Length - 1 - 7);
 
@@ -241,14 +311,16 @@ public class MainMenu : AssetLoadingBase {
                 instance.previewEnd = instance.previewStart + float.Parse(tempStr.Substring(14, tempStr.Length - 1 - 14));
 
             if (tempStr.Contains("pump-single"))
-                level = "S";
-            else if (tempStr.Contains("pump-double") || tempStr.Contains("pump-routine"))
-                level = "D";
+                level.stepType = StepType.Single;
+            else if (tempStr.Contains("pump-double") || tempStr.Contains("pump-routine")) {
+                level.stepType = StepType.Double;
+            }
 
             if (tempStr.Contains("#METER:")) {
-                level += tempStr.Remove(0, 7);
-                level = level.Remove(level.Length - 1, 1);
+                level.level += tempStr.Remove(0, 7);
+                level.level = level.level.Remove(level.level.Length - 1, 1);
                 instance.levels.Add(level);
+                level.level = "";
             }
         }
 
@@ -256,17 +328,15 @@ public class MainMenu : AssetLoadingBase {
         return instance;
     }
 
-    public void CheckUIElements() {
-        int valueInst = 0;
-        for (var i = 0; i < ui.Length; i++)
-            if (i == (int)PlayerPref.menuState)
-                valueInst = i;
-            else
-                for (var j = 0; j < ui[i].uiElements.Length; j++)
-                    ui[i].uiElements[j].SetActive(false);
 
-        for (var j = 0; j < ui[valueInst].uiElements.Length; j++)
-            ui[valueInst].uiElements[j].SetActive(true);
+    void CheckUIElements(GameObject[] uiElements) {
+        for (var i = 0; i < menuInterface.Length; i++)
+            for (var j = 0; j < menuInterface[i].menuInterfaceGroup.Length; j++)
+                for (var k = 0; k < menuInterface[i].menuInterfaceGroup[j].uiElements.Length; k++)
+                    menuInterface[i].menuInterfaceGroup[j].uiElements[k].SetActive(false);
+
+        for (var i = 0; i < uiElements.Length; i++)
+            uiElements[i].SetActive(true);
     }
 }
 
