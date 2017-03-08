@@ -52,7 +52,13 @@ public class SubMenuController : PlayerBase {
                 PlayerPref.currentPlayerLayer[playerIndex] = PlayerPref.ScrollAnArray(PlayerPref.currentPlayerLayer[playerIndex], leftoverValue, PlayerPref.menuIndexes.Length);
                 break;
             case 1:
-                //Confirmation
+                switch (PlayerPref.currentPlayerLayer[playerIndex]) {
+                    case 0:
+                        mainController.LoadLevel();
+                        break;
+                    case 1:
+                        break;
+                }
                 break;
         }
 
@@ -64,7 +70,7 @@ public class SubMenuController : PlayerBase {
         int currentDataGroup = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[playerIndex]].dataGroupPoint[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[playerIndex]].dataGroupPoint.Length, playerIndex)];
         int index = PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[playerIndex]].indexDataGroup[currentDataGroup].indexDataBit.Length, playerIndex);
 
-        Debug.Log(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[playerIndex]].indexDataGroup[currentDataGroup].indexDataBit.Length);
+        //Debug.Log(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[playerIndex]].indexDataGroup[currentDataGroup].indexDataBit.Length);
         PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[playerIndex]].indexDataGroup[currentDataGroup].indexDataBit[index] += value;
         mainController.RefreshUI(playerIndex);
     }
@@ -88,13 +94,7 @@ public class SubMenuController : PlayerBase {
     public void ChangeSpeed(float value) {
         if (PlayerPref.playerSettings[playerIndex].prefSpeed + value > 0 && PlayerPref.playerSettings[playerIndex].prefSpeed + value < 7)
             PlayerPref.playerSettings[playerIndex].prefSpeed += value;
-        mainController.RefreshUI(playerIndex);
-    }
-
-    public void ChangeSongLevel(int value) {
-        if (PlayerPref.playerSettings[playerIndex].currentSongLevel + value > -1 && PlayerPref.playerSettings[playerIndex].currentSongLevel + value < PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].levels.Count)
-            PlayerPref.playerSettings[playerIndex].currentSongLevel += value;
-        mainController.RefreshUI(playerIndex);
+        //mainController.RefreshUI(playerIndex);
     }
 
     public void ToogleAutoPlay() {

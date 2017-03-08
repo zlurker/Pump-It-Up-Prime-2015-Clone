@@ -30,7 +30,7 @@ public class MainMenu : AssetLoadingBase {
     [System.Serializable]
     public struct MenuInterface {
         public MenuInterfaceGroup[] menuInterfaceGroup;
-        public bool layerClosesOtherLayers;
+        public bool closesWhenNotInLayer;
         public int numberOfPlayerIndexes;
     }
 
@@ -41,7 +41,6 @@ public class MainMenu : AssetLoadingBase {
     public SecretCodes[] codes;
     public SpeedMod[] speedModifier;
     public MenuInterface[] menuInterface;
-    public RawImage[] dynaMainMenuScreeens;
 
     public SubMenuController[] players;
     public string path;
@@ -64,6 +63,7 @@ public class MainMenu : AssetLoadingBase {
     public RawImage video;
     public string videoPath;
     WWW startUpClip;
+    float currPreviewEnd;
 
     void Start() {
         for (var i = 0; i < codes.Length; i++)
@@ -126,18 +126,14 @@ public class MainMenu : AssetLoadingBase {
         }
 
         InputBase.currentGameMode = InputBase.GameMode.Single;
-
-        ChangeMusicMenu(0);
-
-
         KinectManager.ChangeFeetSize(0.05f);
     }
 
     void Update() {
-        if (previewSong.time > PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].previewEnd)
+        if (previewSong.time > currPreviewEnd)
             previewSong.Pause();
         else
-            previewSong.volume = (PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].previewEnd - previewSong.time) / 5;
+            previewSong.volume = (currPreviewEnd - previewSong.time) / 5;
     }
 
     public void ChangeRush(float value) {
@@ -145,97 +141,90 @@ public class MainMenu : AssetLoadingBase {
             PlayerPref.prefRush += value;
     }
 
-    public void ChangeMusicMenu(int value) {
-        if (PlayerPref.currentChannelSong + value > -1 && PlayerPref.currentChannelSong + value < PlayerPref.channels[PlayerPref.currentChannel].references.Count) {
-            PlayerPref.currentChannelSong += value;
-
-            if (value != 0)
-                for (var i = 0; i < 2; i++)
-                    PlayerPref.playerSettings[i].currentSongLevel = 0;
-
-            DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].path);
-            FileInfo[] temp = directory.GetFiles("*.wav");
-
-            Destroy(previewSong.clip);
-            using (WWW song = new WWW("file:///" + temp[0].FullName)) {
-                while (!song.isDone) ;
-                previewSong.clip = song.GetAudioClip(false);
-            }
-
-            previewSong.volume = 1;
-
-            previewSong.pitch = PlayerPref.prefRush;
-            previewSong.Play();
-
-            previewSong.time = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].previewStart;
-        }
-    }
-
-    public void ChangeChannel(int value) {
-        if (PlayerPref.currentChannel + value > -1 && PlayerPref.currentChannel + value < PlayerPref.channels.Length)
-            PlayerPref.currentChannel += value;
-
-        if (value != 0)
-            for (var i = 0; i < 2; i++)
-                PlayerPref.playerSettings[i].currentSongLevel = 0;
-
-        PlayerPref.currentChannelSong = 0;
-        previewSong.Pause();
-        Destroy(previewSong.clip);
-    }
-
     public void RefreshUI(int player) {
         int[] dataGroupPoint = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint;
-        int valueInst = dataGroupPoint[dataGroupPoint[PlayerPref.IndexCheck(dataGroupPoint.Length, player)]];
-        int[] lengthChecker = new int[valueInst+1];
+        int valueInst = dataGroupPoint[PlayerPref.IndexCheck(dataGroupPoint.Length, player)];
+        int[] lengthChecker = new int[valueInst + 1];
 
-        for (var i = 0; i < lengthChecker.Length; i++) {
+        for (var i = 0; i < lengthChecker.Length; i++)
             lengthChecker[i] = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[i].indexDataBit[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[i].indexDataBit.Length, player)];
-            Debug.LogFormat("i is {0} and valued at {1}", i, lengthChecker[i]);
-        }
+        //Debug.LogFormat("i is {0} and valued at {1}", i, lengthChecker[i]);
+
         PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[valueInst].indexDataBit[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[valueInst].indexDataBit.Length, player)] = PlayerPref.ProcessRawIndex(lengthChecker[lengthChecker.Length - 1], LengthData(PlayerPref.currentPlayerLayer[player], lengthChecker));
 
-        int currentDataGroup = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint.Length, player)];
-        int index = PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[currentDataGroup].indexDataBit.Length, player);
-        Debug.Log(PlayerPref.currentPlayerLayer[player] + " " + PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint.Length, player)] + " " + PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[currentDataGroup].indexDataBit[index]);
+        for (var i = 0; i < lengthChecker.Length; i++)
+            lengthChecker[i] = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[i].indexDataBit[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[i].indexDataBit.Length, player)];
 
-        switch (PlayerPref.menuIndexes[0].dataGroupPoint[0]) {
+        int currentDataGroup = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].dataGroupPoint.Length, player)];
+        int index = PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[currentDataGroup].indexDataBit[PlayerPref.IndexCheck(PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[player]].indexDataGroup[currentDataGroup].indexDataBit.Length, player)];
+
+        //-------Debug
+        Debug.Log(PlayerPref.currentPlayerLayer[player] + " " + currentDataGroup + " " + index);
+        //-------EndDebug
+
+        switch (currentDataGroup) {
             case 0:
-                channelImage.texture = AssetDatabase.data.dataGroups[0].dataBits[PlayerPref.currentChannel].image;
+                LoadDataFromDatabase(channelImage, lengthChecker[0]);
+                //channelImage.texture = AssetDatabase.data.dataGroups[0].dataBits[PlayerPref.currentChannel].image;
                 break;
 
             case 1:
+                LoadSongData(PlayerPref.channels[lengthChecker[0]].references[lengthChecker[1]]);
+                break;
+
             case 2:
-                songTitle.text = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].name;
                 currRush.text = PlayerPref.prefRush.ToString();
 
-                DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].path);
-                FileInfo[] temp = directory.GetFiles("*.PNG");
-
-                Destroy(previewImage.texture);
-
-                using (WWW image = new WWW("file:///" + temp[0].FullName)) {
-                    while (!image.isDone) ;
-                    previewImage.texture = image.texture;
-                }
-
-                for (var i = 0; i < 2; i++) {
+                for (var i = 0; i < 2; i++)
                     if (PlayerPref.playerSettings[i].life == 0)
                         playerMenu[i].SetActive(false);
                     else
                         playerMenu[i].SetActive(true);
 
-                    currSpeed[i].text = PlayerPref.playerSettings[i].prefSpeed.ToString();
-                    currLevel[i].text = PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].levels[PlayerPref.playerSettings[i].currentSongLevel].level;
-                    players[i].levelBubble.texture = LoadDataFromDatabase(int.Parse(players[i].levelBubble.name), (int)PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].levels[PlayerPref.playerSettings[i].currentSongLevel].stepType);
-                }
+                currSpeed[player].text = PlayerPref.playerSettings[player].prefSpeed.ToString();
+                currLevel[player].text = PlayerPref.songs[PlayerPref.channels[lengthChecker[0]].references[lengthChecker[1]]].levels[lengthChecker[2]].level;
+                PlayerPref.playerSettings[player].currentSongLevel = lengthChecker[2];
+                LoadDataFromDatabase(players[player].levelBubble, (int)PlayerPref.songs[PlayerPref.channels[lengthChecker[0]].references[lengthChecker[1]]].levels[lengthChecker[2]].stepType);
+
                 break;
 
                 //case MenuState.Confirmation:
                 //LoadLevel();
                 // break;
         }
-        CheckUIElements(menuInterface[0].menuInterfaceGroup[PlayerPref.menuIndexes[0].dataGroupPoint[0]].uiElements);
+        CheckUIElements(menuInterface[PlayerPref.currentPlayerLayer[player]].menuInterfaceGroup[currentDataGroup].uiElements);
+    }
+
+    public void LoadSongData(int referenceValue) {
+
+        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[referenceValue].path);
+        FileInfo[] temp = directory.GetFiles("*.wav");
+
+        Destroy(previewSong.clip);
+        using (WWW song = new WWW("file:///" + temp[0].FullName)) {
+            while (!song.isDone) ;
+            previewSong.clip = song.GetAudioClip(false);
+        }
+
+        previewSong.volume = 1;
+
+        previewSong.pitch = PlayerPref.prefRush;
+        previewSong.Play();
+
+        previewSong.time = PlayerPref.songs[referenceValue].previewStart;
+
+        temp = directory.GetFiles("*.PNG");
+
+        Destroy(previewImage.texture);
+
+        using (WWW image = new WWW("file:///" + temp[0].FullName)) {
+            while (!image.isDone) ;
+            previewImage.texture = image.texture;
+        }
+
+        currPreviewEnd = PlayerPref.songs[referenceValue].previewEnd;
+        songTitle.text = PlayerPref.songs[referenceValue].name;
+        PlayerPref.currSong = referenceValue;
     }
 
     int LengthData(int currScreen, int[] indexes) {
@@ -250,7 +239,7 @@ public class MainMenu : AssetLoadingBase {
                         lengthInstance = PlayerPref.channels[indexes[0]].references.Count;
                         break;
                     case 3:
-                        lengthInstance = PlayerPref.songs[PlayerPref.channels[indexes[0]].references[1]].levels.Count;
+                        lengthInstance = PlayerPref.songs[PlayerPref.channels[indexes[0]].references[indexes[1]]].levels.Count;
                         break;
                 }
                 break;
@@ -259,6 +248,7 @@ public class MainMenu : AssetLoadingBase {
     }
 
     public void LoadLevel() {
+        PlayerPref.menuIndexes[PlayerPref.currentPlayerLayer[0]].dataGroupPoint[0] = 1;
         SceneManager.LoadScene(SceneIndex.gameplayLevel);
     }
 

@@ -4,9 +4,21 @@ using System.IO;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+[System.Serializable]
+public struct UIInstance {
+    public RawImage health;
+    public GameObject healthFrame;
+    public RawImage stageNumber;
+    public Animation grade;
+    public SpriteRenderer gradeT;
+    public Text comboT;
+    public GameObject sequenceZone;
+}
+
 public class MainPlayerController : AssetLoadingBase {
 
     public StepchartMover[] stepcharts;
+    public UIInstance[] uis;
 
     public AudioSource songPlayer;
     public float cRealTime;
@@ -15,26 +27,32 @@ public class MainPlayerController : AssetLoadingBase {
 
     public RawImage previewImage;
     public CursorLockMode cursorMode;
-
     public RawImage video;
     public string path;
+
     WWW startUpClip;
     MovieTexture instance;
 
     void Start() {
         for (var i = 0; i < stepcharts.Length; i++)
             if (PlayerPref.playerSettings[i].life > 0) {
+                stepcharts[i].gameObject.SetActive(true);
                 stepcharts[i].playerManager = this;
                 stepcharts[i].InitialiseStepchart(i);
-            } else {
-                stepcharts[i].gameObject.SetActive(false);
-                if (InputBase.currentGameMode == InputBase.GameMode.Single)
-                    stepcharts[i].stepchartBuilder.sequenceZoneToMeasure[i].gameObject.SetActive(false);
+
+                if (InputBase.currentGameMode == InputBase.GameMode.Double)
+                    stepcharts[i].uiToUse = uis[2];
+                else
+                    stepcharts[i].uiToUse = uis[i];
+
+                stepcharts[i].InitialiseUI();
             }
+
+
 
         dataPath = Application.dataPath;
 
-        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].path);
+        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.currSong].path);
         FileInfo[] temp = directory.GetFiles("*.wav");
 
         WWW song = new WWW("file:///" + temp[0].FullName);

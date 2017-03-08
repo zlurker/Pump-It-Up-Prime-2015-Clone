@@ -34,7 +34,6 @@ public class StepchartMover : PlayerBase {
         }
     }
 
-
     [System.Serializable]
     public struct WarpInfo {
         public float beat;
@@ -100,11 +99,7 @@ public class StepchartMover : PlayerBase {
     public float rush;
     public AudioSource song;
     public Sprite[] grades;
-    public Animation grade;
-    public SpriteRenderer gradeT;
-    public Text comboT;
 
-    public Text comboTBG;
     public float allowanceTime;
 
     public List<BPMData> bpmData;
@@ -114,6 +109,7 @@ public class StepchartMover : PlayerBase {
     public List<BeatsInfo> beats;
     public List<WarpInfo> warps;
     public LaneInfo[] lanesInfo;
+    public UIInstance uiToUse;
 
     [HideInInspector]
     public float endBpm;
@@ -160,11 +156,9 @@ public class StepchartMover : PlayerBase {
         //KinectManager.Instance.legs[i] = legs[i];
         index = playerIndex;
 
-
-
         stepchartBuilder.speed = PlayerPref.playerSettings[playerIndex].prefSpeed;
         stepchartBuilder.stepchartMover = this;
-        DirectoryInfo songFolder = new DirectoryInfo(PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].path);
+        DirectoryInfo songFolder = new DirectoryInfo(PlayerPref.songs[PlayerPref.currSong].path);
         FileInfo[] stepchart = songFolder.GetFiles("*.ssc");
 
         stepchartBuilder.CreateTimingData(stepchart[0].FullName);
@@ -187,6 +181,13 @@ public class StepchartMover : PlayerBase {
 
         offset /= rush;
         originalTime = playerManager.cRealTime - offset;
+    }
+
+    public void InitialiseUI() {
+        uiToUse.stageNumber.gameObject.SetActive(true);
+        uiToUse.sequenceZone.SetActive(true);
+        uiToUse.healthFrame.gameObject.SetActive(true);
+        uiToUse.grade.gameObject.SetActive(true);
     }
 
     void Update() {
@@ -326,8 +327,8 @@ public class StepchartMover : PlayerBase {
     }
 
     void BeatScore(int givenCombo) {
-        grade.Stop();
-        grade.Play();
+        uiToUse.grade.Stop();
+        uiToUse.grade.Play();
 
         if (givenCombo > 0) {
             if (combo < 0)
@@ -365,14 +366,14 @@ public class StepchartMover : PlayerBase {
                 break;
         }
 
-        gradeT.sprite = grades[givenCombo + 1];
+        uiToUse.gradeT.sprite = grades[givenCombo + 1];
 
         PlayerPref.playerSettings[index].playerScore[6] += 1000 * givenCombo;
 
         if (PlayerPref.playerSettings[index].playerScore[6] < 0)
             PlayerPref.playerSettings[index].playerScore[6] = 0;
 
-        comboT.text = Mathf.Abs(combo).ToString();
+        uiToUse.comboT.text = Mathf.Abs(combo).ToString();
         //comboTBG.text = Mathf.Abs(combo).ToString();
     }
     #endregion

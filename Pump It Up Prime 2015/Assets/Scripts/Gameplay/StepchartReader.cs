@@ -5,13 +5,13 @@ using System;
 using System.IO;
 
 
-public class StepchartReader : MonoBehaviour {
+public class StepchartReader : NoteSkinLoader {
 
     public Transform[] sequenceZoneToMeasure;
     public bool invertStepchart;
-    public GameObject[] beatArrows;
-    public GameObject[] longBeatMid;
-    public GameObject[] longBeatEnd;
+    public SpriteRenderer[] beatArrows;
+    public SpriteRenderer[] longBeatMid;
+    public SpriteRenderer[] longBeatEnd;
 
     public string fileName;
     public string timingData;
@@ -28,13 +28,40 @@ public class StepchartReader : MonoBehaviour {
     GameObject[] longBeatStartData;
     bool[] toCreateLongBeatData;
 
-    string dataPath;
+    public Vector2 AspectScale(Texture targetTexture, Vector3 currScale) {
+        Vector2 inst = Vector2.zero;
+        inst.x = targetTexture.width / targetedAspect.x;
+        inst.y = targetTexture.height / targetedAspect.y;
+
+        //Debug.Log(targetTexture.width);
+        //Debug.Log(currScale.x / inst.x + " " + currScale.y / inst.y);
+
+        return new Vector2(1 / inst.x, 1 / inst.y);
+    }
 
     public void CreateStepchart(string path) {
+
+        for (var i = 0; i < noteskins.Length; i++) {         
+            beatArrows[i].sprite = noteskins[i].tapNote;
+            beatArrows[i].transform.localScale = AspectScale(noteskins[i].tapNote.texture, beatArrows[i].transform.localScale);
+            stepchartMover.beatScale = beatArrows[i].transform.localScale.x;
+
+            longBeatMid[i].sprite = noteskins[i].holdNote;
+            longBeatMid[i].transform.localScale = AspectScale(noteskins[i].holdNote.texture, longBeatMid[i].transform.localScale);
+            longBeatMid[i].transform.localScale = new Vector2(longBeatMid[i].transform.localScale.x,1f);
+
+            longBeatEnd[i].sprite = noteskins[i].endHoldNote;
+            longBeatEnd[i].transform.localScale = AspectScale(noteskins[i].endHoldNote.texture, longBeatMid[i].transform.localScale);
+        }
+
         stepchart = File.OpenText(path);
         readBeats = File.OpenText(path);
 
         stepchartMover.beats = new List<StepchartMover.BeatsInfo>();
+
+        int sequenceZoneToUse = 0;
+
+        sequenceZoneToUse = stepchartMover.index;
 
         string currentBeat = "";
         string currentRow = "";
@@ -50,12 +77,12 @@ public class StepchartReader : MonoBehaviour {
         float currentPos = 0;
         currentLevel = 0;
 
-        stepchartMover.transform.position = sequenceZoneToMeasure[stepchartMover.index].position;
+        //stepchartMover.transform.position = sequenceZoneToMeasure[stepchartMover.index].position;
 
         for (var i = 0; i < stepchartMover.lanesInfo.Length; i++)
             stepchartMover.lanesInfo[i].beatPositions = new List<int>();
 
-        while (currentLevel != PlayerPref.playerSettings[stepchartMover.index].currentSongLevel + 1) {
+        while (currentLevel != PlayerPref.playerSettings[sequenceZoneToUse].currentSongLevel + 1) {
             readBeats.ReadLine();
             if (stepchart.ReadLine().Contains("#STEPSTYPE:"))
                 currentLevel++;
@@ -90,8 +117,8 @@ public class StepchartReader : MonoBehaviour {
 
                     switch (char.ConvertFromUtf32(beat)) {
                         case "F": //F is fake
-                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
-                            inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
+                            inst = Instantiate(beatArrows[e].gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            //inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
@@ -101,8 +128,8 @@ public class StepchartReader : MonoBehaviour {
                         case "X":
                         case "Y":
                         case "Z":
-                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
-                            inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
+                            inst = Instantiate(beatArrows[e].gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            //inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
@@ -115,8 +142,8 @@ public class StepchartReader : MonoBehaviour {
                         case "x":
                         case "y":
                         case "z":
-                            inst = Instantiate(beatArrows[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
-                            inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
+                            inst = Instantiate(beatArrows[e].gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            //inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             longBeatStartData[e] = inst;
                             inst.transform.parent = stepchartMover.transform;
                             inst.name = char.ConvertFromUtf32(beat);
@@ -127,12 +154,12 @@ public class StepchartReader : MonoBehaviour {
                         case "3":
                             float dist = 0;
 
-                            inst = Instantiate(longBeatEnd[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
-                            inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
+                            inst = Instantiate(longBeatEnd[e].gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            //inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e], new Vector2(sequenceZoneToMeasure[stepchartMover.index].position.x - (2 * beatScale) + (e * beatScale), -currentPos - (dist / 2)), Quaternion.identity) as GameObject;
-                            temp.transform.localScale = new Vector2(2 * beatScale, dist / ((temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y) * 2));
+                            GameObject temp = Instantiate(longBeatMid[e].transform.parent.gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos - dist), Quaternion.identity) as GameObject;
+                            temp.transform.localScale = new Vector2(1, dist / (temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y*2));
 
                             inst.transform.parent = stepchartMover.transform;
                             temp.transform.parent = stepchartMover.transform;
@@ -168,22 +195,16 @@ public class StepchartReader : MonoBehaviour {
 
         if (stepchartMover.beats[stepchartMover.beats.Count - 1].beats.Length == 10) {
             InputBase.activePlayerIndex = stepchartMover.index;
+            stepchartMover.transform.position += sequenceZoneToMeasure[2].position - sequenceZoneToMeasure[sequenceZoneToUse].position;
             InputBase.currentGameMode = InputBase.GameMode.Double;
-            sequenceZoneToMeasure[0].position = new Vector3(2.7f, 0, 0);
-            sequenceZoneToMeasure[1].position = new Vector3(9f, 0, 0);
-
-            sequenceZoneToMeasure[0].gameObject.SetActive(true);
-            sequenceZoneToMeasure[1].gameObject.SetActive(true);
-            stepchartMover.transform.position = sequenceZoneToMeasure[0].position;
         }
 
-        //Debug.Log("LastBeat: " + lastBeat);
         stepchart.Close();
         readBeats.Close();
         //Debug.Log("Number of 4-beats: " + debugBeats);
         currentPos = stepchartMover.scrollData[currentScroll - 1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll - 1].scroll);
         stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats * 4, 0, ReadTimeFromBPM(debugBeats * 4), currentPos));
-        stepchartMover.beatScale = 2 * beatScale;
+        
 
         for (var i = 0; i < stepchartMover.bpmData.Count; i++) {
             StepchartMover.BPMData returnInst = stepchartMover.bpmData[i];
@@ -206,7 +227,6 @@ public class StepchartReader : MonoBehaviour {
     }
 
     public void CreateTimingData(string path) {
-        dataPath = Application.dataPath;
         speed *= screenSizeMultiplier;
 
         StreamReader timeDataTemp = File.OpenText(path);

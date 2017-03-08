@@ -39,6 +39,7 @@ public struct Data {
 
 public struct DataGroup {
     public List<DataBit> dataBits;
+    public float uiScaleValue;
 }
 
 public struct DataBit {
@@ -67,9 +68,8 @@ public static class PlayerPref {
     public static bool songsRegisted;
     public static Channel[] channels;
     public static List<SongData> songs;
+    public static int currSong;
 
-    public static int currentChannel;
-    public static int currentChannelSong;
     public static float prefRush;
     //SP settings
     public static PlayerSettings[] playerSettings;

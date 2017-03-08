@@ -39,7 +39,7 @@ public class ScoreScreenHandler : PlayerBase {
             }
         }
 
-        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.channels[PlayerPref.currentChannel].references[PlayerPref.currentChannelSong]].path);
+        DirectoryInfo directory = new DirectoryInfo(PlayerPref.songs[PlayerPref.currSong].path);
         FileInfo[] temp = directory.GetFiles("*.PNG");
 
         using (WWW image = new WWW("file:///" + temp[0].FullName)) {

@@ -28,9 +28,8 @@ public class AssetLoadingBase : MonoBehaviour {
     void AutoLoadAssets() {
         for (var i = 0; i < imageScreenGroup.Length; i++)
             for (var j = 0; j < imageScreenGroup[i].imageScreens.Length; j++) {
-                imageScreenGroup[i].imageScreens[j].texture = LoadDataFromDatabase(i, 0);
-                imageScreenGroup[i].imageScreens[j].SetNativeSize();
                 imageScreenGroup[i].imageScreens[j].name = i.ToString();
+                LoadDataFromDatabase(imageScreenGroup[i].imageScreens[j], 0);
             }
     }
 
@@ -56,7 +55,6 @@ public class AssetLoadingBase : MonoBehaviour {
                 LoadGraphicFromDirectory(directories[i], i);
         } else {
             FileInfo[] imageFiles = directoryInfo.GetFiles("*.png");
-            //Debug.Log(imageIndex);
 
             AssetDatabase.data.dataGroups[imageIndex].dataBits = new List<DataBit>();
 
@@ -66,19 +64,28 @@ public class AssetLoadingBase : MonoBehaviour {
                     AssetDatabase.data.dataGroups[imageIndex].dataBits.Add(new DataBit(image.texture));
                     Destroy(image.texture);
                 }
-                //Debug.Log(imageIndex + " " + i + " " + " " + imageFiles[i].Name);
+            }
+
+            imageFiles = directoryInfo.GetFiles("*.txt");
+
+            if (imageFiles.Length > 0) {
+                File.ReadAllText(imageFiles[0].FullName);
+                AssetDatabase.data.dataGroups[imageIndex].uiScaleValue = float.Parse(File.ReadAllText(imageFiles[0].FullName));
+            } else {
+                AssetDatabase.data.dataGroups[imageIndex].uiScaleValue = 1;
             }
         }
     }
 
-    public Texture LoadDataFromDatabase(int currentScreen, int itemToImport) {
+    public void LoadDataFromDatabase(RawImage screen, int itemToImport) {
         //if (AssetDatabase.data[currentState].dataGroups[currentScreen].dataBits[itemToImport].sound)
         //   actionSound.clip = AssetDatabase.data[currentState].dataGroups[currentScreen].dataBits[itemToImport].sound;
 
-        if (AssetDatabase.data.dataGroups[currentScreen].dataBits.Count > itemToImport)
-            if (AssetDatabase.data.dataGroups[currentScreen].dataBits[itemToImport].image)
-                return AssetDatabase.data.dataGroups[currentScreen].dataBits[itemToImport].image;
+        if (AssetDatabase.data.dataGroups[int.Parse(screen.name)].dataBits.Count > itemToImport)
+            if (AssetDatabase.data.dataGroups[int.Parse(screen.name)].dataBits[itemToImport].image)
+                screen.texture = AssetDatabase.data.dataGroups[int.Parse(screen.name)].dataBits[itemToImport].image;
 
-        return null;
+        screen.SetNativeSize();
+        screen.transform.localScale = Vector3.one / AssetDatabase.data.dataGroups[int.Parse(screen.name)].uiScaleValue;
     }
 }

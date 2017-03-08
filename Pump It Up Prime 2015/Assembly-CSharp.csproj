@@ -91,6 +91,7 @@
      <Compile Include="Assets\KinectImport\Kinect Scripts\SpeechManager.cs" />
      <Compile Include="Assets\KinectImport\Kinect Scripts\VisualGestureManager.cs" />
      <Compile Include="Assets\Scripts\Asset-Related\AssetLoadingBase.cs" />
+     <Compile Include="Assets\Scripts\Asset-Related\NoteSkinLoader.cs" />
      <Compile Include="Assets\Scripts\Controllers\KinectDancePadCalibrator.cs" />
      <Compile Include="Assets\Scripts\Controllers\MainMenu.cs" />
      <Compile Include="Assets\Scripts\Controllers\ScoreScreenHandler.cs" />
@@ -102,6 +103,7 @@
      <Compile Include="Assets\Scripts\Experiments\Root.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpringEffectExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpriteExperiment.cs" />
+     <Compile Include="Assets\Scripts\Experiments\SpriteTest.cs" />
      <Compile Include="Assets\Scripts\Experiments\TimeExperiment.cs" />
      <Compile Include="Assets\Scripts\Gameplay\MainPlayerController.cs" />
      <Compile Include="Assets\Scripts\Gameplay\PlayerPref.cs" />
@@ -115,11 +117,14 @@
      <Compile Include="Assets\Scripts\Input\PlayerBase.cs" />
      <Compile Include="Assets\VideoPlaybackExperiment.cs" />
      <None Include="Assets\Resources\BlurShader.shader" />
+     <None Include="Assets\AssetDatabase\1-Menu\9 - 9\scale.txt" />
      <None Include="Assets\Resources\DepthShader.shader" />
      <None Include="Assets\Resources\SpeechGrammar.grxml.txt" />
      <None Include="Assets\Resources\BlurShader3.shader" />
      <None Include="Assets\Resources\Color2DepthShader.shader" />
+     <None Include="Assets\AssetDatabase\1-Menu\0 - ChannelImage\Scale.txt" />
      <None Include="Assets\Resources\BlurShader2.shader" />
+     <None Include="Assets\AssetDatabase\1-Menu\6 - LevelDisplay\Scale.txt" />
      <None Include="Assets\Resources\Depth2ColorShader.shader" />
      <None Include="Assets\Resources\Erode.shader" />
      <None Include="Assets\Resources\BodyShader.shader" />
