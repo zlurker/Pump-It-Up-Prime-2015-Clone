@@ -112,6 +112,8 @@ public static class PlayerPref {
 
 public static class AssetDatabase {
     public static Data data;
+    public static NoteskinType[] noteskins;
+    public static Sprite seqZone;
 }
 
 public static class SceneIndex { //All the sceneindexs

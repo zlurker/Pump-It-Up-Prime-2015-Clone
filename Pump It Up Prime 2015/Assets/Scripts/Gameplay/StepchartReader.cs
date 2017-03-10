@@ -5,9 +5,11 @@ using System;
 using System.IO;
 
 
-public class StepchartReader : NoteSkinLoader {
+public class StepchartReader : MonoBehaviour {
 
+    public Vector2 targetedAspect;
     public Transform[] sequenceZoneToMeasure;
+    public SpriteRenderer[] seqZones;
     public bool invertStepchart;
     public SpriteRenderer[] beatArrows;
     public SpriteRenderer[] longBeatMid;
@@ -28,10 +30,10 @@ public class StepchartReader : NoteSkinLoader {
     GameObject[] longBeatStartData;
     bool[] toCreateLongBeatData;
 
-    public Vector2 AspectScale(Texture targetTexture, Vector3 currScale) {
+    public Vector2 AspectScale(Texture targetTexture, Vector3 tAspect) {
         Vector2 inst = Vector2.zero;
-        inst.x = targetTexture.width / targetedAspect.x;
-        inst.y = targetTexture.height / targetedAspect.y;
+        inst.x = targetTexture.width / tAspect.x;
+        inst.y = targetTexture.height / tAspect.y;
 
         //Debug.Log(targetTexture.width);
         //Debug.Log(currScale.x / inst.x + " " + currScale.y / inst.y);
@@ -41,17 +43,25 @@ public class StepchartReader : NoteSkinLoader {
 
     public void CreateStepchart(string path) {
 
-        for (var i = 0; i < noteskins.Length; i++) {         
-            beatArrows[i].sprite = noteskins[i].tapNote;
-            beatArrows[i].transform.localScale = AspectScale(noteskins[i].tapNote.texture, beatArrows[i].transform.localScale);
+        for (var i = 0; i < AssetDatabase.noteskins.Length; i++) {
+            beatArrows[i].sprite = AssetDatabase.noteskins[i].tapNote;
+            beatArrows[i].transform.localScale = AspectScale(AssetDatabase.noteskins[i].tapNote.texture, targetedAspect);
             stepchartMover.beatScale = beatArrows[i].transform.localScale.x;
 
-            longBeatMid[i].sprite = noteskins[i].holdNote;
-            longBeatMid[i].transform.localScale = AspectScale(noteskins[i].holdNote.texture, longBeatMid[i].transform.localScale);
-            longBeatMid[i].transform.localScale = new Vector2(longBeatMid[i].transform.localScale.x,1f);
+            longBeatMid[i].sprite = AssetDatabase.noteskins[i].holdNote;
+            longBeatMid[i].transform.localScale = AspectScale(AssetDatabase.noteskins[i].holdNote.texture, targetedAspect);
+            longBeatMid[i].transform.localScale = new Vector2(longBeatMid[i].transform.localScale.x, 1f);
 
-            longBeatEnd[i].sprite = noteskins[i].endHoldNote;
-            longBeatEnd[i].transform.localScale = AspectScale(noteskins[i].endHoldNote.texture, longBeatMid[i].transform.localScale);
+            longBeatEnd[i].sprite = AssetDatabase.noteskins[i].endHoldNote;
+            longBeatEnd[i].transform.localScale = AspectScale(AssetDatabase.noteskins[i].endHoldNote.texture, targetedAspect);
+        }
+
+        Vector2 seqZoneTarAspect = targetedAspect;
+        seqZoneTarAspect.x *= 5;
+
+        foreach (SpriteRenderer seqZone in seqZones) {
+            seqZone.sprite = AssetDatabase.seqZone;
+            seqZone.transform.localScale = AspectScale(AssetDatabase.seqZone.texture, seqZoneTarAspect);
         }
 
         stepchart = File.OpenText(path);
@@ -159,7 +169,7 @@ public class StepchartReader : NoteSkinLoader {
                             dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
 
                             GameObject temp = Instantiate(longBeatMid[e].transform.parent.gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos - dist), Quaternion.identity) as GameObject;
-                            temp.transform.localScale = new Vector2(1, dist / (temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y*2));
+                            temp.transform.localScale = new Vector2(1, dist / (temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y * 2));
 
                             inst.transform.parent = stepchartMover.transform;
                             temp.transform.parent = stepchartMover.transform;
@@ -204,7 +214,7 @@ public class StepchartReader : NoteSkinLoader {
         //Debug.Log("Number of 4-beats: " + debugBeats);
         currentPos = stepchartMover.scrollData[currentScroll - 1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll - 1].scroll);
         stepchartMover.scrollData.Add(new StepchartMover.ScrollData(debugBeats * 4, 0, ReadTimeFromBPM(debugBeats * 4), currentPos));
-        
+
 
         for (var i = 0; i < stepchartMover.bpmData.Count; i++) {
             StepchartMover.BPMData returnInst = stepchartMover.bpmData[i];
@@ -217,7 +227,6 @@ public class StepchartReader : NoteSkinLoader {
             stepchartMover.bpmData[i] = returnInst;
         }
         Debug.Log("Stepchart Deciphered");
-
     }
 
     public void ClearStepchart() {

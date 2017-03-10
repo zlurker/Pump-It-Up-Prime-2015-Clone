@@ -4,7 +4,7 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using System.IO;
 
-public class KinectDancePadCalibrator : MonoBehaviour {
+public class KinectDancePadCalibrator : NoteSkinLoader {
 
     string padDataPath;
     public float delayTimer;

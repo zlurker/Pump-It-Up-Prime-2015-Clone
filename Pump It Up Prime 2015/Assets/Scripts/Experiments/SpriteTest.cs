@@ -6,12 +6,19 @@ public class SpriteTest : MonoBehaviour {
 
     public Texture2D image;
     public SpriteRenderer test;
-    // Use this for initialization
+
     void Start() {
-        test.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(-test.transform.localScale.x/4, -test.transform.localScale.y / 4));
+        Debug.Log(image.width / 200f);
+        Vector2 inst = new Vector2(image.width / 200f, image.height / 200f);
+
+        //inst = new Vector2(inst.x / 320f, inst.y / 128f); 
+        Debug.Log(inst);
+
+        test.sprite = Sprite.Create(image, new Rect(0, 0, image.width, image.height), new Vector2(0.5f,0.5f));
+        Debug.Log(test.sprite.pivot);
+        //test.transform.position -= new Vector3(test.bounds.extents.x, test.bounds.extents.y, 0);
     }
 
-    // Update is called once per frame
     void Update() {
 
     }
