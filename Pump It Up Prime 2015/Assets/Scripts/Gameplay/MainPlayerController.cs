@@ -13,6 +13,9 @@ public struct UIInstance {
     public SpriteRenderer gradeT;
     public Text comboT;
     public GameObject sequenceZone;
+    public RawImage healthCover;
+    public float healthbarPivotSide;
+    public RectTransform healthbarPivot;
 }
 
 public class MainPlayerController : AssetLoadingBase {
@@ -48,9 +51,8 @@ public class MainPlayerController : AssetLoadingBase {
 
                 stepcharts[i].InitialiseUI();
             }
-
         }
-
+        
 
         dataPath = Application.dataPath;
 

@@ -152,11 +152,10 @@ public class StepchartMover : PlayerBase {
     public float totalPoints;
     public MainPlayerController playerManager;
     public int index;
+    public RectTransform healthPivot;
 
-    void Awake() {
-
-        Debug.Log(InputBase.players[index]);
-    }
+    float currHealth;
+    float maxHealth = 100;
 
     public void InitialiseStepchart(int playerIndex) {
         //for (var i = 0; i < legs.Length; i++)
@@ -187,14 +186,25 @@ public class StepchartMover : PlayerBase {
         totalDist = scrollData[scrollData.Count - 1].dist;
 
         offset /= rush;
-        originalTime = playerManager.cRealTime - offset;
+        
     }
 
     public void InitialiseUI() {
         uiToUse.stageNumber.gameObject.SetActive(true);
         uiToUse.sequenceZone.SetActive(true);
         uiToUse.healthFrame.gameObject.SetActive(true);
+        uiToUse.health.gameObject.SetActive(true);
         uiToUse.grade.gameObject.SetActive(true);
+        uiToUse.healthCover.gameObject.SetActive(true);
+
+        // Debug.Log(new Vector3((uiToUse.healthbarPivotSide * uiToUse.health.rectTransform.rect.width) * uiToUse.health.rectTransform.localScale.x, 0) / 2);
+        healthPivot = uiToUse.healthbarPivot;
+        healthPivot.localPosition = uiToUse.health.rectTransform.localPosition + new Vector3((uiToUse.healthbarPivotSide * uiToUse.health.rectTransform.rect.width) * uiToUse.health.rectTransform.localScale.x, 0) / 2;
+        uiToUse.health.transform.parent = healthPivot.transform;
+
+        originalTime = playerManager.cRealTime - offset;
+        currHealth = maxHealth / 2;
+        PlayerHPHandler(0);
     }
 
     void Update() {
@@ -246,7 +256,8 @@ public class StepchartMover : PlayerBase {
         if (PlayerPref.playerSettings[index].autoPlay) {
             while (currentBeat < beats.Count && (beats[currentBeat].beatTiming / rush <= cRealTime)) {
                 for (var i = 0; i < beats[currentBeat].beats.Length; i++)
-                    BeatInput(2, i);
+                    if (beats[currentBeat].beats[i] > 0)
+                        BeatInput(2, i);
 
                 currentBeat++;
             }
@@ -324,7 +335,7 @@ public class StepchartMover : PlayerBase {
                     beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].allignWithSeqZone[beat].transform.position = new Vector2(beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].allignWithSeqZone[beat].transform.position.x, 0);
 
                 if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].scaleDownToSeqZone[beat])
-                    beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].scaleDownToSeqZone[beat].transform.localScale = new Vector2(1, beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].scaleDownToSeqZone[beat].transform.position.y / (StepchartReader.originalLongBeatLength[beat] * 2)/transform.localScale.y);
+                    beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].scaleDownToSeqZone[beat].transform.localScale = new Vector2(1, beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].scaleDownToSeqZone[beat].transform.position.y / (StepchartReader.originalLongBeatLength[beat] * 2) / transform.localScale.y);
             }
 
             if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
@@ -351,6 +362,19 @@ public class StepchartMover : PlayerBase {
         }
     }
 
+    void PlayerHPHandler(float value) {
+        currHealth += value;
+
+        if (currHealth < 0)
+            currHealth = 0;
+        if (currHealth > maxHealth)
+            currHealth = maxHealth;
+
+        healthPivot.localScale = new Vector2(currHealth / 100, 1);
+        Rect instance = new Rect(0, 0, currHealth / 100, 1);
+        uiToUse.health.uvRect = instance;
+    }
+
     void BeatScore(int givenCombo) {
         uiToUse.grade.Stop();
         uiToUse.grade.Play();
@@ -374,6 +398,7 @@ public class StepchartMover : PlayerBase {
             case -1:
                 //gradeT.sprite = ;
                 PlayerPref.playerSettings[index].playerScore[4]++;
+                PlayerHPHandler(1 * combo);
                 break;
 
             case 1:
@@ -388,6 +413,7 @@ public class StepchartMover : PlayerBase {
             case 4:
                 //gradeT.sprite = ;
                 PlayerPref.playerSettings[index].playerScore[0]++;
+                PlayerHPHandler(1);
                 break;
         }
 
