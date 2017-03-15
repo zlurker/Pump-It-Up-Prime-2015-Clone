@@ -34,7 +34,8 @@ public class MainPlayerController : AssetLoadingBase {
     MovieTexture instance;
 
     void Start() {
-        for (var i = 0; i < stepcharts.Length; i++)
+        for (var i = 0; i < stepcharts.Length; i++) {
+            InputBase.players[i] = stepcharts[i];
             if (PlayerPref.playerSettings[i].life > 0) {
                 stepcharts[i].gameObject.SetActive(true);
                 stepcharts[i].playerManager = this;
@@ -48,6 +49,7 @@ public class MainPlayerController : AssetLoadingBase {
                 stepcharts[i].InitialiseUI();
             }
 
+        }
 
 
         dataPath = Application.dataPath;

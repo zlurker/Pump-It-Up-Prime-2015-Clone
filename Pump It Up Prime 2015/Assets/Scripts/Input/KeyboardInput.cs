@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 public class KeyboardInput : InputBase {
 
     public KeyCode[] keyboardInputs;
-    public GameObject advancedMenu;
 
     void Update() {
         for (var i = 0; i < keyboardInputs.Length; i++) {

@@ -14,6 +14,7 @@ public class StepchartReader : MonoBehaviour {
     public SpriteRenderer[] beatArrows;
     public SpriteRenderer[] longBeatMid;
     public SpriteRenderer[] longBeatEnd;
+    public static float[] originalLongBeatLength;
 
     public string fileName;
     public string timingData;
@@ -42,7 +43,7 @@ public class StepchartReader : MonoBehaviour {
     }
 
     public void CreateStepchart(string path) {
-
+        originalLongBeatLength = new float[10];
         for (var i = 0; i < AssetDatabase.noteskins.Length; i++) {
             beatArrows[i].sprite = AssetDatabase.noteskins[i].tapNote;
             beatArrows[i].transform.localScale = AspectScale(AssetDatabase.noteskins[i].tapNote.texture, targetedAspect);
@@ -51,6 +52,8 @@ public class StepchartReader : MonoBehaviour {
             longBeatMid[i].sprite = AssetDatabase.noteskins[i].holdNote;
             longBeatMid[i].transform.localScale = AspectScale(AssetDatabase.noteskins[i].holdNote.texture, targetedAspect);
             longBeatMid[i].transform.localScale = new Vector2(longBeatMid[i].transform.localScale.x, 1f);
+            originalLongBeatLength[i] = longBeatMid[i].bounds.extents.y;
+            originalLongBeatLength[i+5] = longBeatMid[i].bounds.extents.y;
 
             longBeatEnd[i].sprite = AssetDatabase.noteskins[i].endHoldNote;
             longBeatEnd[i].transform.localScale = AspectScale(AssetDatabase.noteskins[i].endHoldNote.texture, targetedAspect);
@@ -120,6 +123,7 @@ public class StepchartReader : MonoBehaviour {
                     currentPos = stepchartMover.scrollData[currentScroll - 1].dist + ((beatPosition - stepchartMover.scrollData[currentScroll - 1].beat) * speed * stepchartMover.scrollData[currentScroll - 1].scroll);
                 }
 
+                List<GameObject> destroyOnPerf = new List<GameObject>();
                 for (var e = 0; e < currentBeat.Length; e++) {
 
                     char beat = currentBeat[e];
@@ -146,17 +150,15 @@ public class StepchartReader : MonoBehaviour {
                             tempBeatHolder[e] = 2;
                             toCreateData = true;
                             stepchartMover.lanesInfo[e].beatPositions.Add(stepchartMover.beats.Count);
+                            destroyOnPerf.Add(inst);
                             break;
 
                         case "2":
                         case "x":
                         case "y":
                         case "z":
-                            inst = Instantiate(beatArrows[e].gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
-                            //inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
-                            longBeatStartData[e] = inst;
-                            inst.transform.parent = stepchartMover.transform;
-                            inst.name = char.ConvertFromUtf32(beat);
+                            //inst = Instantiate(beatArrows[e].gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            //inst.name = char.ConvertFromUtf32(beat);
                             toCreateLongBeatData[e] = true;
                             toCreateData = true;
                             break;
@@ -166,13 +168,19 @@ public class StepchartReader : MonoBehaviour {
 
                             inst = Instantiate(longBeatEnd[e].gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
                             //inst.transform.localScale = new Vector2(2 * beatScale, 2 * beatScale);
-                            dist = inst.transform.position.y - longBeatStartData[e].transform.position.y;
+                            dist = inst.transform.position.y - stepchartMover.beats[stepchartMover.beats.Count - 1].allignWithSeqZone[e].transform.position.y;
 
-                            GameObject temp = Instantiate(longBeatMid[e].transform.parent.gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos - dist), Quaternion.identity) as GameObject;
-                            temp.transform.localScale = new Vector2(1, dist / (temp.transform.GetComponentInChildren<SpriteRenderer>().bounds.extents.y * 2));
+
+                            stepchartMover.beats[stepchartMover.beats.Count - 1].scaleDownToSeqZone[e].transform.position = new Vector2(stepchartMover.beats[stepchartMover.beats.Count - 1].scaleDownToSeqZone[e].transform.position.x, -currentPos);
+                            //GameObject temp = Instantiate(longBeatMid[e].transform.parent.gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (e * beatScale), -currentPos), Quaternion.identity) as GameObject;
+                            stepchartMover.beats[stepchartMover.beats.Count - 1].scaleDownToSeqZone[e].transform.localScale = new Vector2(1, dist / (originalLongBeatLength[e] * 2));
 
                             inst.transform.parent = stepchartMover.transform;
-                            temp.transform.parent = stepchartMover.transform;
+                            //temp.transform.parent = stepchartMover.transform;
+                            destroyOnPerf.Add(stepchartMover.beats[stepchartMover.beats.Count - 1].scaleDownToSeqZone[e]);
+                            destroyOnPerf.Add(stepchartMover.beats[stepchartMover.beats.Count - 1].allignWithSeqZone[e]);
+                            destroyOnPerf.Add(inst);
+
                             inst.name = char.ConvertFromUtf32(beat);
                             tempBeatHolder[e] = 1;
                             activeLongBeats++;
@@ -183,16 +191,32 @@ public class StepchartReader : MonoBehaviour {
                     }
                 }
 
+                GameObject[] allignInst = new GameObject[10];
+                GameObject[] scaleDownInst = new GameObject[10];
+
                 for (var i = 0; i < toCreateLongBeatData.Length; i++)
                     if (toCreateLongBeatData[i]) {
                         tempBeatHolder[i] = 1;
                         activeLongBeats++;
                         stepchartMover.lanesInfo[i].beatPositions.Add(stepchartMover.beats.Count);
+
+                        Debug.Log(stepchartMover.beats.Count + " " + i);
+                        if (stepchartMover.beats.Count == 0 || !stepchartMover.beats[stepchartMover.beats.Count - 1].allignWithSeqZone[i]) {
+                            allignInst[i] = Instantiate(beatArrows[i].gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (i * beatScale), -currentPos), Quaternion.identity);
+                            allignInst[i].transform.parent = stepchartMover.transform;
+                        } else
+                            allignInst[i] = stepchartMover.beats[stepchartMover.beats.Count - 1].allignWithSeqZone[i];
+
+                        if (stepchartMover.beats.Count == 0 || !stepchartMover.beats[stepchartMover.beats.Count - 1].scaleDownToSeqZone[i]) {
+                            scaleDownInst[i] = Instantiate(longBeatMid[i].transform.parent.gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (i * beatScale), -currentPos), Quaternion.identity);
+                            scaleDownInst[i].transform.parent = stepchartMover.transform;
+                        } else
+                            scaleDownInst[i] = stepchartMover.beats[stepchartMover.beats.Count - 1].scaleDownToSeqZone[i];
                     }
 
 
                 if (toCreateData || activeLongBeats > 0)
-                    stepchartMover.beats.Add(new StepchartMover.BeatsInfo(ReadTimeFromBPM(beatPosition), tempBeatHolder));
+                    stepchartMover.beats.Add(new StepchartMover.BeatsInfo(ReadTimeFromBPM(beatPosition), tempBeatHolder, destroyOnPerf, allignInst, scaleDownInst));
 
                 beatPosition += 4 / numberOfRows;
             } else {

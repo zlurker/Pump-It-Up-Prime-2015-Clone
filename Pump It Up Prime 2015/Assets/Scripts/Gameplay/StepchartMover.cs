@@ -79,10 +79,16 @@ public class StepchartMover : PlayerBase {
     public struct BeatsInfo {
         public float beatTiming;
         public int[] beats;
+        public List<GameObject> destroyOnPerf;
+        public GameObject[] allignWithSeqZone;
+        public GameObject[] scaleDownToSeqZone;
 
-        public BeatsInfo(float givenBeatTiming, int[] givenBeats) {
+        public BeatsInfo(float givenBeatTiming, int[] givenBeats, List<GameObject> givenDestroyed, GameObject[] givenAllign, GameObject[] givenScaleDown) {
             beatTiming = givenBeatTiming;
             beats = givenBeats;
+            destroyOnPerf = givenDestroyed;
+            allignWithSeqZone = givenAllign;
+            scaleDownToSeqZone = givenScaleDown;
         }
     }
 
@@ -148,7 +154,8 @@ public class StepchartMover : PlayerBase {
     public int index;
 
     void Awake() {
-        InputBase.players[index] = this;
+
+        Debug.Log(InputBase.players[index]);
     }
 
     public void InitialiseStepchart(int playerIndex) {
@@ -238,25 +245,31 @@ public class StepchartMover : PlayerBase {
         #region Judgement
         if (PlayerPref.playerSettings[index].autoPlay) {
             while (currentBeat < beats.Count && (beats[currentBeat].beatTiming / rush <= cRealTime)) {
-                BeatScore(4);
-                currentBeat++;
-            }
-        } else {
-            while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) {
-                float missedBeats = 0;
-                for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
-                    if (beats[currentBeat].beats[i] > 0) {
-                        lanesInfo[i].currentBeatInLane++;
-                        missedBeats++;
-                    }
-                }
-
-                if (missedBeats > 0)
-                    BeatScore(-1);
+                for (var i = 0; i < beats[currentBeat].beats.Length; i++)
+                    BeatInput(2, i);
 
                 currentBeat++;
             }
+
+            for (var i = 0; i < beats[currentBeat].beats.Length; i++)
+                BeatInput(0, i);
         }
+
+        while (currentBeat < beats.Count && (beats[currentBeat].beatTiming + (allowanceTime)) / rush <= cRealTime) {
+            float missedBeats = 0;
+            for (var i = 0; i < beats[currentBeat].beats.Length; i++) {
+                if (beats[currentBeat].beats[i] > 0) {
+                    lanesInfo[i].currentBeatInLane++;
+                    missedBeats++;
+                }
+            }
+
+            if (missedBeats > 0)
+                BeatScore(-1);
+
+            currentBeat++;
+        }
+
         #endregion
     }
 
@@ -305,25 +318,37 @@ public class StepchartMover : PlayerBase {
 
     #region Beat Handler
     public override void BeatInput(int inputValue, int beat) {
-        if (isActiveAndEnabled)
-            if (!PlayerPref.playerSettings[index].autoPlay)
-                if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
-                    if (originalTime <= cRealTime)
-                        if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime) {
-                            if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {
-                                beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
+        if (isActiveAndEnabled) {
+            if (currentBeat > 0) {
+                if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].allignWithSeqZone[beat])
+                    beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].allignWithSeqZone[beat].transform.position = new Vector2(beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].allignWithSeqZone[beat].transform.position.x, 0);
 
-                                int missedBeats = 0;
+                if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].scaleDownToSeqZone[beat])
+                    beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].scaleDownToSeqZone[beat].transform.localScale = new Vector2(1, beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane] - 1].scaleDownToSeqZone[beat].transform.position.y / (StepchartReader.originalLongBeatLength[beat] * 2)/transform.localScale.y);
+            }
 
-                                foreach (int beatValue in beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats)
-                                    missedBeats += beatValue;
+            if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
+                if (originalTime <= cRealTime)
+                    if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime) {
 
-                                if (!(missedBeats > 0))
-                                    BeatScore(4);
+                        if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {
+                            beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
 
-                                lanesInfo[beat].currentBeatInLane++;
+                            int missedBeats = 0;
+
+                            foreach (int beatValue in beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats)
+                                missedBeats += beatValue;
+
+                            if (!(missedBeats > 0)) {
+                                BeatScore(4);
+                                for (var i = 0; i < beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].destroyOnPerf.Count; i++)
+                                    beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].destroyOnPerf[i].SetActive(false);
                             }
+
+                            lanesInfo[beat].currentBeatInLane++;
                         }
+                    }
+        }
     }
 
     void BeatScore(int givenCombo) {

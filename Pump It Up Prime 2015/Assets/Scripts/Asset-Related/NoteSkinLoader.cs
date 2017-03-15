@@ -29,7 +29,7 @@ public class NoteSkinLoader : MonoBehaviour {
 
         for (var i = 0; i < AssetDatabase.noteskins.Length; i++) {
             AssetDatabase.noteskins[i].tapNote = LoadSpriteFromNoteskin(directories[i + 1].GetFiles("0*"), new Vector2(0.5f, 0.5f));
-            AssetDatabase.noteskins[i].holdNote = LoadSpriteFromNoteskin(directories[i + 1].GetFiles("1*"), new Vector2(0.5f, 0f));
+            AssetDatabase.noteskins[i].holdNote = LoadSpriteFromNoteskin(directories[i + 1].GetFiles("1*"), new Vector2(0.5f, 1f));
             AssetDatabase.noteskins[i].endHoldNote = LoadSpriteFromNoteskin(directories[i + 1].GetFiles("2*"), new Vector2(0.5f, 0.5f));
         }
     }
@@ -43,9 +43,6 @@ public class NoteSkinLoader : MonoBehaviour {
         }
         return null;
     }
-
-
-
 }
 
 
