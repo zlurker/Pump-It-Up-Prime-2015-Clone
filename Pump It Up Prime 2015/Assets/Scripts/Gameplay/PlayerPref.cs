@@ -78,7 +78,9 @@ public static class PlayerPref {
 
     public static int ProcessRawIndex(int currValue, int length) {
         if (currValue < 0)
-            return length - 1;
+            if (length > 0)
+                return length - 1;
+
         if (!(currValue < length))
             return 0;
 

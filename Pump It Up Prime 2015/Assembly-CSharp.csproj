@@ -105,8 +105,10 @@
      <Compile Include="Assets\Scripts\Experiments\SpriteExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpriteTest.cs" />
      <Compile Include="Assets\Scripts\Experiments\TimeExperiment.cs" />
+     <Compile Include="Assets\Scripts\Experiments\VideoPlaybackExperiment.cs" />
      <Compile Include="Assets\Scripts\Gameplay\MainPlayerController.cs" />
      <Compile Include="Assets\Scripts\Gameplay\PlayerPref.cs" />
+     <Compile Include="Assets\Scripts\Gameplay\RevampedStepchartReader.cs" />
      <Compile Include="Assets\Scripts\Gameplay\StepchartMover.cs" />
      <Compile Include="Assets\Scripts\Gameplay\StepchartReader.cs" />
      <Compile Include="Assets\Scripts\Input\GamePadInput.cs" />
@@ -115,7 +117,6 @@
      <Compile Include="Assets\Scripts\Input\KinectInput.cs" />
      <Compile Include="Assets\Scripts\Input\MobileInput.cs" />
      <Compile Include="Assets\Scripts\Input\PlayerBase.cs" />
-     <Compile Include="Assets\VideoPlaybackExperiment.cs" />
      <None Include="Assets\Resources\BlurShader.shader" />
      <None Include="Assets\AssetDatabase\1-Menu\9 - 9\scale.txt" />
      <None Include="Assets\AssetDatabase\2-GameScene\6 - HealthDoubleCover\scale.txt" />

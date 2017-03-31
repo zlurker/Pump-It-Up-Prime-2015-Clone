@@ -49,7 +49,7 @@ public class ScoreScreenHandler : PlayerBase {
 
         InputBase.players[0] = this;
         InputBase.players[1] = this;
-        timer = Time.realtimeSinceStartup + 10f;
+        timer = Time.realtimeSinceStartup + 15f;
     }
 
     int TabulateGrade(int playerToTabulate) {
@@ -72,7 +72,7 @@ public class ScoreScreenHandler : PlayerBase {
         if (Input.GetKeyDown(KeyCode.Escape) || timer < Time.realtimeSinceStartup)
             SceneManager.LoadScene(SceneIndex.menu);
         else
-            displayTimer.text = Mathf.Floor(timer - Time.realtimeSinceStartup).ToString();
+            displayTimer.text = Mathf.Floor(timer - Time.realtimeSinceStartup/1.5f).ToString();
     }
 
     public override void BeatInput(int inputValue, int beat) {

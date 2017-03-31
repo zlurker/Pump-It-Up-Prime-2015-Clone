@@ -22,9 +22,15 @@ public class MainMenu : AssetLoadingBase {
     }
 
     [System.Serializable]
+    public struct PlayerSpecificUI {
+        public GameObject[] indexUI;
+    }
+
+    [System.Serializable]
     public struct MenuInterfaceGroup {
         public int menuInterfaceBits;
         public GameObject[] uiElements;
+        public PlayerSpecificUI[] playerUI;
     }
 
     [System.Serializable]
@@ -185,14 +191,18 @@ public class MainMenu : AssetLoadingBase {
                 currLevel[player].text = PlayerPref.songs[PlayerPref.channels[lengthChecker[0]].references[lengthChecker[1]]].levels[lengthChecker[2]].level;
                 PlayerPref.playerSettings[player].currentSongLevel = lengthChecker[2];
                 LoadDataFromDatabase(players[player].levelBubble, (int)PlayerPref.songs[PlayerPref.channels[lengthChecker[0]].references[lengthChecker[1]]].levels[lengthChecker[2]].stepType);
-
                 break;
 
                 //case MenuState.Confirmation:
                 //LoadLevel();
                 // break;
         }
-        CheckUIElements(menuInterface[PlayerPref.currentPlayerLayer[player]].menuInterfaceGroup[currentDataGroup].uiElements);
+
+        LayerCheck(PlayerPref.currentPlayerLayer);
+
+        for (int i = 0; i < 2; i++)
+            for (int j = 0; j < menuInterface[PlayerPref.currentPlayerLayer[i]].menuInterfaceGroup[currentDataGroup].uiElements.Length; j++)
+                menuInterface[PlayerPref.currentPlayerLayer[i]].menuInterfaceGroup[currentDataGroup].uiElements[j].SetActive(true);
     }
 
     public void LoadSongData(int referenceValue) {
@@ -294,17 +304,21 @@ public class MainMenu : AssetLoadingBase {
                     if (PlayerPref.channels[i].channelName == tempStr.Substring(7, tempStr.Length - 1 - 7))
                         PlayerPref.channels[i].references.Add(PlayerPref.songs.Count);
 
-            if (tempStr.Contains("#SAMPLESTART:"))
-                instance.previewStart = float.Parse(tempStr.Substring(13, tempStr.Length - 1 - 13));
+            if (tempStr.Contains("#OFFSET:") && instance.previewEnd == 0)
+                instance.previewStart = float.Parse(tempStr.Substring(8, tempStr.Length - 1 - 8));
 
-            if (tempStr.Contains("#SAMPLELENGTH:"))
+            if (tempStr.Contains("#SAMPLESTART:"))
+                instance.previewStart += float.Parse(tempStr.Substring(13, tempStr.Length - 1 - 13));
+
+            if (tempStr.Contains("#SAMPLELENGTH:")) //{
                 instance.previewEnd = instance.previewStart + float.Parse(tempStr.Substring(14, tempStr.Length - 1 - 14));
+                //instance.previewStart += tempOffset * instance.previewEnd;
+            //}
 
             if (tempStr.Contains("pump-single"))
                 level.stepType = StepType.Single;
-            else if (tempStr.Contains("pump-double") || tempStr.Contains("pump-routine")) {
+            else if (tempStr.Contains("pump-double") || tempStr.Contains("pump-routine"))
                 level.stepType = StepType.Double;
-            }
 
             if (tempStr.Contains("#METER:")) {
                 level.level += tempStr.Remove(0, 7);
@@ -318,15 +332,17 @@ public class MainMenu : AssetLoadingBase {
         return instance;
     }
 
+    void LayerCheck(int[] layersInUse) {
+        bool[] layerCheck = new bool[menuInterface.Length];
 
-    void CheckUIElements(GameObject[] uiElements) {
-        for (var i = 0; i < menuInterface.Length; i++)
-            for (var j = 0; j < menuInterface[i].menuInterfaceGroup.Length; j++)
-                for (var k = 0; k < menuInterface[i].menuInterfaceGroup[j].uiElements.Length; k++)
-                    menuInterface[i].menuInterfaceGroup[j].uiElements[k].SetActive(false);
+        foreach (int layers in layersInUse)
+            layerCheck[layers] = true;
 
-        for (var i = 0; i < uiElements.Length; i++)
-            uiElements[i].SetActive(true);
+        for (int i=0; i < layerCheck.Length; i++) 
+            if (!layerCheck[i] && menuInterface[i].closesWhenNotInLayer)
+                foreach (MenuInterfaceGroup menuInterfaceGroup in menuInterface[i].menuInterfaceGroup)
+                    foreach (GameObject ui in menuInterfaceGroup.uiElements)
+                        ui.SetActive(false);           
     }
 }
 

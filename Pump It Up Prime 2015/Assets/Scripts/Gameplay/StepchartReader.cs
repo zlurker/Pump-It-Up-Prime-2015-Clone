@@ -200,7 +200,7 @@ public class StepchartReader : MonoBehaviour {
                         activeLongBeats++;
                         stepchartMover.lanesInfo[i].beatPositions.Add(stepchartMover.beats.Count);
 
-                        Debug.Log(stepchartMover.beats.Count + " " + i);
+                        //Debug.Log(stepchartMover.beats.Count + " " + i);
                         if (stepchartMover.beats.Count == 0 || !stepchartMover.beats[stepchartMover.beats.Count - 1].allignWithSeqZone[i]) {
                             allignInst[i] = Instantiate(beatArrows[i].gameObject, new Vector2(sequenceZoneToMeasure[sequenceZoneToUse].position.x - (2 * beatScale) + (i * beatScale), -currentPos), Quaternion.identity);
                             allignInst[i].transform.parent = stepchartMover.transform;

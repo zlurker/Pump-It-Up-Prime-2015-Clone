@@ -186,7 +186,7 @@ public class StepchartMover : PlayerBase {
         totalDist = scrollData[scrollData.Count - 1].dist;
 
         offset /= rush;
-        
+
     }
 
     public void InitialiseUI() {
@@ -281,6 +281,9 @@ public class StepchartMover : PlayerBase {
             currentBeat++;
         }
 
+        if (!uiToUse.grade.isPlaying)
+            uiToUse.grade.gameObject.SetActive(false);
+
         #endregion
     }
 
@@ -339,8 +342,12 @@ public class StepchartMover : PlayerBase {
             }
 
             if (lanesInfo[beat].currentBeatInLane < lanesInfo[beat].beatPositions.Count)
-                if (originalTime <= cRealTime)
-                    if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - allowanceTime) / rush <= cRealTime) {
+                if (originalTime <= cRealTime) {
+                    float tempOffset = 0;
+                    if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] > 1)
+                        tempOffset = allowanceTime;
+
+                    if ((beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beatTiming - tempOffset) / rush <= cRealTime) {
 
                         if (beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] - inputValue <= 0) {
                             beats[lanesInfo[beat].beatPositions[lanesInfo[beat].currentBeatInLane]].beats[beat] = 0;
@@ -359,6 +366,7 @@ public class StepchartMover : PlayerBase {
                             lanesInfo[beat].currentBeatInLane++;
                         }
                     }
+                }
         }
     }
 
@@ -376,10 +384,15 @@ public class StepchartMover : PlayerBase {
     }
 
     void BeatScore(int givenCombo) {
+        uiToUse.grade.gameObject.SetActive(true);
+
         uiToUse.grade.Stop();
         uiToUse.grade.Play();
 
+        Color temp;
         if (givenCombo > 0) {
+            temp = Color.white;
+
             if (combo < 0)
                 combo = 0;
             else
@@ -388,11 +401,16 @@ public class StepchartMover : PlayerBase {
             if (combo > PlayerPref.playerSettings[index].playerScore[5])
                 PlayerPref.playerSettings[index].playerScore[5] = combo;
         } else {
+            temp = Color.red;
+
             if (combo > 0)
                 combo = 0;
             else
                 combo--;
         }
+
+        uiToUse.comboT.color = temp;
+        uiToUse.comboGraphic.color = temp;
 
         switch (givenCombo) {
             case -1:

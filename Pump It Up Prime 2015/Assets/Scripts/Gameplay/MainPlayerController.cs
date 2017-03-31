@@ -11,6 +11,7 @@ public struct UIInstance {
     public RawImage stageNumber;
     public Animation grade;
     public SpriteRenderer gradeT;
+    public SpriteRenderer comboGraphic;
     public Text comboT;
     public GameObject sequenceZone;
     public RawImage healthCover;
@@ -52,7 +53,7 @@ public class MainPlayerController : AssetLoadingBase {
                 stepcharts[i].InitialiseUI();
             }
         }
-        
+
 
         dataPath = Application.dataPath;
 
