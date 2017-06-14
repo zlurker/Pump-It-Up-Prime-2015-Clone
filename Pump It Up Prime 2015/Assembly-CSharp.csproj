@@ -97,6 +97,7 @@
      <Compile Include="Assets\Scripts\Controllers\ScoreScreenHandler.cs" />
      <Compile Include="Assets\Scripts\Controllers\StartupScreen.cs" />
      <Compile Include="Assets\Scripts\Controllers\SubMenuController.cs" />
+     <Compile Include="Assets\Scripts\Experiments\ExperimentalGUI.cs" />
      <Compile Include="Assets\Scripts\Experiments\Expnasion1.cs" />
      <Compile Include="Assets\Scripts\Experiments\Expnasion2.cs" />
      <Compile Include="Assets\Scripts\Experiments\GamepadCalibrator.cs" />
@@ -105,6 +106,8 @@
      <Compile Include="Assets\Scripts\Experiments\SpriteExperiment.cs" />
      <Compile Include="Assets\Scripts\Experiments\SpriteTest.cs" />
      <Compile Include="Assets\Scripts\Experiments\TimeExperiment.cs" />
+     <Compile Include="Assets\Scripts\Experiments\TypeExperiment.cs" />
+     <Compile Include="Assets\Scripts\Experiments\UpwardsInheritanceTest.cs" />
      <Compile Include="Assets\Scripts\Experiments\VideoPlaybackExperiment.cs" />
      <Compile Include="Assets\Scripts\Gameplay\MainPlayerController.cs" />
      <Compile Include="Assets\Scripts\Gameplay\PlayerPref.cs" />
@@ -119,28 +122,22 @@
      <Compile Include="Assets\Scripts\Input\PlayerBase.cs" />
      <None Include="Assets\Resources\BlurShader.shader" />
      <None Include="Assets\AssetDatabase\1-Menu\9 - 9\scale.txt" />
-     <None Include="Assets\AssetDatabase\2-GameScene\6 - HealthDoubleCover\scale.txt" />
      <None Include="Assets\Resources\DepthShader.shader" />
+     <None Include="Assets\AssetDatabase\2-GameScene\scale.txt" />
      <None Include="Assets\Resources\SpeechGrammar.grxml.txt" />
      <None Include="Assets\Resources\BlurShader3.shader" />
      <None Include="Assets\Resources\Color2DepthShader.shader" />
-     <None Include="Assets\AssetDatabase\2-GameScene\3 - HealthDoubleFrame\scale.txt" />
      <None Include="Assets\AssetDatabase\1-Menu\0 - ChannelImage\Scale.txt" />
      <None Include="Assets\Resources\BlurShader2.shader" />
      <None Include="Assets\AssetDatabase\1-Menu\6 - LevelDisplay\Scale.txt" />
      <None Include="Assets\Resources\Depth2ColorShader.shader" />
-     <None Include="Assets\AssetDatabase\2-GameScene\4 - P1HealthFrame\scale.txt" />
      <None Include="Assets\Resources\Erode.shader" />
      <None Include="Assets\Resources\BodyShader.shader" />
      <None Include="Assets\Resources\Dilate.shader" />
-     <None Include="Assets\AssetDatabase\2-GameScene\2 - HealthDouble\scale.txt" />
      <None Include="Assets\DancePadData.txt" />
      <None Include="Assets\Resources\BlurShader5.shader" />
-     <None Include="Assets\AssetDatabase\2-GameScene\1 - StageNumber\scale.txt" />
-     <None Include="Assets\AssetDatabase\2-GameScene\5 - P1HealthCover\scale.txt" />
      <None Include="Assets\Resources\Color2BodyShader.shader" />
      <None Include="Assets\Resources\BlurShader4.shader" />
-     <None Include="Assets\AssetDatabase\2-GameScene\0 - P1Health\Scale.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity 5.5.0f3/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

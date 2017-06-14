@@ -12,6 +12,7 @@ public class AssetLoadingBase : MonoBehaviour {
         public RawImage[] imageScreens;
     }
 
+    public Data data;
     public bool justCreateDirectory;
     public ImageGroup[] imageScreenGroup;
 
@@ -19,9 +20,9 @@ public class AssetLoadingBase : MonoBehaviour {
         if (justCreateDirectory)
             CreateDirectory();
 
-        AssetDatabase.data.dataGroups = new DataGroup[imageScreenGroup.Length];
+        data.dataGroups = new DataGroup[imageScreenGroup.Length];
         DirectoryInfo directory = new DirectoryInfo(Path.Combine(Application.dataPath, "AssetDatabase"));
-        LoadGraphicFromDirectory(directory.GetDirectories()[SceneManager.GetActiveScene().buildIndex - 1], 0);
+        LoadGraphicFromDirectory(directory.GetDirectories()[SceneManager.GetActiveScene().buildIndex - 1], 0,1);
         AutoLoadAssets();
     }
 
@@ -47,45 +48,41 @@ public class AssetLoadingBase : MonoBehaviour {
         }
     }
 
-    public void LoadGraphicFromDirectory(DirectoryInfo directoryInfo, int imageIndex) {
+    public void LoadGraphicFromDirectory(DirectoryInfo directoryInfo, int imageIndex,float scaleValue) {
         DirectoryInfo[] directories = directoryInfo.GetDirectories();
 
+        FileInfo[] scaleData = directoryInfo.GetFiles("*.txt");
+
+        if (scaleData.Length > 0) 
+            scaleValue = float.Parse(File.ReadAllText(scaleData[0].FullName));
+        
         if (directories.Length > 0) {
             for (var i = 0; i < imageScreenGroup.Length; i++)
-                LoadGraphicFromDirectory(directories[i], i);
+                LoadGraphicFromDirectory(directories[i], i,scaleValue);
         } else {
             FileInfo[] imageFiles = directoryInfo.GetFiles("*.png");
-
-            AssetDatabase.data.dataGroups[imageIndex].dataBits = new List<DataBit>();
+            data.dataGroups[imageIndex].uiScaleValue = scaleValue;
+            data.dataGroups[imageIndex].dataBits = new DataBit[imageFiles.Length];
 
             for (var i = 0; i < imageFiles.Length; i++) {
                 using (WWW image = new WWW("file:///" + imageFiles[i].FullName)) {
                     while (!image.isDone) ;
-                    AssetDatabase.data.dataGroups[imageIndex].dataBits.Add(new DataBit(image.texture));
+                    data.dataGroups[imageIndex].dataBits[i] = new DataBit(image.texture);
                     Destroy(image.texture);
                 }
-            }
-
-            imageFiles = directoryInfo.GetFiles("*.txt");
-
-            if (imageFiles.Length > 0) {
-                File.ReadAllText(imageFiles[0].FullName);
-                AssetDatabase.data.dataGroups[imageIndex].uiScaleValue = float.Parse(File.ReadAllText(imageFiles[0].FullName));
-            } else {
-                AssetDatabase.data.dataGroups[imageIndex].uiScaleValue = 1;
-            }
+            }         
         }
     }
 
     public void LoadDataFromDatabase(RawImage screen, int itemToImport) {
-        //if (AssetDatabase.data[currentState].dataGroups[currentScreen].dataBits[itemToImport].sound)
-        //   actionSound.clip = AssetDatabase.data[currentState].dataGroups[currentScreen].dataBits[itemToImport].sound;
+        //if (data[currentState].dataGroups[currentScreen].dataBits[itemToImport].sound)
+        //   actionSound.clip = data[currentState].dataGroups[currentScreen].dataBits[itemToImport].sound;
 
-        if (AssetDatabase.data.dataGroups[int.Parse(screen.name)].dataBits.Count > itemToImport)
-            if (AssetDatabase.data.dataGroups[int.Parse(screen.name)].dataBits[itemToImport].image)
-                screen.texture = AssetDatabase.data.dataGroups[int.Parse(screen.name)].dataBits[itemToImport].image;
+        if (data.dataGroups[int.Parse(screen.name)].dataBits.Length > itemToImport)
+            if (data.dataGroups[int.Parse(screen.name)].dataBits[itemToImport].image)
+                screen.texture = data.dataGroups[int.Parse(screen.name)].dataBits[itemToImport].image;
 
         screen.SetNativeSize();
-        screen.transform.localScale = Vector3.one / AssetDatabase.data.dataGroups[int.Parse(screen.name)].uiScaleValue;
+        screen.transform.localScale = Vector3.one / data.dataGroups[int.Parse(screen.name)].uiScaleValue;
     }
 }

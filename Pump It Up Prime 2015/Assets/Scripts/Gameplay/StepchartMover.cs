@@ -156,6 +156,7 @@ public class StepchartMover : PlayerBase {
 
     float currHealth;
     float maxHealth = 100;
+    SpeedData currentSpeedData;
 
     public void InitialiseStepchart(int playerIndex) {
         //for (var i = 0; i < legs.Length; i++)
@@ -168,7 +169,7 @@ public class StepchartMover : PlayerBase {
         FileInfo[] stepchart = songFolder.GetFiles("*.ssc");
 
         stepchartBuilder.CreateTimingData(stepchart[0].FullName);
-
+        //ChangeSpeed(speedData[currentSpeed].speed, 0, 0);
         rush = PlayerPref.prefRush;
         currentBeat = 0;
         currentSpeed = 0;
@@ -220,6 +221,8 @@ public class StepchartMover : PlayerBase {
         while (currentSpeed < speedData.Count && speedData[currentSpeed].time / rush <= cRealTime) {
             if (currentSpeed - 1 > -1)
                 prevSpeed = speedData[currentSpeed - 1].speed;
+
+            currentSpeedData = speedData[currentSpeed];
             currentSpeed++;
         }
 
@@ -245,8 +248,8 @@ public class StepchartMover : PlayerBase {
 
         #region Stepchart Movement
         if (originalTime < cRealTime - dOffset) {
-            if (currentSpeed - 1 > 0)
-                ChangeSpeed(speedData[currentSpeed - 1].speed, speedData[currentSpeed - 1].time / rush, speedData[currentSpeed - 1].timeForChange / rush);
+            if (cRealTime >= 0)
+                ChangeSpeed(currentSpeedData.speed, currentSpeedData.time / rush, currentSpeedData.timeForChange / rush);
 
             transform.position = new Vector2(transform.position.x, (prevDist + (((cRealTime - dOffset - ((prevBeat / bpm) * 60)) / endTime) * (totalDist))) * transform.localScale.y);
         }
@@ -289,7 +292,7 @@ public class StepchartMover : PlayerBase {
 
     #region Stepchart Effects
     void ChangeSpeed(float speedToChange, float startTime, float givenTime) {
-        if (cRealTime > startTime + givenTime) {
+        if (cRealTime >= startTime + givenTime) {
             if (transform.localScale.y != speedToChange) {
                 transform.localScale = new Vector3(1, speedToChange);
                 float scaleValue = 0;

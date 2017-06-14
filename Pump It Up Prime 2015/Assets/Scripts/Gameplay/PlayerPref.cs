@@ -38,7 +38,7 @@ public struct Data {
 }
 
 public struct DataGroup {
-    public List<DataBit> dataBits;
+    public DataBit[] dataBits;
     public float uiScaleValue;
 }
 
@@ -113,7 +113,6 @@ public static class PlayerPref {
 }
 
 public static class AssetDatabase {
-    public static Data data;
     public static NoteskinType[] noteskins;
     public static Sprite seqZone;
     public static Sprite healthbar;

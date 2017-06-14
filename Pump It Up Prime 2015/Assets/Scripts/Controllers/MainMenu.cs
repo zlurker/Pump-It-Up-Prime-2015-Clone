@@ -22,15 +22,14 @@ public class MainMenu : AssetLoadingBase {
     }
 
     [System.Serializable]
-    public struct PlayerSpecificUI {
-        public GameObject[] indexUI;
+    public struct UIElements {
+        public GameObject[] ui;
     }
 
     [System.Serializable]
     public struct MenuInterfaceGroup {
         public int menuInterfaceBits;
-        public GameObject[] uiElements;
-        public PlayerSpecificUI[] playerUI;
+        public UIElements[] uiElements;
     }
 
     [System.Serializable]
@@ -91,6 +90,7 @@ public class MainMenu : AssetLoadingBase {
             //PlayerPref.menuState = MenuState.SelectSong;
             PlayerPref.channels = new Channel[6];
 
+            //Needs to be more "Dynamic"
             PlayerPref.channels[0].channelName = "ALLTUNES";
             PlayerPref.channels[1].channelName = "WORLD MUSIC";
             PlayerPref.channels[2].channelName = "K-POP";
@@ -200,9 +200,15 @@ public class MainMenu : AssetLoadingBase {
 
         LayerCheck(PlayerPref.currentPlayerLayer);
 
-        for (int i = 0; i < 2; i++)
-            for (int j = 0; j < menuInterface[PlayerPref.currentPlayerLayer[i]].menuInterfaceGroup[currentDataGroup].uiElements.Length; j++)
-                menuInterface[PlayerPref.currentPlayerLayer[i]].menuInterfaceGroup[currentDataGroup].uiElements[j].SetActive(true);
+        foreach (MenuInterfaceGroup menuInterfaceGroup in menuInterface[PlayerPref.currentPlayerLayer[player]].menuInterfaceGroup)
+            foreach (GameObject ui in menuInterfaceGroup.uiElements[PlayerPref.IndexCheck(menuInterfaceGroup.uiElements.Length, player)].ui)
+                ui.SetActive(false);
+
+        foreach (GameObject ui in menuInterface[PlayerPref.currentPlayerLayer[player]].menuInterfaceGroup[valueInst].uiElements[PlayerPref.IndexCheck(menuInterface[PlayerPref.currentPlayerLayer[player]].menuInterfaceGroup[valueInst].uiElements.Length, player)].ui)
+            ui.SetActive(true);
+        //for (int i = 0; i < 2; i++)
+        // for (int j = 0; j < menuInterface[PlayerPref.currentPlayerLayer[i]].menuInterfaceGroup[currentDataGroup].uiElements.Length; j++)
+        // menuInterface[PlayerPref.currentPlayerLayer[i]].menuInterfaceGroup[currentDataGroup].uiElements[j].SetActive(true);
     }
 
     public void LoadSongData(int referenceValue) {
@@ -304,11 +310,8 @@ public class MainMenu : AssetLoadingBase {
                     if (PlayerPref.channels[i].channelName == tempStr.Substring(7, tempStr.Length - 1 - 7))
                         PlayerPref.channels[i].references.Add(PlayerPref.songs.Count);
 
-            if (tempStr.Contains("#OFFSET:") && instance.previewEnd == 0)
-                instance.previewStart = float.Parse(tempStr.Substring(8, tempStr.Length - 1 - 8));
-
             if (tempStr.Contains("#SAMPLESTART:"))
-                instance.previewStart += float.Parse(tempStr.Substring(13, tempStr.Length - 1 - 13));
+                instance.previewStart = float.Parse(tempStr.Substring(13, tempStr.Length - 1 - 13));
 
             if (tempStr.Contains("#SAMPLELENGTH:")) //{
                 instance.previewEnd = instance.previewStart + float.Parse(tempStr.Substring(14, tempStr.Length - 1 - 14));
@@ -338,11 +341,12 @@ public class MainMenu : AssetLoadingBase {
         foreach (int layers in layersInUse)
             layerCheck[layers] = true;
 
-        for (int i=0; i < layerCheck.Length; i++) 
+        for (int i = 0; i < layerCheck.Length; i++)
             if (!layerCheck[i] && menuInterface[i].closesWhenNotInLayer)
                 foreach (MenuInterfaceGroup menuInterfaceGroup in menuInterface[i].menuInterfaceGroup)
-                    foreach (GameObject ui in menuInterfaceGroup.uiElements)
-                        ui.SetActive(false);           
+                    foreach (UIElements uiElement in menuInterfaceGroup.uiElements)
+                        foreach (GameObject ui in uiElement.ui)
+                            ui.SetActive(false);
     }
 }
 
